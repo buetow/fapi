@@ -84,6 +84,7 @@ if __name__ == '__main__':
 
     if args['V']:
         print 'This is ' + __program__ + ' version ' + __version__
+        sys.exit(0)
 
     fapi = Fapi(args)
 
