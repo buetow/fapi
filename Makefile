@@ -1,2 +1,2 @@
 test:
-	./fapi.py -C ./fapi.conf
+	./fapi.py -C ./fapi.conf.sample
