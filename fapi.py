@@ -15,7 +15,7 @@ __program__ = 'fapi'
 __version__ = 'VERSION_DEVEL' # Replaced by a Makefile target
 
 class Fapi(object):
-    '''The main F5 API Tool Object '''
+    ''' The main F5 API Tool Object '''
 
     config = None
     __f5api_user = ''
@@ -32,7 +32,8 @@ class Fapi(object):
         config = ConfigParser.ConfigParser()
         config.read(config_file)
 
-        self.__args_merge(config, args)
+        self.config = config
+        self.__args_merge(args)
 
         if config.has_option('fapi', 'user'):
             self.__f5api_user = config.get('fapi', 'user')
@@ -43,23 +44,21 @@ class Fapi(object):
             self.__f5api_pass = base64.decodestring(
                                 config.get('fapi', 'pass64'))
         else:
-            prompt = 'Enter API password for user ' + self.__f5api_user + ': '
+            prompt = 'Enter API password for user %s: ' % self.__f5api_user
             self.__f5api_pass = getpass.getpass(prompt)
 
         self.__login()
 
 
-    def __args_merge(self, config, args):
+    def __args_merge(self,  args):
         ''' Merges args to the config object '''
 
-        if not config.has_section('args'):
-            config.add_section('args')
+        if not self.config.has_section('args'):
+            self.config.add_section('args')
 
         for k, v in args.items():
             if args['v']: print "Set arg %s: %s" % (k, v)
-            config.set('args', k, str(v))
-
-        self.config = config
+            self.config.set('args', k, str(v))
 
 
     def __login(self):
