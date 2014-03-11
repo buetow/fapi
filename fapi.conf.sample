@@ -1,5 +1,4 @@
 [fapi]
 user: paul
 pass64: Zm9vYmFyYmF6
-apiuri: https://polb-qa-bs-01-mgt.lb.server.lan
-sslverify: False
+apiuri: https://bigip.example.com
