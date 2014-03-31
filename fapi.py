@@ -70,7 +70,6 @@ class Fapi(object):
         apiuri = self.config.get('fapi', 'apiuri')
         # ... to be done
 
-
 if __name__ == '__main__':
     ''' The main function, here we will have Popcorn for free! '''
 
