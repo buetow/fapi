@@ -1,4 +1,4 @@
 [fapi]
-user: paul
-pass64: Zm9vYmFyYmF6
-apiuri: https://bigip.example.com
+username: paul
+password64: Zm9vYmFyYmF6
+hostname: bigip.example.com
