@@ -28,47 +28,41 @@ class Fapi(object):
 
         self._config = config
         self._args = args
+        self.__login()
 
-        if config.has_option('fapi', 'username'):
-            username = config.get('fapi', 'username')
+
+    def __login(self):
+        ''' Logs into the F5 BigIP SOAP API and changes the partition'''
+
+        c = self._config
+
+        if c.has_option('fapi', 'username'):
+            username = c.get('fapi', 'username')
         else:
             username = getpass.getuser()
 
-        if config.has_option('fapi', 'password64'):
-            password = base64.decodestring(config.get('fapi', 'password64'))
+        if c.has_option('fapi', 'password64'):
+            password = base64.decodestring(c.get('fapi', 'password64'))
         else:
             prompt = 'Enter API password for user %s: ' % username
             password = getpass.getpass(prompt)
 
-        self.__login(username, password)
+        self.info('Login to BigIP API with user %s' % username)
+        hostname = c.get('fapi', 'hostname')
 
+        # Enhance to try to login to a list of hosts
         try:
-            self._partition = config.get('fapi', 'partition')
+            self._f5 = bigsuds.BIGIP(hostname = hostname,
+                                     username = username,
+                                     password = password)
+            self._partition = c.get('fapi', 'partition')
             self.info('Setting partition to %s' % self._partition)
-
             self._f5.Management.Partition.set_active_partition(self._partition)
 
         except Exception, e:
             self.info(e)
             sys.exit(2)
 
-
-    def __login(self, username, password):
-        ''' Logs into the F5 BigIP SOAP API '''
-
-        self.info('Login to BigIP API with user %s' % username)
-        hostname = self._config.get('fapi', 'hostname')
-
-        # Enhance to try to login to a list of hosts
-        try:
-            self._f5 = bigsuds.BIGIP(
-                hostname = hostname,
-                username = username,
-                password = password,
-                )
-        except Exception, e:
-            self.info(e)
-            sys.exit(2)
 
 
     def info(self, message):
@@ -79,18 +73,18 @@ class Fapi(object):
     def __run_node(self):
         ''' Do stuff concerning nodes '''
 
-        f = self._f5
+        n = self._f5.LocalLB.NodeAddressV2
         a = self._args
 
         if a.arg == 'show':
             if a.arg2 == 'status':
                 self.info('Getting node monitor status of \'%s\'' % nodename)
                 nodename = a.arg3
-                print "\n".join(f.LocalLB.NodeAddressV2.get_monitor_status([nodename]))
+                print "\n".join(n.get_monitor_status([nodename]))
                 return True
             elif a.arg2 == 'list':
                 self.info('Getting node list')
-                print "\n".join(f.LocalLB.NodeAddressV2.get_list())
+                print "\n".join(n.get_list())
                 return True
 
         elif a.arg == 'create':
@@ -98,13 +92,13 @@ class Fapi(object):
                 nodeip = a.arg3
                 limits = 0
                 self.info('Creating node \'%s\' \'%s\'' % (nodename, nodeip))
-                f.LocalLB.NodeAddressV2.create([nodename],[nodeip],[limits])
+                n.create([nodename],[nodeip],[limits])
                 return True
 
         elif a.arg == 'delete':
                 nodename = a.arg2
                 self.info('Deleting node \'%s\'' % (nodename))
-                f.LocalLB.NodeAddressV2.delete_node_address([nodename])
+                n.delete_node_address([nodename])
                 return True
 
         return False
@@ -113,23 +107,23 @@ class Fapi(object):
     def __run_pool(self):
         ''' Do stuff concerning pools '''
 
-        f = self._f5
+        p = self._f5.LocalLB.Pool
         a = self._args
 
         if a.arg == 'show':
             if a.arg2 == 'status':
                 self.info('Getting pool status of \'%s\'' % poolname)
                 poolname = a.arg3
-                print "\n".join(f.LocalLB.Pool.get_object_status([poolname]))
+                print "\n".join(p.get_object_status([poolname]))
                 return True
             elif a.arg2 == 'members':
                 self.info('Get pool members of \'%s\'' % poolname)
                 poolname = a.arg3
-                print "\n".join(f.LocalLB.Pool.get_member_v2([poolname]))
+                print "\n".join(p.get_member_v2([poolname]))
                 return True
             elif a.arg2 == 'list':
                 self.info('Get pool list')
-                print "\n".join(f.LocalLB.Pool.get_list())
+                print "\n".join(p.get_list())
                 return True
 
         elif a.arg == 'create':
@@ -145,13 +139,13 @@ class Fapi(object):
                         pm['port'] = int(y[1])
                         poolmembers.append(pm)
                 self.info('Creating pool \'%s\'' % poolname)
-                f.LocalLB.Pool.create_v2([poolname],[method],[poolmembers])
+                p.create_v2([poolname],[method],[poolmembers])
                 return True
 
         elif a.arg == 'delete':
             poolname = a.arg2
             self.info('Deleting pool \'%s\'' % poolname)
-            f.LocalLB.Pool.delete_pool([poolname])
+            p.delete_pool([poolname])
             return True
 
         return False
@@ -169,13 +163,11 @@ class Fapi(object):
     def run(self):
         ''' Do the actual stuff '''
 
-        a = self._args
-        if a.action == 'node': return self.__run_node()
-        elif a.action == 'pool': return self.__run_pool()
-        elif a.action == 'service': return self.__run_service()
+        if self._args.action == 'node': return self.__run_node()
+        elif self._args.action == 'pool': return self.__run_pool()
+        elif self._args.action == 'service': return self.__run_service()
 
-        self.help('node pool service')
-        return True
+        return False
 
 
 if __name__ == '__main__':
