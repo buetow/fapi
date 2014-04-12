@@ -76,6 +76,23 @@ class Fapi(object):
         #print "\n".join(message)
 
 
+    def __nslookup(self, what):
+        ''' Does a DNS lookup to fetch the FQDN and all the IPs '''
+        try:
+            data = socket.gethostbyname_ex(what)
+        except Exception, e:
+            self.info('Can\'t resolve \'%s\': %s' % (what, e))
+            sys.exit(2)
+
+        fqdn = data[0]
+        ips = data[2]
+
+        if len(ips) > 1:
+            self.info('\'%s\' resolves to multiple ips \'%s\'' % (fqdn, ips))
+            sys.exit(2)
+
+        return (fqdn, ips[0])
+
     def __run_node(self):
         ''' Do stuff concerning nodes '''
 
@@ -100,17 +117,9 @@ class Fapi(object):
                     self.info('Can\'t resolve \'%s\': %s' % (nodename, e))
                     sys.exit(2)
 
-                nodefqdn = data[0]
-                nodeips = data[2]
-
-                if len(nodeips) > 1:
-                    self.info('\'%s\' resolves to multiple ips \'%s\''
-                        % (nodefqdn, nodeips))
-                    sys.exit(2)
-
-                self.info('Creating node \'%s\' \'%s\'' % (nodefqdn, nodeips[0]))
-
-                n.create([nodefqdn],nodeips,[0])
+                nodefqdn, nodeip = self.__nslookup(nodename)
+                self.info('Creating node \'%s\' \'%s\'' % (nodefqdn, nodeip))
+                n.create([nodefqdn],[nodeip],[0])
 
         elif a.arg == 'delete':
                 nodename = a.arg2
@@ -124,8 +133,9 @@ class Fapi(object):
         p = self._f5.LocalLB.Pool
         a = self._args
 
+        poolname = a.arg2
+
         if a.arg == 'show':
-            poolname = a.arg3
             if a.arg2 == 'status':
                 self.info('Getting pool status of \'%s\'' % poolname)
                 self.__out(p.get_object_status([poolname]))
@@ -137,29 +147,34 @@ class Fapi(object):
                 self.__out(p.get_list())
 
         elif a.arg == 'create':
-                poolname = a.arg2
                 poolmembers = []
                 method = a.m
                 if a.arg3:
                     for x in a.arg3.split(','):
                         pm = {}
-                        y = x.split(':')
-                        if 1 == len(y): y.append(80)
-                        pm['address'] = str(y[0])
-                        pm['port'] = int(y[1])
+                        tmp = x.split(':')
+                        fqdn, ip = self.__nslookup(tmp[0])
+                        if 1 == len(tmp): tmp.append(80)
+                        pm['address'] = fqdn
+                        pm['port'] = int(tmp[1])
                         poolmembers.append(pm)
                 self.info('Creating pool \'%s\'' % poolname)
                 p.create_v2([poolname],[method],[poolmembers])
 
         elif a.arg == 'delete':
-            poolname = a.arg2
             self.info('Deleting pool \'%s\'' % poolname)
             p.delete_pool([poolname])
 
-        elif a.arg == 'modify':
-            poolname = a.arg2
-            self.info('Deleting pool \'%s\'' % poolname)
-            p.delete_pool([poolname])
+        elif a.arg == 'addmember':
+            tmp = a.arg3.split(':')
+            if 1 == len(tmp): tmp.append('80')
+            fqdn, ip = self.__nslookup(tmp[0])
+            port = tmp[1]
+
+            self.info('Add member \'%s:%s\' to pool \'%s\'' 
+                    % (fqdn, port, poolname))
+            member = [{ 'address' : fqdn, 'port' : port }]
+            p.add_member_v2([poolname], [member])
 
 
     def __run_service(self):
