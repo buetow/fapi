@@ -83,9 +83,9 @@ class Fapi(object):
         a = self._args
 
         if a.arg == 'show':
-            if a.subarg == 'status':
+            if a.arg2 == 'status':
                 self.info('Getting node monitor status of \'%s\'' % nodename)
-                nodename = a.subarg2
+                nodename = a.arg3
                 print "\n".join(f.LocalLB.NodeAddressV2.get_monitor_status([nodename]))
                 return True
 
@@ -95,15 +95,15 @@ class Fapi(object):
                 return True
 
         elif a.arg == 'create':
-                nodename = a.subarg
-                nodeip = a.subarg2
+                nodename = a.arg2
+                nodeip = a.arg3
                 limits = 0
                 self.info('Creating node \'%s\' \'%s\'' % (nodename, nodeip))
                 f.LocalLB.NodeAddressV2.create([nodename],[nodeip],[limits])
                 return True
 
         elif a.arg == 'delete':
-                nodename = a.subarg
+                nodename = a.arg2
                 self.info('Deleting node \'%s\'' % (nodename))
                 f.LocalLB.NodeAddressV2.delete_node_address([nodename])
                 return True
@@ -118,15 +118,15 @@ class Fapi(object):
         a = self._args
 
         if a.arg == 'show':
-            if a.subarg == 'status':
+            if a.arg2 == 'status':
                 self.info('Getting pool status of \'%s\'' % poolname)
-                poolname = a.subarg2
+                poolname = a.arg3
                 print "\n".join(f.LocalLB.Pool.get_object_status([poolname]))
                 return True
 
-            elif a.subarg == 'members':
+            elif a.arg2 == 'members':
                 self.info('Get pool members of \'%s\'' % poolname)
-                poolname = a.subarg2
+                poolname = a.arg3
                 print "\n".join(f.LocalLB.Pool.get_member_v2([poolname]))
                 return True
 
@@ -136,11 +136,11 @@ class Fapi(object):
                 return True
 
         elif a.arg == 'create':
-                poolname = a.subarg
+                poolname = a.arg2
                 poolmembers = []
                 method = a.m
-                if a.subarg2:
-                    for x in a.subarg2.split(','):
+                if a.arg3:
+                    for x in a.arg3.split(','):
                         pm = {}
                         y = x.split(':')
                         if 1 == len(y): y.append(80)
@@ -152,7 +152,7 @@ class Fapi(object):
                 return True
 
         elif a.arg == 'delete':
-            poolname = a.subarg
+            poolname = a.arg2
             self.info('Deleting pool \'%s\'' % poolname)
             f.LocalLB.Pool.delete_pool([poolname])
             return True
@@ -198,9 +198,8 @@ if __name__ == '__main__':
 
     parser.add_argument('action', nargs='?', help='The action')
     parser.add_argument('arg', nargs='?', help='The argument for the action')
-    parser.add_argument('subarg', nargs='?', help='A sub argument')
-    parser.add_argument('subarg2', nargs='?', help='Another sub argument')
-    #parser.add_argument('subarg3', nargs='?', help='Another sub argument')
+    parser.add_argument('arg2', nargs='?', help='A sub argument')
+    parser.add_argument('arg3', nargs='?', help='Another sub argument')
 
     args = parser.parse_args()
 
