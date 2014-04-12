@@ -1,2 +1,2 @@
-fapitest:
-	./fapi.py -C ./fapi.conf.sample
+all:
+	@echo Not yet implemented
