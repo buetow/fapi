@@ -57,7 +57,7 @@ class Fapi(object):
                                      username = username,
                                      password = password)
             self._partition = c.get('fapi', 'partition')
-            self.info('Setting partition to %s' % self._partition)
+            self.info('Setting partition to \'%s\'' % self._partition)
             self._f5.Management.Partition.set_active_partition(self._partition)
 
         except Exception, e:
@@ -72,7 +72,8 @@ class Fapi(object):
 
     def __out(self, message):
         ''' Prints an iControl result to stdout '''
-        print "\n".join(message)
+        print message
+        #print "\n".join(message)
 
 
     def __run_node(self):
@@ -86,11 +87,9 @@ class Fapi(object):
                 self.info('Getting node monitor status of \'%s\'' % nodename)
                 nodename = a.arg3
                 self.__out(n.get_monitor_status([nodename]))
-                return True
             elif a.arg2 == 'all':
                 self.info('Getting node list')
                 self.__out(n.get_list())
-                return True
 
         elif a.arg == 'create':
                 nodename = a.arg2
@@ -113,15 +112,10 @@ class Fapi(object):
 
                 n.create([nodefqdn],nodeips,[0])
 
-                return True
-
         elif a.arg == 'delete':
                 nodename = a.arg2
                 self.info('Deleting node \'%s\'' % (nodename))
                 n.delete_node_address([nodename])
-                return True
-
-        return False
 
 
     def __run_pool(self):
@@ -131,20 +125,16 @@ class Fapi(object):
         a = self._args
 
         if a.arg == 'show':
+            poolname = a.arg3
             if a.arg2 == 'status':
                 self.info('Getting pool status of \'%s\'' % poolname)
-                poolname = a.arg3
                 self.__out(p.get_object_status([poolname]))
-                return True
             elif a.arg2 == 'members':
                 self.info('Get pool members of \'%s\'' % poolname)
-                poolname = a.arg3
                 self.__out(p.get_member_v2([poolname]))
-                return True
             elif a.arg2 == 'all':
                 self.info('Get pool list')
                 self.__out(p.get_list())
-                return True
 
         elif a.arg == 'create':
                 poolname = a.arg2
@@ -160,15 +150,16 @@ class Fapi(object):
                         poolmembers.append(pm)
                 self.info('Creating pool \'%s\'' % poolname)
                 p.create_v2([poolname],[method],[poolmembers])
-                return True
 
         elif a.arg == 'delete':
             poolname = a.arg2
             self.info('Deleting pool \'%s\'' % poolname)
             p.delete_pool([poolname])
-            return True
 
-        return False
+        elif a.arg == 'modify':
+            poolname = a.arg2
+            self.info('Deleting pool \'%s\'' % poolname)
+            p.delete_pool([poolname])
 
 
     def __run_service(self):
@@ -177,8 +168,6 @@ class Fapi(object):
         f = self._f5
         a = self._args
 
-        return False
-
 
     def run(self):
         ''' Do the actual stuff '''
@@ -186,8 +175,6 @@ class Fapi(object):
         if self._args.action == 'node': return self.__run_node()
         elif self._args.action == 'pool': return self.__run_pool()
         elif self._args.action == 'service': return self.__run_service()
-
-        return False
 
 
 if __name__ == '__main__':
@@ -214,12 +201,14 @@ if __name__ == '__main__':
 
     fapi = Fapi(args)
 
-    try: 
-        if not fapi.run():
-            fapi.info('Don\'t know what to do')
-            sys.exit(1)
-    except Exception, e:
-        fapi.info(e)
-        sys.exit(2)
+    fapi.run()
+
+#   try: 
+#       if not fapi.run():
+#           fapi.info('Don\'t know what to do')
+#           sys.exit(1)
+#   except Exception, e:
+#       fapi.info(e)
+#       sys.exit(2)
 
 # vim: tabstop=4 expandtab shiftwidth=4 softtabstop=4
