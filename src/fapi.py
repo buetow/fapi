@@ -76,6 +76,36 @@ class Fapi(object):
         print >> sys.stderr, '%s %s' % (__prompt__, message)
 
 
+    def __run_node(self):
+        ''' Do stuff concerning nodes '''
+
+        f = self._f5
+        a = self._args
+
+        if a.arg == 'show':
+            if a.subarg == 'status':
+                self.info('Getting pool status')
+                poolname = a.subarg2
+                print f.LocalLB.Pool.get_object_status([poolname])
+                return True
+
+            elif a.subarg == 'members':
+                self.info('Get pool members')
+                poolname = a.subarg2
+                print f.LocalLB.Pool.get_member_v2([poolname])
+                return True
+
+            else:
+                self.info('Get node list')
+                print f.LocalLB.Node.get_list()
+                return True
+
+        elif a.arg == 'create':
+                return False
+
+        return False
+
+
     def __run_pool(self):
         ''' Do stuff concerning pools '''
 
@@ -115,6 +145,11 @@ class Fapi(object):
                 f.LocalLB.Pool.create_v2([poolname],[method],[poolmembers])
                 return True
 
+        elif a.arg == 'delete':
+            poolname = a.subarg
+            f.LocalLB.Pool.delete_pool([poolname])
+            return True
+
         return False
 
 
@@ -133,7 +168,10 @@ class Fapi(object):
         flag = False
         a = self._args
 
-        if a.action == 'pool':
+        if a.action == 'node':
+            flag = self.__run_node()
+
+        elif a.action == 'pool':
             flag = self.__run_pool()
 
         elif a.action == 'service':
