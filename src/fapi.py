@@ -29,8 +29,8 @@ class Fapi(object):
         config = ConfigParser.ConfigParser()
         config.read(config_file)
 
-        self.config = config
-        self.args = args
+        self._config = config
+        self._args = args
 
         if config.has_option('fapi', 'username'):
             username = config.get('fapi', 'username')
@@ -46,38 +46,50 @@ class Fapi(object):
         self.__login(username, password)
 
         try:
-            self.bigip.Management.Partition.set_active_partition(
-                config.get('fapi', 'partition'))
+            self._partition = config.get('fapi', 'partition')
+            if args.v: print 'Setting partition to %s' % self._partition
+            self._f5.Management.Partition.set_active_partition(self._partition)
 
         except Exception, e:
-            print "Exception: %s" % e
+            print e
 
 
     def __login(self, username, password):
         ''' Logs into the F5 BigIP SOAP API '''
 
-        if args.V:
-            print 'Login to BigIP API with user %s' % username
-
-        hostname = self.config.get('fapi', 'hostname')
+        if self._args.v: print 'Login to BigIP API with user %s' % username
+        hostname = self._config.get('fapi', 'hostname')
 
         try:
-            self.bigip = bigsuds.BIGIP(
+            self._f5 = bigsuds.BIGIP(
                 hostname = hostname,
                 username = username,
                 password = password,
                 )
         except Exception, e:
-            print "Exception: %s" % e
+            print e
+
 
     def run(self):
         ''' Do the actual stuff '''
 
-        if args.list:
-            print 'Hello'
+        if self._args.v: print 'Do fancy stuff now'
 
-        else:
-            print 'No such action'
+        f = self._f5
+        a = self._args
+        flag = False
+
+        if a.action == 'show':
+            if a.arg == 'pools':
+                print f.LocalLB.Pool.get_list()
+                flag = True
+
+            elif a.arg == 'poolstatus':
+                pool_name = args.subarg
+                print f.LocalLB.Pool.get_object_status([pool_name])
+                flag = True
+
+        if not flag: print 'Don\'t know what to do'
 
 if __name__ == '__main__':
     ''' The main function, here we will have Popcorn for free! '''
@@ -88,16 +100,15 @@ if __name__ == '__main__':
     parser.add_argument('-C', action='store', help='Config file',
         default=expanduser('~') + '/.fapi.conf')
 
-    parser.add_argument('list', action='store_false', help='List')
-    parser.add_argument('pool', action='store_false', help='Server pool')
+    parser.add_argument('action', help='The action')
+    parser.add_argument('arg', help='The argument for the action')
+    parser.add_argument('subarg', nargs='?', help='A sub argument')
 
     args = parser.parse_args()
 
     if args.V:
         print 'This is ' + __program__ + ' version ' + __version__
         sys.exit(0)
-
-    print vars(args)
 
     fapi = Fapi(args)
     fapi.run()
