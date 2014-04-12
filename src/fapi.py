@@ -86,12 +86,12 @@ class Fapi(object):
             if a.subarg == 'status':
                 self.info('Getting node monitor status of \'%s\'' % nodename)
                 nodename = a.subarg2
-                print f.LocalLB.NodeAddressV2.get_monitor_status([nodename])
+                print "\n".join(f.LocalLB.NodeAddressV2.get_monitor_status([nodename]))
                 return True
 
             else:
                 self.info('Getting node list')
-                print f.LocalLB.NodeAddressV2.get_list()
+                print "\n".join(f.LocalLB.NodeAddressV2.get_list())
                 return True
 
         elif a.arg == 'create':
@@ -121,18 +121,18 @@ class Fapi(object):
             if a.subarg == 'status':
                 self.info('Getting pool status of \'%s\'' % poolname)
                 poolname = a.subarg2
-                print f.LocalLB.Pool.get_object_status([poolname])
+                print "\n".join(f.LocalLB.Pool.get_object_status([poolname]))
                 return True
 
             elif a.subarg == 'members':
                 self.info('Get pool members of \'%s\'' % poolname)
                 poolname = a.subarg2
-                print f.LocalLB.Pool.get_member_v2([poolname])
+                print "\n".join(f.LocalLB.Pool.get_member_v2([poolname]))
                 return True
 
             else:
                 self.info('Get pool list')
-                print f.LocalLB.Pool.get_list()
+                print "\n".join(f.LocalLB.Pool.get_list())
                 return True
 
         elif a.arg == 'create':
@@ -205,7 +205,7 @@ if __name__ == '__main__':
     parser.add_argument('arg', help='The argument for the action')
     parser.add_argument('subarg', nargs='?', help='A sub argument')
     parser.add_argument('subarg2', nargs='?', help='Another sub argument')
-    parser.add_argument('subarg3', nargs='?', help='Another sub argument')
+    #parser.add_argument('subarg3', nargs='?', help='Another sub argument')
 
     args = parser.parse_args()
 
