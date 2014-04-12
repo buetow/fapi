@@ -175,14 +175,9 @@ class Fapi(object):
         flag = False
         a = self._args
 
-        if a.action == 'node':
-            flag = self.__run_node()
-
-        elif a.action == 'pool':
-            flag = self.__run_pool()
-
-        elif a.action == 'service':
-            flag = self.__run_service()
+        if a.action == 'node': flag = self.__run_node()
+        elif a.action == 'pool': flag = self.__run_pool()
+        elif a.action == 'service': flag = self.__run_service()
 
         if not flag: 
             self.info('Don\'t know what to do')
