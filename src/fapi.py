@@ -85,19 +85,34 @@ class Fapi(object):
         if a.arg == 'show':
             if a.subarg == 'status':
                 self.info('Getting pool status')
-                pool_name = args.subarg2
-                print f.LocalLB.Pool.get_object_status([pool_name])
+                poolname = a.subarg2
+                print f.LocalLB.Pool.get_object_status([poolname])
                 return True
 
             elif a.subarg == 'members':
                 self.info('Get pool members')
-                pool_name = args.subarg2
-                print f.LocalLB.Pool.get_member_v2([pool_name])
+                poolname = a.subarg2
+                print f.LocalLB.Pool.get_member_v2([poolname])
                 return True
 
             else:
                 self.info('Get pool list')
                 print f.LocalLB.Pool.get_list()
+                return True
+
+        elif a.arg == 'create':
+                poolname = a.subarg
+                poolmembers = []
+                method = a.m
+                if a.subarg2:
+                    for x in a.subarg2.split(','):
+                        pm = {}
+                        y = x.split(':')
+                        if 1 == len(y): y.append(80)
+                        pm['address'] = str(y[0])
+                        pm['port'] = int(y[1])
+                        poolmembers.append(pm)
+                f.LocalLB.Pool.create_v2([poolname],[method],[poolmembers])
                 return True
 
         return False
@@ -136,6 +151,8 @@ if __name__ == '__main__':
     parser = argparse.ArgumentParser()
     #parser.add_argument('-v', action='store_true', help='Verbose')
     parser.add_argument('-V', action='store_true', help='Print version')
+    parser.add_argument('-m', action='store', help='The lb method',
+        default='LB_METHOD_RATIO_LEAST_CONNECTION_MEMBER')
     parser.add_argument('-C', action='store', help='Config file',
         default=expanduser('~') + '/.fapi.conf')
 
@@ -152,10 +169,10 @@ if __name__ == '__main__':
         print 'This is %s version %s' % (__program__, __version__)
         sys.exit(0)
 
-    try: 
-        fapi.run()
-    except Exception, e:
-        fapi.info(e)
-        sys.exit(2)
+    #try: 
+    fapi.run()
+    #except Exception, e:
+    #    fapi.info(e)
+    #    sys.exit(2)
 
 # vim: tabstop=4 expandtab shiftwidth=4 softtabstop=4
