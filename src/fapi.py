@@ -73,11 +73,16 @@ class Fapi(object):
     def __out(self, message):
         ''' Prints an iControl result to stdout '''
         print message
-        #print "\n".join(message)
 
 
-    def __nslookup(self, what):
+    def __lookup(self, what):
         ''' Does a DNS lookup to fetch the FQDN and all the IPs '''
+
+        tmp = what.split(':')
+        if 1 == len(tmp): tmp.append('80')
+        what = tmp[0]
+        port = tmp[1]
+
         try:
             data = socket.gethostbyname_ex(what)
         except Exception, e:
@@ -91,7 +96,7 @@ class Fapi(object):
             self.info('\'%s\' resolves to multiple ips \'%s\'' % (fqdn, ips))
             sys.exit(2)
 
-        return (fqdn, ips[0])
+        return (fqdn, ips[0], port)
 
     def __run_node(self):
         ''' Do stuff concerning nodes '''
@@ -117,9 +122,9 @@ class Fapi(object):
                     self.info('Can\'t resolve \'%s\': %s' % (nodename, e))
                     sys.exit(2)
 
-                nodefqdn, nodeip = self.__nslookup(nodename)
-                self.info('Creating node \'%s\' \'%s\'' % (nodefqdn, nodeip))
-                n.create([nodefqdn],[nodeip],[0])
+                fqdn, ip, _ = self.__lookup(nodename)
+                self.info('Creating node \'%s\' \'%s\'' % (fqdn, ip))
+                n.create([fqdn],[ip],[0])
 
         elif a.arg == 'delete':
                 nodename = a.arg2
@@ -151,12 +156,8 @@ class Fapi(object):
                 method = a.m
                 if a.arg3:
                     for x in a.arg3.split(','):
-                        pm = {}
-                        tmp = x.split(':')
-                        fqdn, ip = self.__nslookup(tmp[0])
-                        if 1 == len(tmp): tmp.append(80)
-                        pm['address'] = fqdn
-                        pm['port'] = int(tmp[1])
+                        fqdn, ip, port = self.__lookup(x)
+                        pm = { 'address' : fqdn, 'port' : port }
                         poolmembers.append(pm)
                 self.info('Creating pool \'%s\'' % poolname)
                 p.create_v2([poolname],[method],[poolmembers])
@@ -166,22 +167,14 @@ class Fapi(object):
             p.delete_pool([poolname])
 
         elif a.arg == 'add':
-            tmp = a.arg3.split(':')
-            if 1 == len(tmp): tmp.append('80')
-            fqdn, ip = self.__nslookup(tmp[0])
-            port = tmp[1]
-
+            fqdn, _, port = self.__lookup(a.arg3)
             self.info('Add member \'%s:%s\' to pool \'%s\'' 
                     % (fqdn, port, poolname))
             member = [{ 'address' : fqdn, 'port' : port }]
             p.add_member_v2([poolname], [member])
 
         elif a.arg == 'remove':
-            tmp = a.arg3.split(':')
-            if 1 == len(tmp): tmp.append('80')
-            fqdn, ip = self.__nslookup(tmp[0])
-            port = tmp[1]
-
+            fqdn, _, port = self.__lookup(a.arg3)
             self.info('Remove member \'%s:%s\' from pool \'%s\'' 
                     % (fqdn, port, poolname))
             member = [{ 'address' : fqdn, 'port' : port }]
