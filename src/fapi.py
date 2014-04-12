@@ -94,10 +94,25 @@ class Fapi(object):
 
         elif a.arg == 'create':
                 nodename = a.arg2
-                nodeip = a.arg3
-                limits = 0
-                self.info('Creating node \'%s\' \'%s\'' % (nodename, nodeip))
-                n.create([nodename],[nodeip],[limits])
+
+                try:
+                    data = socket.gethostbyname_ex(nodename)
+                except Exception, e:
+                    self.info('Can\'t resolve \'%s\': %s' % (nodename, e))
+                    sys.exit(2)
+
+                nodefqdn = data[0]
+                nodeips = data[2]
+
+                if len(nodeips) > 1:
+                    self.info('\'%s\' resolves to multiple ips \'%s\''
+                        % (nodefqdn, nodeips))
+                    sys.exit(2)
+
+                self.info('Creating node \'%s\' \'%s\'' % (nodefqdn, nodeips[0]))
+
+                n.create([nodefqdn],nodeips,[0])
+
                 return True
 
         elif a.arg == 'delete':
@@ -199,13 +214,12 @@ if __name__ == '__main__':
 
     fapi = Fapi(args)
 
-    #try: 
-    if not fapi.run():
-        fapi.info('Don\'t know what to do')
-        sys.exit(1)
-
-    #except Exception, e:
-    #    fapi.info(e)
-    #    sys.exit(2)
+    try: 
+        if not fapi.run():
+            fapi.info('Don\'t know what to do')
+            sys.exit(1)
+    except Exception, e:
+        fapi.info(e)
+        sys.exit(2)
 
 # vim: tabstop=4 expandtab shiftwidth=4 softtabstop=4
