@@ -1,4 +1,5 @@
 [fapi]
 username: paul
-password64: Zm9vYmFyYmF6
+password64: SECRET
 hostname: bigip.example.com
+partition: administrativepartitionname

@@ -47,6 +47,12 @@ class Fapi(object):
 
         self.__login(username, password)
 
+        try:
+            self.b.Management.Partition.set_active_partition(
+                config.get('fapi', 'partition'))
+        except Exception, e:
+            print "Exception: %s" % e
+
 
     def __args_merge(self, args):
         ''' Merges args to the config object '''
@@ -68,7 +74,7 @@ class Fapi(object):
         hostname = self.config.get('fapi', 'hostname')
 
         try:
-            b = bigsuds.BIGIP(
+            self.b = bigsuds.BIGIP(
                 hostname = hostname,
                 username = username,
                 password = password,
@@ -85,6 +91,8 @@ if __name__ == '__main__':
     parser.add_argument('-V', action='store_true', help='Print version')
     parser.add_argument('-C', action='store', help='Config file',
         default=expanduser('~') + '/.fapi.conf')
+    parser.add_argument('list', action='store_true', help='List')
+    parser.add_argument('pools', action='store_true', help='Server pool')
     args = vars(parser.parse_args())
 
     if args['V']:
