@@ -84,13 +84,13 @@ class Fapi(object):
 
         if a.arg == 'show':
             if a.subarg == 'status':
-                self.info('Getting node monitor status')
+                self.info('Getting node monitor status of \'%s\'' % nodename)
                 nodename = a.subarg2
                 print f.LocalLB.NodeAddressV2.get_monitor_status([nodename])
                 return True
 
             else:
-                self.info('Get node list')
+                self.info('Getting node list')
                 print f.LocalLB.NodeAddressV2.get_list()
                 return True
 
@@ -119,13 +119,13 @@ class Fapi(object):
 
         if a.arg == 'show':
             if a.subarg == 'status':
-                self.info('Getting pool status')
+                self.info('Getting pool status of \'%s\'' % poolname)
                 poolname = a.subarg2
                 print f.LocalLB.Pool.get_object_status([poolname])
                 return True
 
             elif a.subarg == 'members':
-                self.info('Get pool members')
+                self.info('Get pool members of \'%s\'' % poolname)
                 poolname = a.subarg2
                 print f.LocalLB.Pool.get_member_v2([poolname])
                 return True
@@ -147,11 +147,13 @@ class Fapi(object):
                         pm['address'] = str(y[0])
                         pm['port'] = int(y[1])
                         poolmembers.append(pm)
+                self.info('Creating pool \'%s\'' % poolname)
                 f.LocalLB.Pool.create_v2([poolname],[method],[poolmembers])
                 return True
 
         elif a.arg == 'delete':
             poolname = a.subarg
+            self.info('Deleting pool \'%s\'' % poolname)
             f.LocalLB.Pool.delete_pool([poolname])
             return True
 
