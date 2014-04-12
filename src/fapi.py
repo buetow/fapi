@@ -76,6 +76,11 @@ class Fapi(object):
         print >> sys.stderr, '%s %s' % (__prompt__, message)
 
 
+    def help(self, message):
+        ''' Prints an help message to stderr '''
+        print >> sys.stderr, 'Possible subcommands: %s' % message
+
+
     def __run_node(self):
         ''' Do stuff concerning nodes '''
 
@@ -88,10 +93,12 @@ class Fapi(object):
                 nodename = a.arg3
                 print "\n".join(f.LocalLB.NodeAddressV2.get_monitor_status([nodename]))
                 return True
-
-            else:
+            elif a.arg2 == 'list':
                 self.info('Getting node list')
                 print "\n".join(f.LocalLB.NodeAddressV2.get_list())
+                return True
+            else:
+                self.help('status list')
                 return True
 
         elif a.arg == 'create':
@@ -106,6 +113,11 @@ class Fapi(object):
                 nodename = a.arg2
                 self.info('Deleting node \'%s\'' % (nodename))
                 f.LocalLB.NodeAddressV2.delete_node_address([nodename])
+                return True
+
+        elif a.arg == 'help':
+                nodename = a.arg2
+                self.help('show create delete')
                 return True
 
         return False
@@ -130,9 +142,13 @@ class Fapi(object):
                 print "\n".join(f.LocalLB.Pool.get_member_v2([poolname]))
                 return True
 
-            else:
+            elif a.arg2 == 'list':
                 self.info('Get pool list')
                 print "\n".join(f.LocalLB.Pool.get_list())
+                return True
+
+            else:
+                self.help('status members list')
                 return True
 
         elif a.arg == 'create':
@@ -157,6 +173,11 @@ class Fapi(object):
             f.LocalLB.Pool.delete_pool([poolname])
             return True
 
+        else: 
+            self.help('show create delete')
+            f.LocalLB.Pool.delete_pool([poolname])
+            return True
+
         return False
 
 
@@ -177,6 +198,8 @@ class Fapi(object):
         elif a.action == 'pool': return self.__run_pool()
         elif a.action == 'service': return self.__run_service()
 
+        self.help('node pool service')
+        return True
 
 
 if __name__ == '__main__':
