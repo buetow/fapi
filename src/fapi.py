@@ -194,26 +194,26 @@ if __name__ == '__main__':
     ''' The main function, here we will have Popcorn for free! '''
 
     parser = argparse.ArgumentParser()
-    #parser.add_argument('-v', action='store_true', help='Verbose')
+    parser.add_argument('-v', action='store_true', help='Verbose')
     parser.add_argument('-V', action='store_true', help='Print version')
     parser.add_argument('-m', action='store', help='The lb method',
         default='LB_METHOD_RATIO_LEAST_CONNECTION_MEMBER')
     parser.add_argument('-C', action='store', help='Config file',
         default=expanduser('~') + '/.fapi.conf')
 
-    parser.add_argument('action', help='The action')
-    parser.add_argument('arg', help='The argument for the action')
+    parser.add_argument('action', nargs='?', help='The action')
+    parser.add_argument('arg', nargs='?', help='The argument for the action')
     parser.add_argument('subarg', nargs='?', help='A sub argument')
     parser.add_argument('subarg2', nargs='?', help='Another sub argument')
     #parser.add_argument('subarg3', nargs='?', help='Another sub argument')
 
     args = parser.parse_args()
 
-    fapi = Fapi(args)
-
     if args.V:
         print 'This is %s version %s' % (__program__, __version__)
         sys.exit(0)
+
+    fapi = Fapi(args)
 
     #try: 
     fapi.run()
