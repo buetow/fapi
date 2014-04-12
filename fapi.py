@@ -18,15 +18,13 @@ __version__ = 'VERSION_DEVEL' # Replaced by a Makefile target
 class Fapi(object):
     ''' The main F5 API Tool Object '''
 
-    config = None
-
     def __init__(self, args):
         ''' Initialize the config file, username and password '''
 
-        if args['v']:
+        if args.v:
             print 'Reading configuration'
 
-        config_file = args['C']
+        config_file = args.C
 
         config = ConfigParser.ConfigParser()
         config.read(config_file)
@@ -48,8 +46,9 @@ class Fapi(object):
         self.__login(username, password)
 
         try:
-            self.b.Management.Partition.set_active_partition(
+            self.bigip.Management.Partition.set_active_partition(
                 config.get('fapi', 'partition'))
+
         except Exception, e:
             print "Exception: %s" % e
 
@@ -60,10 +59,9 @@ class Fapi(object):
         if not self.config.has_section('args'):
             self.config.add_section('args')
 
-        for k, v in args.items():
-            if args['v']: print "Set arg %s: %s" % (k, v)
+        for k, v in vars(args).items():
+            if args.v: print "Set arg %s: %s" % (k, v)
             self.config.set('args', k, str(v))
-
 
     def __login(self, username, password):
         ''' Logs into the F5 BigIP SOAP API '''
@@ -74,7 +72,7 @@ class Fapi(object):
         hostname = self.config.get('fapi', 'hostname')
 
         try:
-            self.b = bigsuds.BIGIP(
+            self.bigip = bigsuds.BIGIP(
                 hostname = hostname,
                 username = username,
                 password = password,
@@ -82,6 +80,14 @@ class Fapi(object):
         except Exception, e:
             print "Exception: %s" % e
 
+    def run(self):
+        ''' Do the actual stuff '''
+
+        if self.config.getboolean('args', 'list'):
+            print 'Hello'
+
+        else:
+            print 'No such action'
 
 if __name__ == '__main__':
     ''' The main function, here we will have Popcorn for free! '''
@@ -92,15 +98,15 @@ if __name__ == '__main__':
     parser.add_argument('-C', action='store', help='Config file',
         default=expanduser('~') + '/.fapi.conf')
     parser.add_argument('list', action='store_true', help='List')
-    parser.add_argument('pools', action='store_true', help='Server pool')
-    args = vars(parser.parse_args())
+    parser.add_argument('pool', action='store_true', help='Server pool')
 
-    if args['V']:
+    args = parser.parse_args()
+
+    if args.V:
         print 'This is ' + __program__ + ' version ' + __version__
         sys.exit(0)
 
     fapi = Fapi(args)
-
-    print str(fapi.config)
+    fapi.run()
 
 # vim: tabstop=4 expandtab shiftwidth=4 softtabstop=4
