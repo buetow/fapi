@@ -2,4 +2,5 @@
 username: paul
 password64: SECRET
 hostname: bigip.example.com
+# Use Common if you want
 partition: administrativepartitionname
