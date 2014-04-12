@@ -106,8 +106,8 @@ class Fapi(object):
 
         if a.arg == 'show':
             if a.arg2 == 'status':
-                self.info('Getting node monitor status of \'%s\'' % nodename)
                 nodename = a.arg3
+                self.info('Getting node monitor status of \'%s\'' % nodename)
                 self.__out(n.get_monitor_status([nodename]))
             elif a.arg2 == 'all':
                 self.info('Getting node list')
