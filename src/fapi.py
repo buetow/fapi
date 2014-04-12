@@ -30,7 +30,7 @@ class Fapi(object):
         config.read(config_file)
 
         self.config = config
-        self.__args_merge(args)
+        self.args = args
 
         if config.has_option('fapi', 'username'):
             username = config.get('fapi', 'username')
@@ -53,20 +53,10 @@ class Fapi(object):
             print "Exception: %s" % e
 
 
-    def __args_merge(self, args):
-        ''' Merges args to the config object '''
-
-        if not self.config.has_section('args'):
-            self.config.add_section('args')
-
-        for k, v in vars(args).items():
-            if args.v: print "Set arg %s: %s" % (k, v)
-            self.config.set('args', k, str(v))
-
     def __login(self, username, password):
         ''' Logs into the F5 BigIP SOAP API '''
 
-        if self.config.getboolean('args', 'v'):
+        if args.V:
             print 'Login to BigIP API with user %s' % username
 
         hostname = self.config.get('fapi', 'hostname')
@@ -83,7 +73,7 @@ class Fapi(object):
     def run(self):
         ''' Do the actual stuff '''
 
-        if self.config.getboolean('args', 'list'):
+        if args.list:
             print 'Hello'
 
         else:
@@ -97,14 +87,17 @@ if __name__ == '__main__':
     parser.add_argument('-V', action='store_true', help='Print version')
     parser.add_argument('-C', action='store', help='Config file',
         default=expanduser('~') + '/.fapi.conf')
-    parser.add_argument('list', action='store_true', help='List')
-    parser.add_argument('pool', action='store_true', help='Server pool')
+
+    parser.add_argument('list', action='store_false', help='List')
+    parser.add_argument('pool', action='store_false', help='Server pool')
 
     args = parser.parse_args()
 
     if args.V:
         print 'This is ' + __program__ + ' version ' + __version__
         sys.exit(0)
+
+    print vars(args)
 
     fapi = Fapi(args)
     fapi.run()
