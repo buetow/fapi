@@ -45,6 +45,7 @@ class Fapi(object):
         try:
             self._partition = config.get('fapi', 'partition')
             self.info('Setting partition to %s' % self._partition)
+
             self._f5.Management.Partition.set_active_partition(self._partition)
 
         except Exception, e:
@@ -75,35 +76,59 @@ class Fapi(object):
         print >> sys.stderr, '%s %s' % (__prompt__, message)
 
 
-    def run(self):
-        ''' Do the actual stuff '''
+    def __run_pool(self):
+        ''' Do stuff concerning pools '''
 
         f = self._f5
         a = self._args
+
+        if a.arg == 'show':
+            if a.subarg == 'status':
+                self.info('Getting pool status')
+                pool_name = args.subarg2
+                print f.LocalLB.Pool.get_object_status([pool_name])
+                return True
+
+            elif a.subarg == 'members':
+                self.info('Get pool members')
+                pool_name = args.subarg2
+                print f.LocalLB.Pool.get_member_v2([pool_name])
+                return True
+
+            else:
+                self.info('Get pool list')
+                print f.LocalLB.Pool.get_list()
+                return True
+
+        return False
+
+
+    def __run_service(self):
+        ''' Do stuff concerning virtual services '''
+
+        f = self._f5
+        a = self._args
+
+        return False
+
+
+    def run(self):
+        ''' Do the actual stuff '''
+
         flag = False
+        a = self._args
 
-        if a.action == 'show':
-            if a.arg == 'pool':
-                if a.subarg == 'status':
-                    self.info('Getting pool status')
-                    pool_name = args.subarg2
-                    print f.LocalLB.Pool.get_object_status([pool_name])
-                    flag = True
+        if a.action == 'pool':
+            flag = self.__run_pool()
 
-                elif a.subarg == 'members':
-                    self.info('Get pool members')
-                    pool_name = args.subarg2
-                    print f.LocalLB.Pool.get_member_v2([pool_name])
-                    flag = True
-
-                else:
-                    self.info('Get pool list')
-                    print f.LocalLB.Pool.get_list()
-                    flag = True
+        elif a.action == 'service':
+            flag = self.__run_service()
 
         if not flag: 
             self.info('Don\'t know what to do')
             sys.exit(1)
+
+
 
 if __name__ == '__main__':
     ''' The main function, here we will have Popcorn for free! '''
