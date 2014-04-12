@@ -44,19 +44,21 @@ class Fapi(object):
 
         try:
             self._partition = config.get('fapi', 'partition')
-            self.__info('Setting partition to %s' % self._partition)
+            self.info('Setting partition to %s' % self._partition)
             self._f5.Management.Partition.set_active_partition(self._partition)
 
         except Exception, e:
-            self.__info(e)
+            self.info(e)
+            sys.exit(2)
 
 
     def __login(self, username, password):
         ''' Logs into the F5 BigIP SOAP API '''
 
-        self.__info('Login to BigIP API with user %s' % username)
+        self.info('Login to BigIP API with user %s' % username)
         hostname = self._config.get('fapi', 'hostname')
 
+        # Enhance to try to login to a list of hosts
         try:
             self._f5 = bigsuds.BIGIP(
                 hostname = hostname,
@@ -64,10 +66,11 @@ class Fapi(object):
                 password = password,
                 )
         except Exception, e:
-            self.__info(e)
+            self.info(e)
+            sys.exit(2)
 
 
-    def __info(self, message):
+    def info(self, message):
         ''' Prints an informational message to stderr '''
         print >> sys.stderr, '%s %s' % (__prompt__, message)
 
@@ -82,24 +85,24 @@ class Fapi(object):
         if a.action == 'show':
             if a.arg == 'pool':
                 if a.subarg == 'status':
-                    self.__info('Get pool status')
+                    self.info('Getting pool status')
                     pool_name = args.subarg2
                     print f.LocalLB.Pool.get_object_status([pool_name])
                     flag = True
 
                 elif a.subarg == 'members':
-                    self.__info('Get pool members')
+                    self.info('Get pool members')
                     pool_name = args.subarg2
                     print f.LocalLB.Pool.get_member_v2([pool_name])
                     flag = True
 
                 else:
-                    self.__info('Get pool list')
+                    self.info('Get pool list')
                     print f.LocalLB.Pool.get_list()
                     flag = True
 
         if not flag: 
-            self.__info('Don\'t know what to do')
+            self.info('Don\'t know what to do')
             sys.exit(1)
 
 if __name__ == '__main__':
@@ -118,11 +121,16 @@ if __name__ == '__main__':
 
     args = parser.parse_args()
 
+    fapi = Fapi(args)
+
     if args.V:
         print 'This is %s version %s' % (__program__, __version__)
         sys.exit(0)
 
-    fapi = Fapi(args)
-    fapi.run()
+    try: 
+        fapi.run()
+    except Exception, e:
+        fapi.info(e)
+        sys.exit(2)
 
 # vim: tabstop=4 expandtab shiftwidth=4 softtabstop=4
