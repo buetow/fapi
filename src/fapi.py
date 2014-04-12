@@ -172,16 +172,10 @@ class Fapi(object):
     def run(self):
         ''' Do the actual stuff '''
 
-        flag = False
         a = self._args
-
-        if a.action == 'node': flag = self.__run_node()
-        elif a.action == 'pool': flag = self.__run_pool()
-        elif a.action == 'service': flag = self.__run_service()
-
-        if not flag: 
-            self.info('Don\'t know what to do')
-            sys.exit(1)
+        if a.action == 'node': return self.__run_node()
+        elif a.action == 'pool': return self.__run_pool()
+        elif a.action == 'service': return self.__run_service()
 
 
 
@@ -210,7 +204,10 @@ if __name__ == '__main__':
     fapi = Fapi(args)
 
     #try: 
-    fapi.run()
+    if not fapi.run():
+        fapi.info('Don\'t know what to do')
+        sys.exit(1)
+
     #except Exception, e:
     #    fapi.info(e)
     #    sys.exit(2)
