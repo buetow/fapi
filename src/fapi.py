@@ -4,9 +4,10 @@
 
 import argparse
 import base64
-import getpass 
-import sys
 import bigsuds
+import getpass 
+import socket
+import sys
 
 from os.path import expanduser
 
@@ -64,10 +65,14 @@ class Fapi(object):
             sys.exit(2)
 
 
-
     def info(self, message):
         ''' Prints an informational message to stderr '''
         print >> sys.stderr, '%s %s' % (__prompt__, message)
+
+
+    def __out(self, message):
+        ''' Prints an iControl result to stdout '''
+        print "\n".join(message)
 
 
     def __run_node(self):
@@ -80,11 +85,11 @@ class Fapi(object):
             if a.arg2 == 'status':
                 self.info('Getting node monitor status of \'%s\'' % nodename)
                 nodename = a.arg3
-                print "\n".join(n.get_monitor_status([nodename]))
+                self.__out(n.get_monitor_status([nodename]))
                 return True
-            elif a.arg2 == 'list':
+            elif a.arg2 == 'all':
                 self.info('Getting node list')
-                print "\n".join(n.get_list())
+                self.__out(n.get_list())
                 return True
 
         elif a.arg == 'create':
@@ -114,16 +119,16 @@ class Fapi(object):
             if a.arg2 == 'status':
                 self.info('Getting pool status of \'%s\'' % poolname)
                 poolname = a.arg3
-                print "\n".join(p.get_object_status([poolname]))
+                self.__out(p.get_object_status([poolname]))
                 return True
             elif a.arg2 == 'members':
                 self.info('Get pool members of \'%s\'' % poolname)
                 poolname = a.arg3
-                print "\n".join(p.get_member_v2([poolname]))
+                self.__out(p.get_member_v2([poolname]))
                 return True
-            elif a.arg2 == 'list':
+            elif a.arg2 == 'all':
                 self.info('Get pool list')
-                print "\n".join(p.get_list())
+                self.__out(p.get_list())
                 return True
 
         elif a.arg == 'create':
