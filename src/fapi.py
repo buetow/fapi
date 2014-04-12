@@ -165,7 +165,7 @@ class Fapi(object):
             self.info('Deleting pool \'%s\'' % poolname)
             p.delete_pool([poolname])
 
-        elif a.arg == 'addmember':
+        elif a.arg == 'add':
             tmp = a.arg3.split(':')
             if 1 == len(tmp): tmp.append('80')
             fqdn, ip = self.__nslookup(tmp[0])
@@ -175,6 +175,17 @@ class Fapi(object):
                     % (fqdn, port, poolname))
             member = [{ 'address' : fqdn, 'port' : port }]
             p.add_member_v2([poolname], [member])
+
+        elif a.arg == 'remove':
+            tmp = a.arg3.split(':')
+            if 1 == len(tmp): tmp.append('80')
+            fqdn, ip = self.__nslookup(tmp[0])
+            port = tmp[1]
+
+            self.info('Remove member \'%s:%s\' from pool \'%s\'' 
+                    % (fqdn, port, poolname))
+            member = [{ 'address' : fqdn, 'port' : port }]
+            p.remove_member_v2([poolname], [member])
 
 
     def __run_service(self):
