@@ -71,8 +71,9 @@ class Fapi(object):
     def __out(self, result):
         ''' Prints an iControl result to stdout '''
 
-        pp = pprint.PrettyPrinter(indent=4)
-        pp.pprint(result)
+        if result != None:
+            pp = pprint.PrettyPrinter(indent=4)
+            pp.pprint(result)
 
 
     def __lookup(self, what):
@@ -193,24 +194,25 @@ class Fapi(object):
             return lambda: f5().delete_pool([a.name])
 
         elif a.arg == 'add':
-            fqdn, _, port = self.__lookup(a.arg3)
-            member = [{ 'address' : fqdn, 'port' : port }]
-            return lambda: f5().add_member_v2([a.name], [member])
+            if a.arg2 == 'member':
+                fqdn, _, port = self.__lookup(a.arg3)
+                member = [{ 'address' : fqdn, 'port' : port }]
+                return lambda: f5().add_member_v2([a.name], [member])
+            elif a.arg2 == 'monitor':
+                monitortname = a.arg3
+                rule = {
+                    'type': 'MONITOR_RULE_TYPE_SINGLE',
+                    'quorum': long(0),
+                    'monitor_templates': [ monitortname ],
+                }
+                association = { 'pool_name': a.name, 'monitor_rule': rule }
+                return lambda: f5().set_monitor_association([association])
 
         elif a.arg == 'del':
-            fqdn, _, port = self.__lookup(a.arg3)
-            member = [{ 'address' : fqdn, 'port' : port }]
-            return lambda: f5().remove_member_v2([a.name], [member])
-
-        elif a.arg == 'addmonitor':
-            monitortname = a.arg3
-            rule = {
-                'type': 'MONITOR_RULE_TYPE_SINGLE',
-                'quorum': long(0),
-                'monitor_templates': [ monitortname ],
-            }
-            association = { 'pool_name': a.name, 'monitor_rule': rule }
-            return lambda: f5().set_monitor_association([association])
+            if a.arg2 == 'member':
+                fqdn, _, port = self.__lookup(a.arg3)
+                member = [{ 'address' : fqdn, 'port' : port }]
+                return lambda: f5().remove_member_v2([a.name], [member])
 
 
     def __do_service(self, f5):
@@ -261,6 +263,7 @@ if __name__ == '__main__':
     parser.add_argument('arg', nargs='?', help='The first argument')
     parser.add_argument('arg2', nargs='?', help='The second argument')
     parser.add_argument('arg3', nargs='?', help='The third argument')
+    parser.add_argument('arg4', nargs='?', help='The fourth argument')
 
     args = parser.parse_args()
 
