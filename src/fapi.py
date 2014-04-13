@@ -244,15 +244,6 @@ class Fapi(object):
                     d['profile'] = f5().get_profile([a.name])
                     d['protocol'] = f5().get_protocol([a.name])
                     d['rule'] = f5().get_rule([a.name])
-                    d['translate_address_state'] = f5().get_translate_address_state([a.name])
-                    d['translate_port_state'] = f5().get_translate_port_state([a.name])
-                    d['type'] = f5().get_type([a.name])
-                    d['vlan'] = f5().get_vlan([a.name])
-                    return d
-                return lambda: detail(f5)
-            elif a.arg2 == 'nat':
-                def nat(f5):
-                    d = {}
                     d['snat_pool'] = f5().get_snat_pool([a.name])
                     d['snat_type'] = f5().get_snat_type([a.name])
                     d['source_address'] = f5().get_source_address([a.name])
@@ -261,10 +252,24 @@ class Fapi(object):
                     d['source_address_translation_type'] = f5().get_source_address_translation_type([a.name])
                     d['source_port_behavior'] = f5().get_source_port_behavior([a.name])
                     d['translate_address_state'] = f5().get_translate_address_state([a.name])
+                    d['translate_address_state'] = f5().get_translate_address_state([a.name])
+                    d['translate_port_state'] = f5().get_translate_port_state([a.name])
+                    d['translate_port_state'] = f5().get_translate_port_state([a.name])
+                    d['type'] = f5().get_type([a.name])
+                    d['vlan'] = f5().get_vlan([a.name])
+                    return d
+                return lambda: detail(f5)
+            elif a.arg2 == 'brief':
+                def brief(f5):
+                    d = {}
+                    d['object_status'] = f5().get_object_status([a.name])
+                    d['profile'] = f5().get_profile([a.name])
+                    d['protocol'] = f5().get_protocol([a.name])
+                    d['actual_hardware_acceleration'] = f5().get_actual_hardware_acceleration([a.name])
+                    d['translate_port_state'] = f5().get_translate_port_state([a.name])
                     d['translate_port_state'] = f5().get_translate_port_state([a.name])
                     return d
-                return lambda: nat(f5)
-                return lambda: f5().get_object_status([a.name])
+                return lambda: brief(f5)
             elif a.arg2 == 'status':
                 return lambda: f5().get_object_status([a.name])
 
