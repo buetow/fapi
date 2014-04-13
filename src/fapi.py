@@ -233,6 +233,7 @@ class Fapi(object):
                     d['bw_controller_policy'] = f5().get_bw_controller_policy([a.name])
                     d['clone_pool'] = f5().get_clone_pool([a.name])
                     d['connection_limit'] = f5().get_connection_limit([a.name])
+                    d['default_pool_name'] = f5().get_default_pool_name([a.name])
                     d['description'] = f5().get_description([a.name])
                     d['destination'] = f5().get_destination_v2([a.name])
                     d['enabled_state'] = f5().get_enabled_state([a.name])
@@ -262,6 +263,7 @@ class Fapi(object):
             elif a.arg2 == 'brief':
                 def brief(f5):
                     d = {}
+                    d['default_pool_name'] = f5().get_default_pool_name([a.name])
                     d['object_status'] = f5().get_object_status([a.name])
                     d['profile'] = f5().get_profile([a.name])
                     d['protocol'] = f5().get_protocol([a.name])
@@ -272,6 +274,11 @@ class Fapi(object):
                 return lambda: brief(f5)
             elif a.arg2 == 'status':
                 return lambda: f5().get_object_status([a.name])
+
+        elif a.arg == 'set':
+            if a.arg2 == 'pool':
+                poolname = a.arg3
+                return lambda: f5().set_default_pool_name([a.name], [poolname])
 
 
     def run(self):
