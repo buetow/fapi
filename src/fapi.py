@@ -68,7 +68,7 @@ class Fapi(object):
         print >> sys.stderr, '%s %s' % (__prompt__, message)
 
 
-    def __out(self, result):
+    def out(self, result):
         ''' Prints an iControl result to stdout '''
 
         if result != None:
@@ -83,7 +83,7 @@ class Fapi(object):
     #    print ' '.join(possible)
 
 
-    def __lookup(self, what):
+    def lookup(self, what):
         ''' Does a DNS lookup to fetch the FQDN and all the IPs '''
 
         tmp = what.split(':')
@@ -136,7 +136,7 @@ class Fapi(object):
                 except Exception, e:
                     self.info('Can\'t resolve \'%s\': %s' % (a.name, e))
                     sys.exit(2)
-                fqdn, ip, _ = self.__lookup(a.name)
+                fqdn, ip, _ = self.lookup(a.name)
                 return lambda: f5().create([fqdn],[ip],[0])
 
         elif a.arg == 'delete':
@@ -192,7 +192,7 @@ class Fapi(object):
                 method = a.m
                 if a.arg3:
                     for x in a.arg3.split(','):
-                        fqdn, ip, port = self.__lookup(x)
+                        fqdn, ip, port = self.lookup(x)
                         pm = { 'address' : fqdn, 'port' : port }
                         poolmembers.append(pm)
                 return lambda: f5().create_v2([a.name],[method],[poolmembers])
@@ -202,31 +202,31 @@ class Fapi(object):
 
         elif a.arg == 'add':
             if a.arg2 == 'member':
-                fqdn, _, port = self.__lookup(a.arg3)
+                fqdn, _, port = self.lookup(a.arg3)
                 member = [{ 'address' : fqdn, 'port' : port }]
                 return lambda: f5().add_member_v2([a.name], [member])
             elif a.arg2 == 'monitor':
-                monitortname = a.arg3
+                monitorname = a.arg3
                 rule = {
                     'type': 'MONITOR_RULE_TYPE_SINGLE',
                     'quorum': long(0),
-                    'monitor_templates': [ monitortname ],
+                    'monitor_templates': [ monitorname ],
                 }
                 association = { 'pool_name': a.name, 'monitor_rule': rule }
                 return lambda: f5().set_monitor_association([association])
 
         elif a.arg == 'del':
             if a.arg2 == 'member':
-                fqdn, _, port = self.__lookup(a.arg3)
+                fqdn, _, port = self.lookup(a.arg3)
                 member = [{ 'address' : fqdn, 'port' : port }]
                 return lambda: f5().remove_member_v2([a.name], [member])
-            elif a.arg2 == 'monitor':
+            elif a.arg2 == 'monitors':
                 # Removes all monitor associations, not just one
                 return lambda: f5().remove_monitor_association([a.name])
 
 
-    def __do_service(self, f5):
-        ''' Do stuff concerning virtual services '''
+    def __do_vserver(self, f5):
+        ''' Do stuff concerning virtual servers '''
 
         a = self._args
 
@@ -246,12 +246,12 @@ class Fapi(object):
             lazy = self.__do_monitor(lambda: self._f5.LocalLB.Monitor)
         elif a.what == 'pool':
             lazy = self.__do_pool(lambda: self._f5.LocalLB.Pool)
-        elif a.what == 'service':
-            lazy = self.__do_service(lambda: self._f5)
+        elif a.what == 'vserver':
+            lazy = self.__do_vserver(lambda: self._f5.LocalLB.VirtualServer)
 
         if isfunction(lazy):
             self.__login()
-            self.__out(lazy())
+            self.out(lazy())
         else:
             sys.exit(1)
 
@@ -272,7 +272,7 @@ if __name__ == '__main__':
     parser.add_argument('arg', nargs='?', help='The first argument')
     parser.add_argument('arg2', nargs='?', help='The second argument')
     parser.add_argument('arg3', nargs='?', help='The third argument')
-    parser.add_argument('arg4', nargs='?', help='The fourth argument')
+    #parser.add_argument('arg4', nargs='?', help='The fourth argument')
 
     args = parser.parse_args()
 
