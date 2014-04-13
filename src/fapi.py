@@ -118,7 +118,7 @@ class Fapi(object):
                 return lambda: detail(f5)
             if a.arg2 == 'status':
                 return lambda: f5().get_monitor_status([a.name])
-            elif a.arg2 == 'all':
+            elif a.arg2 == 'list':
                 return lambda: f5().get_list()
 
         elif a.arg == 'create':
@@ -145,7 +145,7 @@ class Fapi(object):
                 return lambda: f5().get_description([monitorname])
             if a.arg2 == 'state':
                 return lambda: f5().get_template_state([monitorname])
-            elif a.arg2 == 'all':
+            elif a.arg2 == 'list':
                 return lambda: f5().get_template_list()
 
 
@@ -167,13 +167,13 @@ class Fapi(object):
                     d['profile'] = f5().get_profile([a.name])
                     return d
                 return lambda: detail(f5)
-            elif a.arg2 == 'monitor':
-                return lambda: f5().get_monitor_instance([a.name]),
+            #elif a.arg2 == 'monitor':
+            #    return lambda: f5().get_monitor_instance([a.name]),
             elif a.arg2 == 'status':
                 return lambda: f5().get_object_status([a.name])
             elif a.arg2 == 'members':
                 return lambda: f5().get_member_v2([a.name])
-            elif a.arg2 == 'all':
+            elif a.arg2 == 'list':
                 return lambda: f5().get_list()
 
         elif a.arg == 'create':
