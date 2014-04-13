@@ -102,7 +102,7 @@ class Fapi(object):
         if a.arg == 'show':
             if a.arg2 == 'detail':
                 nodename = a.arg3
-                def monitor_status(f5):
+                def detail(f5):
                     d = {}
                     d['connection_limit'] = f5().get_connection_limit([nodename])
                     d['default_node_monitor'] = f5().get_default_node_monitor()
@@ -116,7 +116,9 @@ class Fapi(object):
                     d['ratio'] = f5().get_ratio([nodename])
                     d['session_status'] = f5().get_session_status([nodename])
                     return d
-                return lambda: monitor_status(f5)
+                return lambda: detail(f5)
+            if a.arg2 == 'status':
+                return lambda: f5().get_monitor_status([nodename])
             elif a.arg2 == 'all':
                 return lambda: f5().get_list()
 
@@ -154,10 +156,24 @@ class Fapi(object):
         ''' Do stuff concerning pools '''
 
         a = self._args
-        poolname = a.arg2
+        poolname = a.arg3
 
         if a.arg == 'show':
-            if a.arg2 == 'status':
+            if a.arg2 == 'detail':
+                def detail(f5):
+                    d = {}
+                    d['allow_nat_state'] = f5().get_allow_nat_state([poolname])
+                    d['allow_snat_state'] = f5().get_allow_snat_state([poolname])
+                    d['description'] = f5().get_description([poolname])
+                    d['lb_method'] = f5().get_lb_method([poolname])
+                    d['member'] = f5().get_member_v2([poolname])
+                    d['object_status'] = f5().get_object_status([poolname])
+                    d['profile'] = f5().get_profile([poolname])
+                    return d
+                return lambda: detail(f5)
+            elif a.arg2 == 'monitor':
+                return lambda: f5().get_monitor_instance([poolname])
+            elif a.arg2 == 'status':
                 return lambda: f5().get_object_status([poolname])
             elif a.arg2 == 'members':
                 return lambda: f5().get_member_v2([poolname])
