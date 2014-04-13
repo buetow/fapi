@@ -76,6 +76,13 @@ class Fapi(object):
             pp.pprint(result)
 
 
+    #def __help(self, *possible):
+    #    ''' Prints an online help '''
+
+    #    print 'Possible sub commands are:'
+    #    print ' '.join(possible)
+
+
     def __lookup(self, what):
         ''' Does a DNS lookup to fetch the FQDN and all the IPs '''
 
@@ -246,7 +253,6 @@ class Fapi(object):
             self.__login()
             self.__out(lazy())
         else:
-            self.info('Don\t know what to do')
             sys.exit(1)
 
 
