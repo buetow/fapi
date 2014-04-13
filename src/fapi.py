@@ -128,10 +128,9 @@ class Fapi(object):
                 return lambda: f5().delete_node_address([nodename])
 
 
-    def __run_pool(self):
+    def __run_pool(self, f5):
         ''' Do stuff concerning pools '''
 
-        f5 = self._f5.LocalLB.Pool
         a = self._args
 
         poolname = a.arg2
@@ -139,13 +138,13 @@ class Fapi(object):
         if a.arg == 'show':
             if a.arg2 == 'status':
                 self.info('Getting pool status of \'%s\'' % poolname)
-                return lambda: f5.get_object_status([poolname])
+                return lambda: f5().get_object_status([poolname])
             elif a.arg2 == 'members':
                 self.info('Get pool members of \'%s\'' % poolname)
-                return lambda: f5.get_member_v2([poolname])
+                return lambda: f5().get_member_v2([poolname])
             elif a.arg2 == 'all':
                 self.info('Get pool list')
-                return lambda: f5.get_list()
+                return lambda: f5().get_list()
 
         elif a.arg == 'create':
                 poolmembers = []
@@ -156,31 +155,30 @@ class Fapi(object):
                         pm = { 'address' : fqdn, 'port' : port }
                         poolmembers.append(pm)
                 self.info('Creating pool \'%s\'' % poolname)
-                return lambda: f5.create_v2([poolname],[method],[poolmembers])
+                return lambda: f5().create_v2([poolname],[method],[poolmembers])
 
         elif a.arg == 'delete':
             self.info('Deleting pool \'%s\'' % poolname)
-            return lambda: f5.delete_pool([poolname])
+            return lambda: f5().delete_pool([poolname])
 
         elif a.arg == 'add':
             fqdn, _, port = self.__lookup(a.arg3)
             self.info('Add member \'%s:%s\' to pool \'%s\'' 
                     % (fqdn, port, poolname))
             member = [{ 'address' : fqdn, 'port' : port }]
-            return lambda: f5.add_member_v2([poolname], [member])
+            return lambda: f5().add_member_v2([poolname], [member])
 
         elif a.arg == 'remove':
             fqdn, _, port = self.__lookup(a.arg3)
             self.info('Remove member \'%s:%s\' from pool \'%s\'' 
                     % (fqdn, port, poolname))
             member = [{ 'address' : fqdn, 'port' : port }]
-            return lambda: f5.remove_member_v2([poolname], [member])
+            return lambda: f5().remove_member_v2([poolname], [member])
 
 
-    def __run_service(self):
+    def __run_service(self, f5):
         ''' Do stuff concerning virtual services '''
 
-        f5 = self._f5
         a = self._args
 
 
