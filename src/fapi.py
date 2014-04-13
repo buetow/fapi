@@ -6,6 +6,7 @@ import argparse
 import base64
 import bigsuds
 import getpass 
+import pprint
 import socket
 import sys
 
@@ -70,7 +71,8 @@ class Fapi(object):
     def __out(self, result):
         ''' Prints an iControl result to stdout '''
 
-        print result
+        pp = pprint.PrettyPrinter(indent=4)
+        pp.pprint(result)
 
 
     def __lookup(self, what):
@@ -98,12 +100,24 @@ class Fapi(object):
         a = self._args
 
         if a.arg == 'show':
-            if a.arg2 == 'status':
+            if a.arg2 == 'detail':
                 nodename = a.arg3
-                self.info('Getting node monitor status of \'%s\'' % nodename)
-                return lambda: f5().get_monitor_status([nodename])
+                def monitor_status(f5):
+                    d = {}
+                    d['connection_limit'] = f5().get_connection_limit([nodename])
+                    d['default_node_monitor'] = f5().get_default_node_monitor()
+                    d['description'] = f5().get_description([nodename])
+                    d['dynamic_ratio'] = f5().get_dynamic_ratio_v2([nodename])
+                    d['monitor_instance'] = f5().get_monitor_instance([nodename])
+                    d['monitor_rule'] = f5().get_monitor_rule([nodename])
+                    d['monitor_status'] = f5().get_monitor_status([nodename])
+                    d['object_status'] = f5().get_object_status([nodename])
+                    d['rate_limit'] = f5().get_rate_limit([nodename])
+                    d['ratio'] = f5().get_ratio([nodename])
+                    d['session_status'] = f5().get_session_status([nodename])
+                    return d
+                return lambda: monitor_status(f5)
             elif a.arg2 == 'all':
-                self.info('Getting node list')
                 return lambda: f5().get_list()
 
         elif a.arg == 'create':
@@ -114,13 +128,26 @@ class Fapi(object):
                     self.info('Can\'t resolve \'%s\': %s' % (nodename, e))
                     sys.exit(2)
                 fqdn, ip, _ = self.__lookup(nodename)
-                self.info('Creating node \'%s\' \'%s\'' % (fqdn, ip))
                 return lambda: f5().create([fqdn],[ip],[0])
 
         elif a.arg == 'delete':
                 nodename = a.arg2
-                self.info('Deleting node \'%s\'' % (nodename))
                 return lambda: f5().delete_node_address([nodename])
+
+
+    def __do_monitor(self, f5):
+        ''' Do stuff concerning monitor templates '''
+
+        a = self._args
+
+        if a.arg == 'show':
+            monitorname = a.arg3
+            if a.arg2 == 'desc':
+                return lambda: f5().get_description([monitorname])
+            if a.arg2 == 'state':
+                return lambda: f5().get_template_state([monitorname])
+            elif a.arg2 == 'all':
+                return lambda: f5().get_template_list()
 
 
     def __do_pool(self, f5):
@@ -131,13 +158,10 @@ class Fapi(object):
 
         if a.arg == 'show':
             if a.arg2 == 'status':
-                self.info('Getting pool status of \'%s\'' % poolname)
                 return lambda: f5().get_object_status([poolname])
             elif a.arg2 == 'members':
-                self.info('Get pool members of \'%s\'' % poolname)
                 return lambda: f5().get_member_v2([poolname])
             elif a.arg2 == 'all':
-                self.info('Get pool list')
                 return lambda: f5().get_list()
 
         elif a.arg == 'create':
@@ -148,24 +172,18 @@ class Fapi(object):
                         fqdn, ip, port = self.__lookup(x)
                         pm = { 'address' : fqdn, 'port' : port }
                         poolmembers.append(pm)
-                self.info('Creating pool \'%s\'' % poolname)
                 return lambda: f5().create_v2([poolname],[method],[poolmembers])
 
         elif a.arg == 'delete':
-            self.info('Deleting pool \'%s\'' % poolname)
             return lambda: f5().delete_pool([poolname])
 
         elif a.arg == 'add':
             fqdn, _, port = self.__lookup(a.arg3)
-            self.info('Add member \'%s:%s\' to pool \'%s\'' 
-                    % (fqdn, port, poolname))
             member = [{ 'address' : fqdn, 'port' : port }]
             return lambda: f5().add_member_v2([poolname], [member])
 
         elif a.arg == 'remove':
             fqdn, _, port = self.__lookup(a.arg3)
-            self.info('Remove member \'%s:%s\' from pool \'%s\'' 
-                    % (fqdn, port, poolname))
             member = [{ 'address' : fqdn, 'port' : port }]
             return lambda: f5().remove_member_v2([poolname], [member])
 
@@ -187,6 +205,8 @@ class Fapi(object):
 
         if a.what == 'node':
             lazy = self.__do_node(lambda: self._f5.LocalLB.NodeAddressV2)
+        elif a.what == 'monitor':
+            lazy = self.__do_monitor(lambda: self._f5.LocalLB.Monitor)
         elif a.what == 'pool':
             lazy = self.__do_pool(lambda: self._f5.LocalLB.Pool)
         elif a.what == 'service':
