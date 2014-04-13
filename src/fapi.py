@@ -45,18 +45,26 @@ class Fapi(object):
             prompt = 'Enter API password for user %s: ' % username
             password = getpass.getpass(prompt)
         self.info('Login to BigIP API with user %s' % username)
-        hostname = c.get('fapi', 'hostname')
+        self._partition = c.get('fapi', 'partition')
 
-        # Enhance to try to login to a list of hosts
-        try:
-            self._f5 = bigsuds.BIGIP(hostname = hostname,
-                                     username = username,
-                                     password = password)
-            self._partition = c.get('fapi', 'partition')
-            self.info('Setting partition to \'%s\'' % self._partition)
-            self._f5.Management.Partition.set_active_partition(self._partition)
-        except Exception, e:
-            self.info(e)
+        # Try a comma separated lists of F5 boxes, use the first one
+        err = None
+        for hostname in c.get('fapi', 'hostnames').split(','):
+            try:
+                self.info('Trying to login to \'%s\'' % hostname)
+                self._f5 = bigsuds.BIGIP(hostname = hostname,
+                                         username = username,
+                                         password = password)
+                self._f5.Management.Partition.set_active_partition(self._partition)
+                self.info('Set partition to \'%s\'' % self._partition)
+                err = None
+                break
+            except Exception, e:
+                err = '%s:%s' % (hostname, e)
+                pass
+
+        if err:
+            self.info(err)
             sys.exit(2)
 
 

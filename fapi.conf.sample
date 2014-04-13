@@ -1,5 +1,6 @@
 [fapi]
 username: paul
 password64: SECRET
-hostname: bigip.example.com
+# Will try every box and will use the first one which works
+hostnames: bigip.example.com,bigip2.example.com
 partition: Common
