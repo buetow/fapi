@@ -173,8 +173,8 @@ class Fapi(object):
                     d['profile'] = f5().get_profile([a.name])
                     return d
                 return lambda: detail(f5)
-            #elif a.arg2 == 'monitor':
-            #    return lambda: f5().get_monitor_instance([a.name]),
+            elif a.arg2 == 'monitor':
+                return lambda: f5().get_monitor_instance([a.name])
             elif a.arg2 == 'status':
                 return lambda: f5().get_object_status([a.name])
             elif a.arg2 == 'members':
@@ -213,6 +213,9 @@ class Fapi(object):
                 fqdn, _, port = self.__lookup(a.arg3)
                 member = [{ 'address' : fqdn, 'port' : port }]
                 return lambda: f5().remove_member_v2([a.name], [member])
+            elif a.arg2 == 'monitor':
+                # Removes all monitor associations, not just one
+                return lambda: f5().remove_monitor_association([a.name])
 
 
     def __do_service(self, f5):
