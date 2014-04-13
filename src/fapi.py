@@ -280,7 +280,12 @@ class Fapi(object):
             fqdn, ip, port = self.lookup(a.name)
             protocol = a.arg2 if a.arg2 else 'PROTOCOL_TCP'
             netmask = a.arg3 if a.arg3 else '255.255.255.255'
-            profile = a.arg4 if a.arg4 else 'tcp'
+            if a.arg4:
+                profile = a.arg4
+            elif protocol == 'PROTOCOL_UDP':
+                profile = 'udp'
+            else:
+                profile = 'tcp'
             poolname = a.arg5
             vserver = {
                 'name': a.name,
