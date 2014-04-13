@@ -64,7 +64,7 @@ class Fapi(object):
 
     def info(self, message):
         ''' Prints an informational message to stderr '''
-        
+
         print >> sys.stderr, '%s %s' % (__prompt__, message)
 
 
@@ -101,40 +101,37 @@ class Fapi(object):
 
         if a.arg == 'show':
             if a.arg2 == 'detail':
-                nodename = a.arg3
                 def detail(f5):
                     d = {}
-                    d['connection_limit'] = f5().get_connection_limit([nodename])
+                    d['connection_limit'] = f5().get_connection_limit([a.name])
                     d['default_node_monitor'] = f5().get_default_node_monitor()
-                    d['description'] = f5().get_description([nodename])
-                    d['dynamic_ratio'] = f5().get_dynamic_ratio_v2([nodename])
-                    d['monitor_instance'] = f5().get_monitor_instance([nodename])
-                    d['monitor_rule'] = f5().get_monitor_rule([nodename])
-                    d['monitor_status'] = f5().get_monitor_status([nodename])
-                    d['object_status'] = f5().get_object_status([nodename])
-                    d['rate_limit'] = f5().get_rate_limit([nodename])
-                    d['ratio'] = f5().get_ratio([nodename])
-                    d['session_status'] = f5().get_session_status([nodename])
+                    d['description'] = f5().get_description([a.name])
+                    d['dynamic_ratio'] = f5().get_dynamic_ratio_v2([a.name])
+                    d['monitor_instance'] = f5().get_monitor_instance([a.name])
+                    d['monitor_rule'] = f5().get_monitor_rule([a.name])
+                    d['monitor_status'] = f5().get_monitor_status([a.name])
+                    d['object_status'] = f5().get_object_status([a.name])
+                    d['rate_limit'] = f5().get_rate_limit([a.name])
+                    d['ratio'] = f5().get_ratio([a.name])
+                    d['session_status'] = f5().get_session_status([a.name])
                     return d
                 return lambda: detail(f5)
             if a.arg2 == 'status':
-                return lambda: f5().get_monitor_status([nodename])
+                return lambda: f5().get_monitor_status([a.name])
             elif a.arg2 == 'all':
                 return lambda: f5().get_list()
 
         elif a.arg == 'create':
-                nodename = a.arg2
                 try:
-                    data = socket.gethostbyname_ex(nodename)
+                    data = socket.gethostbyname_ex(a.name)
                 except Exception, e:
-                    self.info('Can\'t resolve \'%s\': %s' % (nodename, e))
+                    self.info('Can\'t resolve \'%s\': %s' % (a.name, e))
                     sys.exit(2)
-                fqdn, ip, _ = self.__lookup(nodename)
+                fqdn, ip, _ = self.__lookup(a.name)
                 return lambda: f5().create([fqdn],[ip],[0])
 
         elif a.arg == 'delete':
-                nodename = a.arg2
-                return lambda: f5().delete_node_address([nodename])
+                return lambda: f5().delete_node_address([a.name])
 
 
     def __do_monitor(self, f5):
@@ -156,27 +153,26 @@ class Fapi(object):
         ''' Do stuff concerning pools '''
 
         a = self._args
-        poolname = a.arg3
 
         if a.arg == 'show':
             if a.arg2 == 'detail':
                 def detail(f5):
                     d = {}
-                    d['allow_nat_state'] = f5().get_allow_nat_state([poolname])
-                    d['allow_snat_state'] = f5().get_allow_snat_state([poolname])
-                    d['description'] = f5().get_description([poolname])
-                    d['lb_method'] = f5().get_lb_method([poolname])
-                    d['member'] = f5().get_member_v2([poolname])
-                    d['object_status'] = f5().get_object_status([poolname])
-                    d['profile'] = f5().get_profile([poolname])
+                    d['allow_nat_state'] = f5().get_allow_nat_state([a.name])
+                    d['allow_snat_state'] = f5().get_allow_snat_state([a.name])
+                    d['description'] = f5().get_description([a.name])
+                    d['lb_method'] = f5().get_lb_method([a.name])
+                    d['member'] = f5().get_member_v2([a.name])
+                    d['object_status'] = f5().get_object_status([a.name])
+                    d['profile'] = f5().get_profile([a.name])
                     return d
                 return lambda: detail(f5)
             elif a.arg2 == 'monitor':
-                return lambda: f5().get_monitor_instance([poolname])
+                return lambda: f5().get_monitor_instance([a.name]),
             elif a.arg2 == 'status':
-                return lambda: f5().get_object_status([poolname])
+                return lambda: f5().get_object_status([a.name])
             elif a.arg2 == 'members':
-                return lambda: f5().get_member_v2([poolname])
+                return lambda: f5().get_member_v2([a.name])
             elif a.arg2 == 'all':
                 return lambda: f5().get_list()
 
@@ -188,20 +184,30 @@ class Fapi(object):
                         fqdn, ip, port = self.__lookup(x)
                         pm = { 'address' : fqdn, 'port' : port }
                         poolmembers.append(pm)
-                return lambda: f5().create_v2([poolname],[method],[poolmembers])
+                return lambda: f5().create_v2([a.name],[method],[poolmembers])
 
         elif a.arg == 'delete':
-            return lambda: f5().delete_pool([poolname])
+            return lambda: f5().delete_pool([a.name])
 
         elif a.arg == 'add':
             fqdn, _, port = self.__lookup(a.arg3)
             member = [{ 'address' : fqdn, 'port' : port }]
-            return lambda: f5().add_member_v2([poolname], [member])
+            return lambda: f5().add_member_v2([a.name], [member])
 
-        elif a.arg == 'remove':
+        elif a.arg == 'del':
             fqdn, _, port = self.__lookup(a.arg3)
             member = [{ 'address' : fqdn, 'port' : port }]
-            return lambda: f5().remove_member_v2([poolname], [member])
+            return lambda: f5().remove_member_v2([a.name], [member])
+
+        elif a.arg == 'addmonitor':
+            monitortname = a.arg3
+            rule = {
+                'type': 'MONITOR_RULE_TYPE_SINGLE',
+                'quorum': long(0),
+                'monitor_templates': [ monitortname ],
+            }
+            association = { 'pool_name': a.name, 'monitor_rule': rule }
+            return lambda: f5().set_monitor_association([association])
 
 
     def __do_service(self, f5):
@@ -248,9 +254,10 @@ if __name__ == '__main__':
         default=expanduser('~') + '/.fapi.conf')
 
     parser.add_argument('what', nargs='?', help='What')
-    parser.add_argument('arg', nargs='?', help='The argument for what')
-    parser.add_argument('arg2', nargs='?', help='A sub argument')
-    parser.add_argument('arg3', nargs='?', help='Another sub argument')
+    parser.add_argument('obj', nargs='?', help='The object name to operate on')
+    parser.add_argument('arg', nargs='?', help='The first argument')
+    parser.add_argument('arg2', nargs='?', help='The second argument')
+    parser.add_argument('arg3', nargs='?', help='The third argument')
 
     args = parser.parse_args()
 
