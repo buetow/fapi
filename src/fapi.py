@@ -56,7 +56,6 @@ class Fapi(object):
             self._partition = c.get('fapi', 'partition')
             self.info('Setting partition to \'%s\'' % self._partition)
             self._f5.Management.Partition.set_active_partition(self._partition)
-
         except Exception, e:
             self.info(e)
             sys.exit(2)
@@ -81,20 +80,16 @@ class Fapi(object):
         if 1 == len(tmp): tmp.append('80')
         what = tmp[0]
         port = tmp[1]
-
         try:
             data = socket.gethostbyname_ex(what)
         except Exception, e:
             self.info('Can\'t resolve \'%s\': %s' % (what, e))
             sys.exit(2)
-
         fqdn = data[0]
         ips = data[2]
-
         if len(ips) > 1:
             self.info('\'%s\' resolves to multiple ips \'%s\'' % (fqdn, ips))
             sys.exit(2)
-
         return (fqdn, ips[0], port)
 
     def __run_node(self, f5):
@@ -132,7 +127,6 @@ class Fapi(object):
         ''' Do stuff concerning pools '''
 
         a = self._args
-
         poolname = a.arg2
 
         if a.arg == 'show':
@@ -183,14 +177,12 @@ class Fapi(object):
 
 
     def run(self):
-        ''' Do the actual stuff '''
+        ''' Do the actual stuff.
+            We are doning some lazy evaluation stuff here. The command line
+            tool does not do anything with the slow F5 API until it is clear
+            what to do and that there is no semantic or syntax error. '''
 
         a = self._args
-
-        # We are doning some lazy evaluation stuff here. The command line
-        # tool does not do anything with the slow F5 API until it is clear
-        # what to do and that there is no semantic or syntax error.
-
         lazy = None
 
         if a.action == 'node':
@@ -203,6 +195,9 @@ class Fapi(object):
         if isfunction(lazy):
             self.__login()
             self.__out(lazy())
+        else:
+            self.info('Don\t know what to do')
+            sys.exit(1)
 
 
 if __name__ == '__main__':
