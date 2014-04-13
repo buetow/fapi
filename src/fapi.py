@@ -23,11 +23,8 @@ class Fapi(object):
     def __init__(self, args):
         ''' Initialize the config file, username and password '''
 
-        config_file = args.C
-        config = ConfigParser.ConfigParser()
-        config.read(config_file)
-
-        self._config = config
+        self._config = ConfigParser.ConfigParser()
+        self._config.read(args.C)
         self._args = args
         self.__login()
 
@@ -101,17 +98,17 @@ class Fapi(object):
     def __run_node(self):
         ''' Do stuff concerning nodes '''
 
-        n = self._f5.LocalLB.NodeAddressV2
+        f5 = self._f5.LocalLB.NodeAddressV2
         a = self._args
 
         if a.arg == 'show':
             if a.arg2 == 'status':
                 nodename = a.arg3
                 self.info('Getting node monitor status of \'%s\'' % nodename)
-                self.__out(n.get_monitor_status([nodename]))
+                self.__out(f5.get_monitor_status([nodename]))
             elif a.arg2 == 'all':
                 self.info('Getting node list')
-                self.__out(n.get_list())
+                self.__out(f5.get_list())
 
         elif a.arg == 'create':
                 nodename = a.arg2
@@ -124,18 +121,18 @@ class Fapi(object):
 
                 fqdn, ip, _ = self.__lookup(nodename)
                 self.info('Creating node \'%s\' \'%s\'' % (fqdn, ip))
-                n.create([fqdn],[ip],[0])
+                f5.create([fqdn],[ip],[0])
 
         elif a.arg == 'delete':
                 nodename = a.arg2
                 self.info('Deleting node \'%s\'' % (nodename))
-                n.delete_node_address([nodename])
+                f5.delete_node_address([nodename])
 
 
     def __run_pool(self):
         ''' Do stuff concerning pools '''
 
-        p = self._f5.LocalLB.Pool
+        f5 = self._f5.LocalLB.Pool
         a = self._args
 
         poolname = a.arg2
@@ -143,13 +140,13 @@ class Fapi(object):
         if a.arg == 'show':
             if a.arg2 == 'status':
                 self.info('Getting pool status of \'%s\'' % poolname)
-                self.__out(p.get_object_status([poolname]))
+                self.__out(f5.get_object_status([poolname]))
             elif a.arg2 == 'members':
                 self.info('Get pool members of \'%s\'' % poolname)
-                self.__out(p.get_member_v2([poolname]))
+                self.__out(f5.get_member_v2([poolname]))
             elif a.arg2 == 'all':
                 self.info('Get pool list')
-                self.__out(p.get_list())
+                self.__out(f5.get_list())
 
         elif a.arg == 'create':
                 poolmembers = []
@@ -160,31 +157,31 @@ class Fapi(object):
                         pm = { 'address' : fqdn, 'port' : port }
                         poolmembers.append(pm)
                 self.info('Creating pool \'%s\'' % poolname)
-                p.create_v2([poolname],[method],[poolmembers])
+                f5.create_v2([poolname],[method],[poolmembers])
 
         elif a.arg == 'delete':
             self.info('Deleting pool \'%s\'' % poolname)
-            p.delete_pool([poolname])
+            f5.delete_pool([poolname])
 
         elif a.arg == 'add':
             fqdn, _, port = self.__lookup(a.arg3)
             self.info('Add member \'%s:%s\' to pool \'%s\'' 
                     % (fqdn, port, poolname))
             member = [{ 'address' : fqdn, 'port' : port }]
-            p.add_member_v2([poolname], [member])
+            f5.add_member_v2([poolname], [member])
 
         elif a.arg == 'remove':
             fqdn, _, port = self.__lookup(a.arg3)
             self.info('Remove member \'%s:%s\' from pool \'%s\'' 
                     % (fqdn, port, poolname))
             member = [{ 'address' : fqdn, 'port' : port }]
-            p.remove_member_v2([poolname], [member])
+            f5.remove_member_v2([poolname], [member])
 
 
     def __run_service(self):
         ''' Do stuff concerning virtual services '''
 
-        f = self._f5
+        f5 = self._f5
         a = self._args
 
 
