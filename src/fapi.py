@@ -263,17 +263,45 @@ class Fapi(object):
             elif a.arg2 == 'brief':
                 def brief(f5):
                     d = {}
+                    d['actual_hardware_acceleration'] = f5().get_actual_hardware_acceleration([a.name])
                     d['default_pool_name'] = f5().get_default_pool_name([a.name])
+                    d['destination'] = f5().get_destination_v2([a.name])
+                    d['enabled_state'] = f5().get_enabled_state([a.name])
                     d['object_status'] = f5().get_object_status([a.name])
                     d['profile'] = f5().get_profile([a.name])
                     d['protocol'] = f5().get_protocol([a.name])
-                    d['actual_hardware_acceleration'] = f5().get_actual_hardware_acceleration([a.name])
                     d['translate_port_state'] = f5().get_translate_port_state([a.name])
                     d['translate_port_state'] = f5().get_translate_port_state([a.name])
+                    d['type'] = f5().get_type([a.name])
                     return d
                 return lambda: brief(f5)
             elif a.arg2 == 'status':
                 return lambda: f5().get_object_status([a.name])
+
+        elif a.arg == 'create':
+            fqdn, ip, port = self.lookup(a.name)
+            protocol = a.arg2 if a.arg2 else 'PROTOCOL_TCP'
+            netmask = a.arg3 if a.arg3 else '255.255.255.255'
+            profile = a.arg4 if a.arg4 else 'tcp'
+            poolname = a.arg5
+            vserver = {
+                'name': a.name,
+                'address': ip,
+                'port': port,
+                'protocol': protocol,
+            }
+            resource = { 'type': 'RESOURCE_TYPE_POOL' }
+            if poolname: resource['default_pool_name'] = poolname
+            profile = {
+                    'profile_context': 'PROFILE_CONTEXT_TYPE_ALL',
+                    'profile_name': profile,
+            }
+            self.info("vserver:%s netmask:%s resource:%s, profile:%s"
+                    % (vserver, netmask, resource, profile))
+            return lambda: f5().create([vserver], [netmask], [resource], [[profile]])
+
+        elif a.arg == 'delete':
+            return lambda: f5().delete_virtual_server([a.name])
 
         elif a.arg == 'set':
             if a.arg2 == 'pool':
@@ -300,6 +328,7 @@ class Fapi(object):
             lazy = self.__do_vserver(lambda: self._f5.LocalLB.VirtualServer)
 
         if isfunction(lazy):
+            self.info('Doing some stuf via the API, it may take a while')
             self.__login()
             self.out(lazy())
         else:
@@ -322,7 +351,8 @@ if __name__ == '__main__':
     parser.add_argument('arg', nargs='?', help='The first argument')
     parser.add_argument('arg2', nargs='?', help='The second argument')
     parser.add_argument('arg3', nargs='?', help='The third argument')
-    #parser.add_argument('arg4', nargs='?', help='The fourth argument')
+    parser.add_argument('arg4', nargs='?', help='The fourth argument')
+    parser.add_argument('arg5', nargs='?', help='The fith argument')
 
     args = parser.parse_args()
 
