@@ -1,6 +1,8 @@
 fapi
 ====
 
+This might be a clone of http://github.com/rantanplan/fapi
+
 This is a simple command line client to do basic stuff with the iControl F5 API such as:
 
 * Managing Nodes
