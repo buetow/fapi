@@ -253,8 +253,6 @@ class Fapi(object):
                     d['source_address_translation_type'] = f5().get_source_address_translation_type([a.name])
                     d['source_port_behavior'] = f5().get_source_port_behavior([a.name])
                     d['translate_address_state'] = f5().get_translate_address_state([a.name])
-                    d['translate_address_state'] = f5().get_translate_address_state([a.name])
-                    d['translate_port_state'] = f5().get_translate_port_state([a.name])
                     d['translate_port_state'] = f5().get_translate_port_state([a.name])
                     d['type'] = f5().get_type([a.name])
                     d['vlan'] = f5().get_vlan([a.name])
@@ -270,7 +268,7 @@ class Fapi(object):
                     d['object_status'] = f5().get_object_status([a.name])
                     d['profile'] = f5().get_profile([a.name])
                     d['protocol'] = f5().get_protocol([a.name])
-                    d['translate_port_state'] = f5().get_translate_port_state([a.name])
+                    d['translate_address_state'] = f5().get_translate_address_state([a.name])
                     d['translate_port_state'] = f5().get_translate_port_state([a.name])
                     d['type'] = f5().get_type([a.name])
                     return d
