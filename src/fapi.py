@@ -99,7 +99,7 @@ class Fapi(object):
 
         a = self._args
 
-        if a.arg == 'show':
+        if a.arg == 'get':
             if a.arg2 == 'detail':
                 def detail(f5):
                     d = {}
@@ -139,7 +139,7 @@ class Fapi(object):
 
         a = self._args
 
-        if a.arg == 'show':
+        if a.arg == 'get':
             monitorname = a.arg3
             if a.arg2 == 'desc':
                 return lambda: f5().get_description([monitorname])
@@ -154,7 +154,7 @@ class Fapi(object):
 
         a = self._args
 
-        if a.arg == 'show':
+        if a.arg == 'get':
             if a.arg2 == 'detail':
                 def detail(f5):
                     d = {}
@@ -254,7 +254,7 @@ if __name__ == '__main__':
         default=expanduser('~') + '/.fapi.conf')
 
     parser.add_argument('what', nargs='?', help='What')
-    parser.add_argument('obj', nargs='?', help='The object name to operate on')
+    parser.add_argument('name', nargs='?', help='The object name to operate on')
     parser.add_argument('arg', nargs='?', help='The first argument')
     parser.add_argument('arg2', nargs='?', help='The second argument')
     parser.add_argument('arg3', nargs='?', help='The third argument')
