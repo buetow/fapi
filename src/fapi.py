@@ -92,7 +92,7 @@ class Fapi(object):
             sys.exit(2)
         return (fqdn, ips[0], port)
 
-    def __run_node(self, f5):
+    def __do_node(self, f5):
         ''' Do stuff concerning nodes '''
 
         a = self._args
@@ -123,7 +123,7 @@ class Fapi(object):
                 return lambda: f5().delete_node_address([nodename])
 
 
-    def __run_pool(self, f5):
+    def __do_pool(self, f5):
         ''' Do stuff concerning pools '''
 
         a = self._args
@@ -170,7 +170,7 @@ class Fapi(object):
             return lambda: f5().remove_member_v2([poolname], [member])
 
 
-    def __run_service(self, f5):
+    def __do_service(self, f5):
         ''' Do stuff concerning virtual services '''
 
         a = self._args
@@ -185,12 +185,12 @@ class Fapi(object):
         a = self._args
         lazy = None
 
-        if a.action == 'node':
-            lazy = self.__run_node(lambda: self._f5.LocalLB.NodeAddressV2)
-        elif a.action == 'pool':
-            lazy = self.__run_pool(lambda: self._f5.LocalLB.Pool)
-        elif a.action == 'service':
-            lazy = self.__run_service(lambda: self._f5)
+        if a.what == 'node':
+            lazy = self.__do_node(lambda: self._f5.LocalLB.NodeAddressV2)
+        elif a.what == 'pool':
+            lazy = self.__do_pool(lambda: self._f5.LocalLB.Pool)
+        elif a.what == 'service':
+            lazy = self.__do_service(lambda: self._f5)
 
         if isfunction(lazy):
             self.__login()
@@ -211,8 +211,8 @@ if __name__ == '__main__':
     parser.add_argument('-C', action='store', help='Config file',
         default=expanduser('~') + '/.fapi.conf')
 
-    parser.add_argument('action', nargs='?', help='The action')
-    parser.add_argument('arg', nargs='?', help='The argument for the action')
+    parser.add_argument('what', nargs='?', help='What')
+    parser.add_argument('arg', nargs='?', help='The argument for what')
     parser.add_argument('arg2', nargs='?', help='A sub argument')
     parser.add_argument('arg3', nargs='?', help='Another sub argument')
 
