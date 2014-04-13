@@ -99,6 +99,9 @@ class Fapi(object):
 
         a = self._args
 
+        if not a.name:
+            return lambda: f5().get_list()
+
         if a.arg == 'get':
             if a.arg2 == 'detail':
                 def detail(f5):
@@ -118,8 +121,6 @@ class Fapi(object):
                 return lambda: detail(f5)
             if a.arg2 == 'status':
                 return lambda: f5().get_monitor_status([a.name])
-            elif a.arg2 == 'list':
-                return lambda: f5().get_list()
 
         elif a.arg == 'create':
                 try:
@@ -139,20 +140,24 @@ class Fapi(object):
 
         a = self._args
 
+        if not a.name:
+            return lambda: f5().get_template_list()
+
         if a.arg == 'get':
             monitorname = a.arg3
             if a.arg2 == 'desc':
                 return lambda: f5().get_description([monitorname])
             if a.arg2 == 'state':
                 return lambda: f5().get_template_state([monitorname])
-            elif a.arg2 == 'list':
-                return lambda: f5().get_template_list()
 
 
     def __do_pool(self, f5):
         ''' Do stuff concerning pools '''
 
         a = self._args
+
+        if not a.name:
+            return lambda: f5().get_list()
 
         if a.arg == 'get':
             if a.arg2 == 'detail':
@@ -173,8 +178,6 @@ class Fapi(object):
                 return lambda: f5().get_object_status([a.name])
             elif a.arg2 == 'members':
                 return lambda: f5().get_member_v2([a.name])
-            elif a.arg2 == 'list':
-                return lambda: f5().get_list()
 
         elif a.arg == 'create':
                 poolmembers = []
