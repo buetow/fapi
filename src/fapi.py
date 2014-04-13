@@ -10,6 +10,7 @@ import socket
 import sys
 
 from os.path import expanduser
+from inspect import isfunction
 
 import ConfigParser
 
@@ -26,7 +27,6 @@ class Fapi(object):
         self._config = ConfigParser.ConfigParser()
         self._config.read(args.C)
         self._args = args
-        self.__login()
 
 
     def __login(self):
@@ -64,12 +64,14 @@ class Fapi(object):
 
     def info(self, message):
         ''' Prints an informational message to stderr '''
+        
         print >> sys.stderr, '%s %s' % (__prompt__, message)
 
 
-    def __out(self, message):
+    def __out(self, result):
         ''' Prints an iControl result to stdout '''
-        print message
+
+        print result
 
 
     def __lookup(self, what):
@@ -95,38 +97,35 @@ class Fapi(object):
 
         return (fqdn, ips[0], port)
 
-    def __run_node(self):
+    def __run_node(self, f5):
         ''' Do stuff concerning nodes '''
 
-        f5 = self._f5.LocalLB.NodeAddressV2
         a = self._args
 
         if a.arg == 'show':
             if a.arg2 == 'status':
                 nodename = a.arg3
                 self.info('Getting node monitor status of \'%s\'' % nodename)
-                self.__out(f5.get_monitor_status([nodename]))
+                return lambda: f5().get_monitor_status([nodename])
             elif a.arg2 == 'all':
                 self.info('Getting node list')
-                self.__out(f5.get_list())
+                return lambda: f5().get_list()
 
         elif a.arg == 'create':
                 nodename = a.arg2
-
                 try:
                     data = socket.gethostbyname_ex(nodename)
                 except Exception, e:
                     self.info('Can\'t resolve \'%s\': %s' % (nodename, e))
                     sys.exit(2)
-
                 fqdn, ip, _ = self.__lookup(nodename)
                 self.info('Creating node \'%s\' \'%s\'' % (fqdn, ip))
-                f5.create([fqdn],[ip],[0])
+                return lambda: f5().create([fqdn],[ip],[0])
 
         elif a.arg == 'delete':
                 nodename = a.arg2
                 self.info('Deleting node \'%s\'' % (nodename))
-                f5.delete_node_address([nodename])
+                return lambda: f5().delete_node_address([nodename])
 
 
     def __run_pool(self):
@@ -140,13 +139,13 @@ class Fapi(object):
         if a.arg == 'show':
             if a.arg2 == 'status':
                 self.info('Getting pool status of \'%s\'' % poolname)
-                self.__out(f5.get_object_status([poolname]))
+                return lambda: f5.get_object_status([poolname])
             elif a.arg2 == 'members':
                 self.info('Get pool members of \'%s\'' % poolname)
-                self.__out(f5.get_member_v2([poolname]))
+                return lambda: f5.get_member_v2([poolname])
             elif a.arg2 == 'all':
                 self.info('Get pool list')
-                self.__out(f5.get_list())
+                return lambda: f5.get_list()
 
         elif a.arg == 'create':
                 poolmembers = []
@@ -157,25 +156,25 @@ class Fapi(object):
                         pm = { 'address' : fqdn, 'port' : port }
                         poolmembers.append(pm)
                 self.info('Creating pool \'%s\'' % poolname)
-                f5.create_v2([poolname],[method],[poolmembers])
+                return lambda: f5.create_v2([poolname],[method],[poolmembers])
 
         elif a.arg == 'delete':
             self.info('Deleting pool \'%s\'' % poolname)
-            f5.delete_pool([poolname])
+            return lambda: f5.delete_pool([poolname])
 
         elif a.arg == 'add':
             fqdn, _, port = self.__lookup(a.arg3)
             self.info('Add member \'%s:%s\' to pool \'%s\'' 
                     % (fqdn, port, poolname))
             member = [{ 'address' : fqdn, 'port' : port }]
-            f5.add_member_v2([poolname], [member])
+            return lambda: f5.add_member_v2([poolname], [member])
 
         elif a.arg == 'remove':
             fqdn, _, port = self.__lookup(a.arg3)
             self.info('Remove member \'%s:%s\' from pool \'%s\'' 
                     % (fqdn, port, poolname))
             member = [{ 'address' : fqdn, 'port' : port }]
-            f5.remove_member_v2([poolname], [member])
+            return lambda: f5.remove_member_v2([poolname], [member])
 
 
     def __run_service(self):
@@ -188,9 +187,24 @@ class Fapi(object):
     def run(self):
         ''' Do the actual stuff '''
 
-        if self._args.action == 'node': return self.__run_node()
-        elif self._args.action == 'pool': return self.__run_pool()
-        elif self._args.action == 'service': return self.__run_service()
+        a = self._args
+
+        # We are doning some lazy evaluation stuff here. The command line
+        # tool does not do anything with the slow F5 API until it is clear
+        # what to do and that there is no semantic or syntax error.
+
+        lazy = None
+
+        if a.action == 'node':
+            lazy = self.__run_node(lambda: self._f5.LocalLB.NodeAddressV2)
+        elif a.action == 'pool':
+            lazy = self.__run_pool(lambda: self._f5.LocalLB.Pool)
+        elif a.action == 'service':
+            lazy = self.__run_service(lambda: self._f5)
+
+        if isfunction(lazy):
+            self.__login()
+            self.__out(lazy())
 
 
 if __name__ == '__main__':
