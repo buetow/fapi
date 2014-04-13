@@ -8,6 +8,12 @@ This is a simple command line client to do basic stuff with the iControl F5 API 
 * Managing Pools
 * Managing Virtual Servers
 
+todo
+====
+
+* Write documentation including examples
+* Support a Debian Package
+
 
 This is the reference of iControl:
 
