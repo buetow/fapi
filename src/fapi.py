@@ -39,13 +39,11 @@ class Fapi(object):
             username = c.get('fapi', 'username')
         else:
             username = getpass.getuser()
-
         if c.has_option('fapi', 'password64'):
             password = base64.decodestring(c.get('fapi', 'password64'))
         else:
             prompt = 'Enter API password for user %s: ' % username
             password = getpass.getpass(prompt)
-
         self.info('Login to BigIP API with user %s' % username)
         hostname = c.get('fapi', 'hostname')
 
@@ -74,13 +72,6 @@ class Fapi(object):
         if result != None:
             pp = pprint.PrettyPrinter(indent=4)
             pp.pprint(result)
-
-
-    #def __help(self, *possible):
-    #    ''' Prints an online help '''
-
-    #    print 'Possible sub commands are:'
-    #    print ' '.join(possible)
 
 
     def lookup(self, what):
@@ -229,6 +220,53 @@ class Fapi(object):
         ''' Do stuff concerning virtual servers '''
 
         a = self._args
+
+        if not a.name:
+            return lambda: f5().get_list()
+
+        if a.arg == 'get':
+            if a.arg2 == 'detail':
+                def detail(f5):
+                    d = {}
+                    d['actual_hardware_acceleration'] = f5().get_actual_hardware_acceleration([a.name])
+                    d['auto_lasthop'] = f5().get_auto_lasthop([a.name])
+                    d['bw_controller_policy'] = f5().get_bw_controller_policy([a.name])
+                    d['clone_pool'] = f5().get_clone_pool([a.name])
+                    d['connection_limit'] = f5().get_connection_limit([a.name])
+                    d['description'] = f5().get_description([a.name])
+                    d['destination'] = f5().get_destination_v2([a.name])
+                    d['enabled_state'] = f5().get_enabled_state([a.name])
+                    d['fallback_persistence_profile'] = f5().get_fallback_persistence_profile([a.name])
+                    d['gtm_score'] = f5().get_gtm_score([a.name])
+                    d['last_hop_pool'] = f5().get_last_hop_pool([a.name])
+                    d['object_status'] = f5().get_object_status([a.name])
+                    d['persistence_profile'] = f5().get_persistence_profile([a.name])
+                    d['profile'] = f5().get_profile([a.name])
+                    d['protocol'] = f5().get_protocol([a.name])
+                    d['rule'] = f5().get_rule([a.name])
+                    d['translate_address_state'] = f5().get_translate_address_state([a.name])
+                    d['translate_port_state'] = f5().get_translate_port_state([a.name])
+                    d['type'] = f5().get_type([a.name])
+                    d['vlan'] = f5().get_vlan([a.name])
+                    return d
+                return lambda: detail(f5)
+            elif a.arg2 == 'nat':
+                def nat(f5):
+                    d = {}
+                    d['snat_pool'] = f5().get_snat_pool([a.name])
+                    d['snat_type'] = f5().get_snat_type([a.name])
+                    d['source_address'] = f5().get_source_address([a.name])
+                    d['source_address_translation_lsn_pool'] = f5().get_source_address_translation_lsn_pool([a.name])
+                    d['source_address_translation_snat_pool'] = f5().get_source_address_translation_snat_pool([a.name])
+                    d['source_address_translation_type'] = f5().get_source_address_translation_type([a.name])
+                    d['source_port_behavior'] = f5().get_source_port_behavior([a.name])
+                    d['translate_address_state'] = f5().get_translate_address_state([a.name])
+                    d['translate_port_state'] = f5().get_translate_port_state([a.name])
+                    return d
+                return lambda: nat(f5)
+                return lambda: f5().get_object_status([a.name])
+            elif a.arg2 == 'status':
+                return lambda: f5().get_object_status([a.name])
 
 
     def run(self):
