@@ -1,0 +1,16 @@
+Source: fapi
+Section: utils
+Priority: optional
+Maintainer: Paul C. Buetow <paul@buetow.org>
+Build-Depends: 
+Standards-Version: 3.9.2
+Homepage: https://fapi.buetow.org
+Vcs-Git: https://github.com/rantanplan/fapi.git
+Vcs-Browser: https://github.com/rantanplan/fapi
+
+Package: fapi
+Architecture: all
+Depends:
+Description: The fapi package
+ This is just command line tool to manage F5 BigIP programmed in Python using 
+ bigsuds. bigsuds has to be isntalled manually.
