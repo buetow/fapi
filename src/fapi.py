@@ -9,6 +9,7 @@ import getpass
 import pprint
 import socket
 import sys
+import re
 
 from os.path import expanduser
 from inspect import isfunction
@@ -16,8 +17,41 @@ from inspect import isfunction
 import ConfigParser
 
 __program__ = 'fapi'
-__version__ = 'VERSION_DEVEL' # Replaced by a Makefile target
+__version__ = 'VERSION_DEVEL' # Replaced by a Makefile tsubet
 __prompt__  = '>>>' # Default prompt
+
+
+def print_synopsis():
+    ''' Prints the full Synopsis string '''
+
+    print "\n".join([
+        'This is %s version %s' % (__program__, __version__),
+        '',
+        'Synopsis:',
+        ' fapi monitor',
+        ' fapi monitor MONITORNAME get desc|state',
+        ' fapi node',
+        ' fapi node NODENAME create|delete',
+        ' fapi node NODENAME get detail|status',
+        ' fapi pool',
+        ' fapi pool POOLNAME add member MEMBERNAME',
+        ' fapi pool POOLNAME add monitor MONITORNAME',
+        ' fapi pool POOLNAME create [LIST,OF,POOL,MEMBERS]',
+        ' fapi pool POOLNAME delete',
+        ' fapi pool POOLNAME del member MEMBERNAME',
+        ' fapi pool POOLNAME del monitors',
+        ' fapi pool POOLNAME get detail|lbmethod|members|monitor|status',
+        ' fapi pool POOLNAME set lbmethod LBMETHOD',
+        ' fapi vserver',
+        ' fapi vserver VSERVERNAME create [protocol] [profile] [poolname] [mask]',
+        ' fapi vserver VSERVERNAME delete',
+        ' fapi vserver VSERVERNAME get brief|detail|status',
+        ' fapi vserver VSERVERNAME set nat|pat disabled|enabled',
+        ' fapi vserver VSERVERNAME set pool POOLNAME',
+        ' fapi vserver VSERVERNAME set snat none',
+    ])
+
+
 
 class Fapi(object):
     ''' The main F5 API Tool Object '''
@@ -25,15 +59,17 @@ class Fapi(object):
     def __init__(self, args):
         ''' Initialize the config file, username and password '''
 
+        self._args = args
         self._config = ConfigParser.ConfigParser()
         self._config.read(args.C)
-        self._args = args
+        self._partition = self._config.get('fapi', 'partition')
 
 
     def __login(self):
         ''' Logs into the F5 BigIP SOAP API and changes the partition'''
 
         c = self._config
+        a = self._args
 
         if c.has_option('fapi', 'username'):
             username = c.get('fapi', 'username')
@@ -45,7 +81,6 @@ class Fapi(object):
             prompt = 'Enter API password for user %s: ' % username
             password = getpass.getpass(prompt)
         self.info('Login to BigIP API with user %s' % username)
-        self._partition = c.get('fapi', 'partition')
 
         # Try a comma separated lists of F5 boxes, use the first one
         err = None
@@ -71,7 +106,7 @@ class Fapi(object):
     def info(self, message):
         ''' Prints an informational message to stderr '''
 
-        print >> sys.stderr, '%s %s' % (__prompt__, message)
+        if self._args.v: print >> sys.stderr, '%s %s' % (__prompt__, message)
 
 
     def out(self, result):
@@ -109,8 +144,8 @@ class Fapi(object):
         if not a.name:
             return lambda: f5().get_list()
 
-        if a.arg == 'get':
-            if a.arg2 == 'detail':
+        if a.sub == 'get':
+            if a.sub2 == 'detail':
                 def detail(f5):
                     d = {}
                     d['connection_limit'] = f5().get_connection_limit([a.name])
@@ -126,10 +161,10 @@ class Fapi(object):
                     d['session_status'] = f5().get_session_status([a.name])
                     return d
                 return lambda: detail(f5)
-            if a.arg2 == 'status':
+            if a.sub2 == 'status':
                 return lambda: f5().get_monitor_status([a.name])
 
-        elif a.arg == 'create':
+        elif a.sub == 'create':
                 try:
                     data = socket.gethostbyname_ex(a.name)
                 except Exception, e:
@@ -138,7 +173,7 @@ class Fapi(object):
                 fqdn, ip, _ = self.lookup(a.name)
                 return lambda: f5().create([fqdn],[ip],[0])
 
-        elif a.arg == 'delete':
+        elif a.sub == 'delete':
                 return lambda: f5().delete_node_address([a.name])
 
 
@@ -150,11 +185,11 @@ class Fapi(object):
         if not a.name:
             return lambda: f5().get_template_list()
 
-        if a.arg == 'get':
-            monitorname = a.arg3
-            if a.arg2 == 'desc':
+        if a.sub == 'get':
+            monitorname = a.sub3
+            if a.sub2 == 'desc':
                 return lambda: f5().get_description([monitorname])
-            if a.arg2 == 'state':
+            if a.sub2 == 'state':
                 return lambda: f5().get_template_state([monitorname])
 
 
@@ -166,8 +201,8 @@ class Fapi(object):
         if not a.name:
             return lambda: f5().get_list()
 
-        if a.arg == 'get':
-            if a.arg2 == 'detail':
+        if a.sub == 'get':
+            if a.sub2 == 'detail':
                 def detail(f5):
                     d = {}
                     d['allow_nat_state'] = f5().get_allow_nat_state([a.name])
@@ -179,33 +214,40 @@ class Fapi(object):
                     d['profile'] = f5().get_profile([a.name])
                     return d
                 return lambda: detail(f5)
-            elif a.arg2 == 'monitor':
-                return lambda: f5().get_monitor_instance([a.name])
-            elif a.arg2 == 'status':
-                return lambda: f5().get_object_status([a.name])
-            elif a.arg2 == 'members':
+            elif a.sub2 == 'lbmethod':
+                return lambda: f5().get_lb_method([a.name])
+            elif a.sub2 == 'members':
                 return lambda: f5().get_member_v2([a.name])
+            elif a.sub2 == 'monitor':
+                return lambda: f5().get_monitor_instance([a.name])
+            elif a.sub2 == 'status':
+                return lambda: f5().get_object_status([a.name])
 
-        elif a.arg == 'create':
+        elif a.sub == 'set':
+            if a.sub2 == 'lbmethod':
+                lbmethod = a.sub3
+                return lambda: f5().set_lb_method([a.name], [lbmethod])
+
+        elif a.sub == 'create':
                 poolmembers = []
                 method = a.m
-                if a.arg3:
-                    for x in a.arg3.split(','):
+                if a.sub3:
+                    for x in a.sub3.split(','):
                         fqdn, ip, port = self.lookup(x)
                         pm = { 'address' : fqdn, 'port' : port }
                         poolmembers.append(pm)
                 return lambda: f5().create_v2([a.name],[method],[poolmembers])
 
-        elif a.arg == 'delete':
+        elif a.sub == 'delete':
             return lambda: f5().delete_pool([a.name])
 
-        elif a.arg == 'add':
-            if a.arg2 == 'member':
-                fqdn, _, port = self.lookup(a.arg3)
+        elif a.sub == 'add':
+            if a.sub2 == 'member':
+                fqdn, _, port = self.lookup(a.sub3)
                 member = [{ 'address' : fqdn, 'port' : port }]
                 return lambda: f5().add_member_v2([a.name], [member])
-            elif a.arg2 == 'monitor':
-                monitorname = a.arg3
+            elif a.sub2 == 'monitor':
+                monitorname = a.sub3
                 rule = {
                     'type': 'MONITOR_RULE_TYPE_SINGLE',
                     'quorum': long(0),
@@ -214,12 +256,12 @@ class Fapi(object):
                 association = { 'pool_name': a.name, 'monitor_rule': rule }
                 return lambda: f5().set_monitor_association([association])
 
-        elif a.arg == 'del':
-            if a.arg2 == 'member':
-                fqdn, _, port = self.lookup(a.arg3)
+        elif a.sub == 'del':
+            if a.sub2 == 'member':
+                fqdn, _, port = self.lookup(a.sub3)
                 member = [{ 'address' : fqdn, 'port' : port }]
                 return lambda: f5().remove_member_v2([a.name], [member])
-            elif a.arg2 == 'monitors':
+            elif a.sub2 == 'monitors':
                 # Removes all monitor associations, not just one
                 return lambda: f5().remove_monitor_association([a.name])
 
@@ -232,71 +274,82 @@ class Fapi(object):
         if not a.name:
             return lambda: f5().get_list()
 
-        if a.arg == 'get':
-            if a.arg2 == 'detail':
+        # Check for Pattern like /partition/foo-bar.example.com_443
+        m = re.match('^(.*)_(\d+)$', a.name)
+        if m:
+          fqdn = m.group(1)
+          port = m.group(2)
+          _, ip, _ = self.lookup(fqdn)
+        else:
+          fqdn, ip, port = self.lookup(a.name)
+
+        name = fqdn + '_' + port
+
+        if a.sub == 'get':
+            if a.sub2 == 'detail':
                 def detail(f5):
                     d = {}
-                    d['actual_hardware_acceleration'] = f5().get_actual_hardware_acceleration([a.name])
-                    d['auto_lasthop'] = f5().get_auto_lasthop([a.name])
-                    d['bw_controller_policy'] = f5().get_bw_controller_policy([a.name])
-                    d['clone_pool'] = f5().get_clone_pool([a.name])
-                    d['connection_limit'] = f5().get_connection_limit([a.name])
-                    d['default_pool_name'] = f5().get_default_pool_name([a.name])
-                    d['description'] = f5().get_description([a.name])
-                    d['destination'] = f5().get_destination_v2([a.name])
-                    d['enabled_state'] = f5().get_enabled_state([a.name])
-                    d['fallback_persistence_profile'] = f5().get_fallback_persistence_profile([a.name])
-                    d['gtm_score'] = f5().get_gtm_score([a.name])
-                    d['last_hop_pool'] = f5().get_last_hop_pool([a.name])
-                    d['object_status'] = f5().get_object_status([a.name])
-                    d['persistence_profile'] = f5().get_persistence_profile([a.name])
-                    d['profile'] = f5().get_profile([a.name])
-                    d['protocol'] = f5().get_protocol([a.name])
-                    d['rule'] = f5().get_rule([a.name])
-                    d['snat_pool'] = f5().get_snat_pool([a.name])
-                    d['snat_type'] = f5().get_snat_type([a.name])
-                    d['source_address'] = f5().get_source_address([a.name])
-                    d['source_address_translation_lsn_pool'] = f5().get_source_address_translation_lsn_pool([a.name])
-                    d['source_address_translation_snat_pool'] = f5().get_source_address_translation_snat_pool([a.name])
-                    d['source_address_translation_type'] = f5().get_source_address_translation_type([a.name])
-                    d['source_port_behavior'] = f5().get_source_port_behavior([a.name])
-                    d['translate_address_state'] = f5().get_translate_address_state([a.name])
-                    d['translate_port_state'] = f5().get_translate_port_state([a.name])
-                    d['type'] = f5().get_type([a.name])
-                    d['vlan'] = f5().get_vlan([a.name])
+                    d['actual_hardware_acceleration'] = f5().get_actual_hardware_acceleration([name])
+                    d['auto_lasthop'] = f5().get_auto_lasthop([name])
+                    d['bw_controller_policy'] = f5().get_bw_controller_policy([name])
+                    d['clone_pool'] = f5().get_clone_pool([name])
+                    d['connection_limit'] = f5().get_connection_limit([name])
+                    d['default_pool_name'] = f5().get_default_pool_name([name])
+                    d['description'] = f5().get_description([name])
+                    d['destination'] = f5().get_destination_v2([name])
+                    d['enabled_state'] = f5().get_enabled_state([name])
+                    d['fallback_persistence_profile'] = f5().get_fallback_persistence_profile([name])
+                    d['gtm_score'] = f5().get_gtm_score([name])
+                    d['last_hop_pool'] = f5().get_last_hop_pool([name])
+                    d['object_status'] = f5().get_object_status([name])
+                    d['persistence_profile'] = f5().get_persistence_profile([name])
+                    d['profile'] = f5().get_profile([name])
+                    d['protocol'] = f5().get_protocol([name])
+                    d['rule'] = f5().get_rule([name])
+                    d['snat_pool'] = f5().get_snat_pool([name])
+                    d['snat_type'] = f5().get_snat_type([name])
+                    d['source_address'] = f5().get_source_address([name])
+                    d['source_address_translation_lsn_pool'] = f5().get_source_address_translation_lsn_pool([name])
+                    d['source_address_translation_snat_pool'] = f5().get_source_address_translation_snat_pool([name])
+                    d['source_address_translation_type'] = f5().get_source_address_translation_type([name])
+                    d['source_port_behavior'] = f5().get_source_port_behavior([name])
+                    d['translate_address_state'] = f5().get_translate_address_state([name])
+                    d['translate_port_state'] = f5().get_translate_port_state([name])
+                    d['type'] = f5().get_type([name])
+                    d['vlan'] = f5().get_vlan([name])
                     return d
                 return lambda: detail(f5)
-            elif a.arg2 == 'brief':
+            elif a.sub2 == 'brief':
                 def brief(f5):
                     d = {}
-                    d['actual_hardware_acceleration'] = f5().get_actual_hardware_acceleration([a.name])
-                    d['default_pool_name'] = f5().get_default_pool_name([a.name])
-                    d['destination'] = f5().get_destination_v2([a.name])
-                    d['enabled_state'] = f5().get_enabled_state([a.name])
-                    d['object_status'] = f5().get_object_status([a.name])
-                    d['profile'] = f5().get_profile([a.name])
-                    d['protocol'] = f5().get_protocol([a.name])
-                    d['translate_address_state'] = f5().get_translate_address_state([a.name])
-                    d['translate_port_state'] = f5().get_translate_port_state([a.name])
-                    d['type'] = f5().get_type([a.name])
+                    d['actual_hardware_acceleration'] = f5().get_actual_hardware_acceleration([name])
+                    d['default_pool_name'] = f5().get_default_pool_name([name])
+                    d['destination'] = f5().get_destination_v2([name])
+                    d['enabled_state'] = f5().get_enabled_state([name])
+                    d['object_status'] = f5().get_object_status([name])
+                    d['persistence_profile'] = f5().get_persistence_profile([name])
+                    d['profile'] = f5().get_profile([name])
+                    d['protocol'] = f5().get_protocol([name])
+                    d['translate_address_state'] = f5().get_translate_address_state([name])
+                    d['translate_port_state'] = f5().get_translate_port_state([name])
+                    d['type'] = f5().get_type([name])
                     return d
                 return lambda: brief(f5)
-            elif a.arg2 == 'status':
-                return lambda: f5().get_object_status([a.name])
+            elif a.sub2 == 'status':
+                return lambda: f5().get_object_status([name])
 
-        elif a.arg == 'create':
-            fqdn, ip, port = self.lookup(a.name)
-            protocol = a.arg2 if a.arg2 else 'PROTOCOL_TCP'
-            netmask = a.arg3 if a.arg3 else '255.255.255.255'
-            if a.arg4:
-                profile = a.arg4
+        elif a.sub == 'create':
+            protocol = a.sub2 if a.sub2 else 'PROTOCOL_TCP'
+            if a.sub3:
+                profile = a.sub3
             elif protocol == 'PROTOCOL_UDP':
                 profile = 'udp'
             else:
                 profile = 'tcp'
-            poolname = a.arg5
+            poolname = a.sub4
+            netmask = a.sub5 if a.sub5 else '255.255.255.255'
             vserver = {
-                'name': a.name,
+                'name': name,
                 'address': ip,
                 'port': port,
                 'protocol': protocol,
@@ -309,15 +362,35 @@ class Fapi(object):
             }
             self.info("vserver:%s netmask:%s resource:%s, profile:%s"
                     % (vserver, netmask, resource, profile))
-            return lambda: f5().create([vserver], [netmask], [resource], [[profile]])
+            def vserver_create():
+                f5().create([vserver], [netmask], [resource], [[profile]])
+                # Auto disable NAT and PAT if nPath
+                if profile['profile_name'] == 'nPath':
+                    f5().set_translate_address_state([name], ['STATE_DISABLED'])
+                    f5().set_translate_port_state([name], ['STATE_DISABLED'])
+            return lambda: vserver_create()
 
-        elif a.arg == 'delete':
-            return lambda: f5().delete_virtual_server([a.name])
+        elif a.sub == 'delete':
+            return lambda: f5().delete_virtual_server([name])
 
-        elif a.arg == 'set':
-            if a.arg2 == 'pool':
-                poolname = a.arg3
-                return lambda: f5().set_default_pool_name([a.name], [poolname])
+        elif a.sub == 'set':
+            if a.sub2 == 'pool':
+                poolname = a.sub3
+                return lambda: f5().set_default_pool_name([name], [poolname])
+            elif a.sub2 == 'nat':
+                if a.sub3 == 'disabled':
+                    return lambda: f5().set_translate_address_state([name], ['STATE_DISABLED'])
+                elif a.sub3 == 'enabled':
+                    return lambda: f5().set_translate_address_state([name], ['STATE_ENABLED'])
+            elif a.sub2 == 'pat':
+                if a.sub3 == 'disabled':
+                    return lambda: f5().set_translate_port_state([name], ['STATE_DISABLED'])
+                elif a.sub3 == 'enabled':
+                    return lambda: f5().set_translate_port_state([name], ['STATE_ENABLED'])
+            elif a.sub2 == 'snat':
+                if a.sub3 == 'none':
+                    return lambda: f5().set_source_address_translation_none([name])
+
 
 
     def run(self):
@@ -328,6 +401,12 @@ class Fapi(object):
 
         a = self._args
         lazy = None
+
+        if a.name:
+          # Remove the /partition/ prefix, setting default partition after 
+          # login instead
+          a.name = re.sub(self._partition, '', a.name)
+          a.name = re.sub('^/+', '', a.name)
 
         if a.what == 'node':
             lazy = self.__do_node(lambda: self._f5.LocalLB.NodeAddressV2)
@@ -343,32 +422,40 @@ class Fapi(object):
             self.__login()
             self.out(lazy())
         else:
+            print_synopsis()
             sys.exit(1)
+
 
 
 if __name__ == '__main__':
     ''' The main function, here we will have Popcorn for free! '''
 
-    parser = argparse.ArgumentParser()
+    parser = argparse.ArgumentParser(add_help=False)
+    parser.add_argument('-h', action='store_true', help='Help')
     parser.add_argument('-v', action='store_true', help='Verbose')
     parser.add_argument('-V', action='store_true', help='Print version')
-    parser.add_argument('-m', action='store', help='The lb method',
-        default='LB_METHOD_RATIO_LEAST_CONNECTION_MEMBER')
+    parser.add_argument('-m', action='store', help='The default lbmethod',
+        default='LB_METHOD_ROUND_ROBIN')
     parser.add_argument('-C', action='store', help='Config file',
         default=expanduser('~') + '/.fapi.conf')
 
-    parser.add_argument('what', nargs='?', help='What')
+    parser.add_argument('what', nargs='?', help='node|pool|monitor|vserver|...')
     parser.add_argument('name', nargs='?', help='The object name to operate on')
-    parser.add_argument('arg', nargs='?', help='The first argument')
-    parser.add_argument('arg2', nargs='?', help='The second argument')
-    parser.add_argument('arg3', nargs='?', help='The third argument')
-    parser.add_argument('arg4', nargs='?', help='The fourth argument')
-    parser.add_argument('arg5', nargs='?', help='The fith argument')
+    parser.add_argument('sub', nargs='?', help='First sub command')
+    parser.add_argument('sub2', nargs='?', help='Second sub command')
+    parser.add_argument('sub3', nargs='?', help='Third sub command')
+    parser.add_argument('sub4', nargs='?', help='Fourth sub command')
+    parser.add_argument('sub5', nargs='?', help='Fith sub command')
 
     args = parser.parse_args()
 
+    if args.h:
+        parser.print_help()
+        print ''
+        print_synopsis()
+        sys.exit(0)
+
     if args.V:
-        print 'This is %s version %s' % (__program__, __version__)
         sys.exit(0)
 
     fapi = Fapi(args)
