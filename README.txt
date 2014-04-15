@@ -24,6 +24,14 @@ Requirement of bigsuds
     This tool depends on bigsuds. Please install this library from F5 dev
     central manually. Otherwise this script will not work.
 
+    You can download bigsuds from here:
+
+    <https://devcentral.f5.com/d/bigsuds-python-icontrol-library>
+
+    Unzip it and run
+
+      sudo python setyp.py install
+
 iControl reference
     <https://devcentral.f5.com/wiki/icontrol.apireference.ashx>
 

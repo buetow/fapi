@@ -12,7 +12,7 @@ install:
 	cp ./bin/$(NAME) $(DESTDIR)/usr/bin/$(NAME)
 	cp ./bin/$(NAME) $(DESTDIR)/usr/bin/f
 	cp $(NAME).conf.sample $(DESTDIR)/usr/share/$(NAME)
-	test -z '$(DESTDIR)' && gzip -c ./docs/$(NAME).1 > /usr/share/man/man1/$(NAME).1.gz
+	test -z '$(DESTDIR)' && gzip -c ./docs/$(NAME).1 > /usr/share/man/man1/$(NAME).1.gz || exit 0
 deinstall:
 	test ! -z '$(DESTDIR)' && test -f $(DESTDIR)/usr/bin/$(NAME) && rm $(DESTDIR)/usr/bin/$(NAME) || exit 0
 	test ! -z '$(DESTDIR)' && test -f $(DESTDIR)/usr/share/$(NAME) && rm -r $(DESTDIR)/usr/share/$(NAME) || exit 0
@@ -30,7 +30,7 @@ documentation:
 	pod2text ./docs/$(NAME).pod | tee ./docs/$(NAME).txt > README.txt
 # Build a debian package (don't sign it, modify the arguments if you want to sign it)
 deb: all
-	dpkg-buildpackage -uc -us
+	dpkg-buildpackage
 dch: 
 	dch -i
 release: dch deb 

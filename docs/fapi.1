@@ -124,7 +124,7 @@
 .\" ========================================================================
 .\"
 .IX Title "FAPI 1"
-.TH FAPI 1 "2014-04-15" "fapi 0.0.1" "User Commands"
+.TH FAPI 1 "2014-04-15" "fapi 0.0.2" "User Commands"
 .\" For nroff, turn off justification.  Always turn off hyphenation; it makes
 .\" way too many mistakes in technical documents.
 .if n .ad l
@@ -160,6 +160,16 @@ because it's shorter to type.
 .IX Header "Requirement of bigsuds"
 This tool depends on bigsuds. Please install this library from F5 dev central
 manually. Otherwise this script will not work.
+.PP
+You can download bigsuds from here:
+.PP
+https://devcentral.f5.com/d/bigsuds\-python\-icontrol\-library <https://devcentral.f5.com/d/bigsuds-python-icontrol-library>
+.PP
+Unzip it and run
+.PP
+.Vb 1
+\&  sudo python setyp.py install
+.Ve
 .SH "iControl reference"
 .IX Header "iControl reference"
 <https://devcentral.f5.com/wiki/icontrol.apireference.ashx>
