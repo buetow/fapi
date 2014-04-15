@@ -1,0 +1,7 @@
+1.0.1 - 2013-01
+ - Enhanced debug/interactive capabilities (when BIGIP is instantiated with debug=True).
+   - Official iControl help documenation is available in the method docstrings.
+   - When bigsuds is used interactively in ipython, namespaces and methods will tab-complete.
+
+1.0.0 - 2012-11
+ - Initial release of bigsuds
