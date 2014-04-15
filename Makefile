@@ -8,10 +8,13 @@ build:
 # $DESTDIR is actually set by the Debian tools.
 install:
 	test ! -d $(DESTDIR)/usr/bin && mkdir -p $(DESTDIR)/usr/bin || exit 0
-	cp ./bin/fapi $(DESTDIR)/usr/bin/fapi
-	cp ./bin/fapi $(DESTDIR)/usr/bin/f
+	test ! -d $(DESTDIR)/usr/share/$(NAME) && mkdir -p $(DESTDIR)/usr/share/$(NAME) || exit 0
+	cp ./bin/$(NAME) $(DESTDIR)/usr/bin/$(NAME)
+	cp ./bin/$(NAME) $(DESTDIR)/usr/bin/f
+	cp $(NAME).conf.sample $(DESTDIR)/usr/share/$(NAME)
 deinstall:
 	test ! -z "$(DESTDIR)" && test -f $(DESTDIR)/usr/bin/$(NAME) && rm $(DESTDIR)/usr/bin/$(NAME) || exit 0
+	test ! -z "$(DESTDIR)" && test -f $(DESTDIR)/usr/share/$(NAME) && rm -r $(DESTDIR)/usr/share/$(NAME) || exit 0
 clean:
 	rm bin/*
 # Parses the version out of the Debian changelog
@@ -38,4 +41,5 @@ clean-top:
 	rm ../$(NAME)_*.dsc
 	rm ../$(NAME)_*.changes
 	rm ../$(NAME)_*.deb
-
+dput:
+	dput -u wheezy-buetowdotorg ../$(NAME)_$$(cat ./.version)_amd64.changes
