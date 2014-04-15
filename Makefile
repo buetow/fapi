@@ -12,9 +12,11 @@ install:
 	cp ./bin/$(NAME) $(DESTDIR)/usr/bin/$(NAME)
 	cp ./bin/$(NAME) $(DESTDIR)/usr/bin/f
 	cp $(NAME).conf.sample $(DESTDIR)/usr/share/$(NAME)
+	test -z '$(DESTDIR)' && gzip -c ./docs/$(NAME).1 > /usr/share/man/man1/$(NAME).1.gz
 deinstall:
-	test ! -z "$(DESTDIR)" && test -f $(DESTDIR)/usr/bin/$(NAME) && rm $(DESTDIR)/usr/bin/$(NAME) || exit 0
-	test ! -z "$(DESTDIR)" && test -f $(DESTDIR)/usr/share/$(NAME) && rm -r $(DESTDIR)/usr/share/$(NAME) || exit 0
+	test ! -z '$(DESTDIR)' && test -f $(DESTDIR)/usr/bin/$(NAME) && rm $(DESTDIR)/usr/bin/$(NAME) || exit 0
+	test ! -z '$(DESTDIR)' && test -f $(DESTDIR)/usr/share/$(NAME) && rm -r $(DESTDIR)/usr/share/$(NAME) || exit 0
+	test -z '$(DESTDIR)' && rm /usr/share/man/man1/$(NAME).1.gz
 clean:
 	rm bin/*
 # Parses the version out of the Debian changelog
