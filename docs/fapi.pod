@@ -2,6 +2,20 @@
 
 fapi - A humble command line tool to manage F5 BigIP loadbalancers
 
+=head1 SYNOPSIS
+
+Just run
+
+  fapi -h
+
+or
+
+  f -h
+
+because it's shorter to type.
+
+=head1 ABOUT
+
 This is a simple command line client to do basic stuff with the iControl F5 API 
 such as:
 
@@ -12,20 +26,11 @@ such as:
 
 
 This is a private programming project programmed in my spare time. Therefore I
-didn't bother to put it on a public website and github.
+didn't bother to put it on a public website and github. Please open bug 
+reports, feature requests and pull requests at
+L<https://github.com/rantanplan/fapi>. 
 
-=head1 Synopsis
-
-Just run
-
-  fapi -h
-
-or
-
-  f -h 
-because it's shorter to type.
-
-=head1 bigsuds
+=head1 BIGSUDS
 
 =head2 Requirement of bigsuds
 
@@ -40,6 +45,8 @@ Unzip it and run
 
   sudo python setyp.py install
 
+You may also install bigsuds from the contrib dir of the fapi source tree.
+
 =head2 iControl reference
 
 Through bigsuds you can do everything what iControl can do:
@@ -47,9 +54,7 @@ Through bigsuds you can do everything what iControl can do:
 L<https://devcentral.f5.com/wiki/icontrol.apireference.ashx>
 
 
-=head1 Quick start
-
-=head2 Installing
+=head1 QUICK START
 
 Update your sources list:
 
@@ -63,6 +68,43 @@ And run
   aptitude install fapi
   cp /usr/share/fapi/fapi.conf.sample ~/.fapi.conf
   vim ~/.fapi.conf
+
+
+=head1 EXAMPLES
+
+=head2 Setting up simple NAT Services
+
+  (Docu to be written)
+
+=head2 Setting up simple SNAT Services
+
+  (Docu to be written)
+
+=head2 Setting up a simple nPath Service
+
+A simple nPath service can be created as follows.
+
+  # Creating two nodes, auto resolve the IP addresses
+  f node fooserver1.example.com create
+  f node fooserver2.example.com create
+
+  # Creating a pool and add the nodes to it
+  f pool foopool create
+  f pool foopool add member fooserver1.example.com:80
+  f pool foopool add member fooserver2.example.com:80
+
+  # Add a monitor to the pool
+  f pool foopool add monitor http_lbtest
+
+  # Create a nPath HTTP service, 'nPath' also auto disables NAT and PAT
+  f vserver myservice.example.com:80 create PROTOCOL_TCP nPath
+
+  # Add the pool to the service
+  f vserver myservice.example.com:80 set pool foopool
+
+  # Add a nPath HTTPS service
+  f vserver myservice.example.com:443 create PROTOCOL_TCP nPath
+  f vserver myservice.example.com:443 set pool foopool
 
 =head1 AUTHOR
 
