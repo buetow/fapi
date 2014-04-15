@@ -18,11 +18,12 @@ Just run
 
 or
 
-  f -h
-
+  f -h 
 because it's shorter to type.
 
-=head1 Requirement of bigsuds
+=head1 bigsuds
+
+=head2 Requirement of bigsuds
 
 This tool depends on bigsuds. Please install this library from F5 dev central
 manually. Otherwise this script will not work.
@@ -35,16 +36,34 @@ Unzip it and run
 
   sudo python setyp.py install
 
-=head1 iControl reference
+=head2 iControl reference
+
+Through bigsuds you can do everything what iControl can do:
 
 L<https://devcentral.f5.com/wiki/icontrol.apireference.ashx>
 
-=head1 Project Homepage
 
-See L<http://fapi.buetow.org>
+=head1 Quick start
+
+=head2 Installing
+
+Update your sources list:
+
+  curl http://deb.buetow.org/apt/pubkey.gpg | sudo apt-key add -
+  echo 'deb http://deb.buetow.org/apt wheezy main' > \
+    /etc/apt/sourcees.list.d/buetoworg.list
+  aptitude update
+
+And run
+
+  aptitude install fapi
+  cp /usr/share/fapi/fapi.conf.sample ~/.fapi.conf
+  vim ~/.fapi.conf
 
 =head1 AUTHOR
 
 Paul C. Buetow - <paul@buetow.org>
+
+Also see L<http://fapi.buetow.org>
 
 =cut

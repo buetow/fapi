@@ -156,8 +156,10 @@ or
 .Ve
 .PP
 because it's shorter to type.
-.SH "Requirement of bigsuds"
-.IX Header "Requirement of bigsuds"
+.SH "bigsuds"
+.IX Header "bigsuds"
+.SS "Requirement of bigsuds"
+.IX Subsection "Requirement of bigsuds"
 This tool depends on bigsuds. Please install this library from F5 dev central
 manually. Otherwise this script will not work.
 .PP
@@ -170,12 +172,33 @@ Unzip it and run
 .Vb 1
 \&  sudo python setyp.py install
 .Ve
-.SH "iControl reference"
-.IX Header "iControl reference"
+.SS "iControl reference"
+.IX Subsection "iControl reference"
+Through bigsuds you can do everything what iControl can do:
+.PP
 <https://devcentral.f5.com/wiki/icontrol.apireference.ashx>
-.SH "Project Homepage"
-.IX Header "Project Homepage"
-See <http://fapi.buetow.org>
+.SH "Quick start"
+.IX Header "Quick start"
+.SS "Installing"
+.IX Subsection "Installing"
+Update your sources list:
+.PP
+.Vb 4
+\&  curl http://deb.buetow.org/apt/pubkey.gpg | sudo apt\-key add \-
+\&  echo \*(Aqdeb http://deb.buetow.org/apt wheezy main\*(Aq > \e
+\&    /etc/apt/sourcees.list.d/buetoworg.list
+\&  aptitude update
+.Ve
+.PP
+And run
+.PP
+.Vb 3
+\&  aptitude install fapi
+\&  cp /usr/share/fapi/fapi.conf.sample ~/.fapi.conf
+\&  vim ~/.fapi.conf
+.Ve
 .SH "AUTHOR"
 .IX Header "AUTHOR"
 Paul C. Buetow \- <paul@buetow.org>
+.PP
+Also see <http://fapi.buetow.org>

@@ -20,7 +20,8 @@ Synopsis
 
     because it's shorter to type.
 
-Requirement of bigsuds
+bigsuds
+  Requirement of bigsuds
     This tool depends on bigsuds. Please install this library from F5 dev
     central manually. Otherwise this script will not work.
 
@@ -32,12 +33,28 @@ Requirement of bigsuds
 
       sudo python setyp.py install
 
-iControl reference
+  iControl reference
+    Through bigsuds you can do everything what iControl can do:
+
     <https://devcentral.f5.com/wiki/icontrol.apireference.ashx>
 
-Project Homepage
-    See <http://fapi.buetow.org>
+Quick start
+  Installing
+    Update your sources list:
+
+      curl http://deb.buetow.org/apt/pubkey.gpg | sudo apt-key add -
+      echo 'deb http://deb.buetow.org/apt wheezy main' > \
+        /etc/apt/sourcees.list.d/buetoworg.list
+      aptitude update
+
+    And run
+
+      aptitude install fapi
+      cp /usr/share/fapi/fapi.conf.sample ~/.fapi.conf
+      vim ~/.fapi.conf
 
 AUTHOR
     Paul C. Buetow - <paul@buetow.org>
+
+    Also see <http://fapi.buetow.org>
 
