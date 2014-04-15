@@ -33,7 +33,7 @@ L<https://devcentral.f5.com/wiki/icontrol.apireference.ashx>
 
 =head1 Project Homepage
 
-See L<http://japi.buetow.org>
+See L<http://fapi.buetow.org>
 
 =head1 AUTHOR
 

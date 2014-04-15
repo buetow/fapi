@@ -4,7 +4,7 @@ Priority: optional
 Maintainer: Paul C. Buetow <paul@buetow.org>
 Build-Depends: perl
 Standards-Version: 3.9.2
-Homepage: https://fapi.buetow.org
+Homepage: http://fapi.buetow.org
 Vcs-Git: https://github.com/rantanplan/fapi.git
 Vcs-Browser: https://github.com/rantanplan/fapi
 
