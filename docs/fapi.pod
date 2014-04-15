@@ -1,0 +1,42 @@
+=head1 NAME
+
+fapi - A humble command line tool to manage F5 BigIP loadbalancers
+
+This is a simple command line client to do basic stuff with the iControl F5 API 
+such as:
+
+  Managing Nodes
+  Managing Monitors
+  Managing Pools
+  Managing Virtual Servers
+
+=head1 Synopsis
+
+Just run
+
+  fapi -h
+
+or
+
+  f -h
+
+because it's shorter to type.
+
+=head1 Requirement of bigsuds
+
+This tool depends on bigsuds. Please install this library from F5 dev central
+manually. Otherwise this script will not work.
+
+=head1 iControl reference
+
+L<https://devcentral.f5.com/wiki/icontrol.apireference.ashx>
+
+=head1 Project Homepage
+
+See L<http://japi.buetow.org>
+
+=head1 AUTHOR
+
+Paul C. Buetow - <paul@buetow.org>
+
+=cut
