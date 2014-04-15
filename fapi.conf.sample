@@ -1,3 +1,4 @@
+# Save and modify it to ~/.fapi.conf
 [fapi]
 username: paul
 password64: SECRET

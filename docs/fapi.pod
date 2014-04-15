@@ -27,6 +27,14 @@ because it's shorter to type.
 This tool depends on bigsuds. Please install this library from F5 dev central
 manually. Otherwise this script will not work.
 
+You can download bigsuds from here:
+
+L<https://devcentral.f5.com/d/bigsuds-python-icontrol-library>
+
+Unzip it and run
+
+  sudo python setyp.py install
+
 =head1 iControl reference
 
 L<https://devcentral.f5.com/wiki/icontrol.apireference.ashx>
