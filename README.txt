@@ -28,7 +28,7 @@ iControl reference
     <https://devcentral.f5.com/wiki/icontrol.apireference.ashx>
 
 Project Homepage
-    See <http://japi.buetow.org>
+    See <http://fapi.buetow.org>
 
 AUTHOR
     Paul C. Buetow - <paul@buetow.org>

@@ -1,3 +1,9 @@
+fapi (0.0.1) stable; urgency=low
+
+  * Typo fixes in the manpage
+
+ -- Paul Buetow <paul@buetow.org>  Tue, 15 Apr 2014 09:30:45 +0200
+
 fapi (0.0.0) stable; urgency=low
 
   * Initial version of fapi
