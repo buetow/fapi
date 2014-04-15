@@ -62,6 +62,13 @@ QUICK START
       vim ~/.fapi.conf
 
 EXAMPLES
+  Listing
+    If you want to list all configured objects on your partition just run
+
+      f node # To list all nodes
+      f pool # To list all pool
+      ... # etc
+
   Setting up simple NAT Services
       (Docu to be written)
 
@@ -71,11 +78,13 @@ EXAMPLES
   Setting up a simple nPath Service
     A simple nPath service can be created as follows.
 
-      # Creating two nodes, auto resolve the IP addresses
+      # Creating two nodes, fapi auto resolves the IP addresses, and use the
+      # FQDN as the node name. 
       f node fooserver1.example.com create
       f node fooserver2.example.com create
 
-      # Creating a pool and add the nodes to it
+      # Creating a pool and add the nodes to it. Also specify the node ports to 
+      # use by the monitors (and maybe PAT if enabled)
       f pool foopool create
       f pool foopool add member fooserver1.example.com:80
       f pool foopool add member fooserver2.example.com:80
@@ -83,15 +92,30 @@ EXAMPLES
       # Add a monitor to the pool
       f pool foopool add monitor http_lbtest
 
-      # Create a nPath HTTP service, 'nPath' also auto disables NAT and PAT
-      f vserver myservice.example.com:80 create PROTOCOL_TCP nPath
+      # Create a nPath HTTP vserver, 'nPath' also auto disables NAT and PAT
+      # fapi auto resolves the IP address.
+      f vserver myvserver.example.com:80 create PROTOCOL_TCP nPath
 
-      # Add the pool to the service
-      f vserver myservice.example.com:80 set pool foopool
+      # Add the pool to the vserver. The vservers name will be the FQDN followed by
+      # _PORT. In this case it would be: myvserver.example.com_80. The reason is
+      # that : are not allowed in vserver names.
+      f vserver myvserver.example.com:80 set pool foopool
 
-      # Add a nPath HTTPS service
-      f vserver myservice.example.com:443 create PROTOCOL_TCP nPath
-      f vserver myservice.example.com:443 set pool foopool
+      # Add a nPath HTTPS vserver
+      f vserver myvserver.example.com:443 create PROTOCOL_TCP nPath
+      f vserver myvserver.example.com:443 set pool foopool
+
+    And everything can be deleted as folows:
+
+      # You can also specify the full object name (including the partition)
+      f vserver /Common/myvserver.example.com_80 delete
+
+      # Or just the way the service was created from command line
+      f vserver myvserver.example.com:443 delete
+
+      f pool foopool delete
+      f node fooserver1.example.com delete
+      f node fooserver2.example.com delete
 
 AUTHOR
     Paul C. Buetow - <paul@buetow.org>
