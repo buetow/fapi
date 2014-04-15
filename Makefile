@@ -35,7 +35,6 @@ dch:
 	dch -i
 release: dch deb 
 	bash -c "git tag $$(cat .version)"
-	git push --tags
 	git commit -a -m 'New release'
 	git push origin master --tags
 	git push buetoworg master --tags
