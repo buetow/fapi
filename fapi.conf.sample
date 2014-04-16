@@ -1,6 +1,7 @@
 # Save and modify it to ~/.fapi.conf
 [fapi]
 username: paul
+# Or uncomment this option, password will be prompted then
 password64: SECRET
 # The qa loadbalancers (if specified -e qa)
 loadbalancers_qa: qa-01.example.com,qa-02.example.com

@@ -18,7 +18,7 @@ import ConfigParser
 
 __program__ = 'fapi'
 __version__ = 'VERSION_DEVEL' # Replaced by a Makefile tsubet
-__prompt__  = '>>>' # Default prompt
+__prompt__  = '> ' # Default prompt
 
 def print_version():
     print 'This is %s version %s' % (__program__, __version__)
@@ -31,26 +31,47 @@ def print_synopsis():
         '',
         'Synopsis:',
         ' fapi monitor',
-        ' fapi monitor MONITORNAME get desc|state',
+        ' fapi monitor NAME get desc|state',
         ' fapi node',
-        ' fapi node OBJNAME create|delete',
-        ' fapi node OBJNAME get detail|status',
+        ' fapi node NAME create|delete',
+        ' fapi node NAME get detail|status',
         ' fapi pool',
-        ' fapi pool OBJNAME add member MEMBERNAME:PORT',
-        ' fapi pool OBJNAME add monitor MONITORNAME',
-        ' fapi pool OBJNAME create [LIST,OF,POOL,MEMBERS:PORT]',
-        ' fapi pool OBJNAME delete',
-        ' fapi pool OBJNAME del member MEMBERNAME:PORT',
-        ' fapi pool OBJNAME del monitors',
-        ' fapi pool OBJNAME get detail|lbmethod|members|monitor|status',
-        ' fapi pool OBJNAME set lbmethod LBMETHOD',
+        ' fapi pool NAME add member MEMBERNAME:PORT',
+        ' fapi pool NAME add monitor MONITORNAME',
+        ' fapi pool NAME create [LIST,OF,POOL,MEMBERS:PORT]',
+        ' fapi pool NAME delete',
+        ' fapi pool NAME del member MEMBERNAME:PORT',
+        ' fapi pool NAME del monitors',
+        ' fapi pool NAME get detail|lbmethod|members|monitor|status',
+        ' fapi pool NAME set lbmethod LBMETHOD',
+        ' fapi vip NAME',
+        ' fapi vip NAME create NETMASK',
+        ' fapi vip NAME get arp|detail|status|tgroup',
+        ' fapi vip NAME set arp enabled|disabled',
+        ' fapi vip NAME set tgroup TGROUP',
         ' fapi vserver',
-        ' fapi vserver OBJNAME create [protocol] [profile] [poolname] [mask]',
-        ' fapi vserver OBJNAME delete',
-        ' fapi vserver OBJNAME get brief|detail|status',
-        ' fapi vserver OBJNAME set nat|pat disabled|enabled',
-        ' fapi vserver OBJNAME set pool POOLNAME',
-        ' fapi vserver OBJNAME set snat none',
+        ' fapi vserver NAME create [protocol] [profile] [poolname] [mask]',
+        ' fapi vserver NAME delete',
+        ' fapi vserver NAME get brief|detail|status',
+        ' fapi vserver NAME set nat|pat disabled|enabled',
+        ' fapi vserver NAME set pool POOLNAME',
+        ' fapi vserver NAME set snat none',
+        ' fapi -p Common vlan',
+        ' fapi -p Common vlan NAME get detail',
+        ' fapi -p Common vlan NAME create tagged VLANID internal|external|...',
+        ' fapi -p Common vlan NAME delete',
+        ' fapi -p Common tgroup',
+        ' fapi -p Common tgroup NAME get detail',
+        ' fapi -p Common tgroup NAME create',
+        ' fapi -p Common tgroup NAME delete',
+        ' fapi -p Common tgroup NAME add ha_order DEVICE ORDER',
+        ' fapi -p Common tgroup NAME remove ha_order DEVICE ORDER',
+        ' fapi -p Common tgroup NAME remove all_ha_orders',
+        ' fapi -p Common -b balancer.example.com selfip',
+        ' fapi -p Common -b balancer.example.com selfip NAME get detail|tgroup',
+        ' fapi -p Common -b balancer.example.com selfip NAME set tgroup TGROUP',
+        ' fapi -p Common -b balancer.example.com selfip NAME create NETMASK VLANNAME [TGROUP]',
+        ' fapi -p Common -b balancer.example.com selfip NAME delete',
     ])
 
 
@@ -86,19 +107,19 @@ class Fapi(object):
         else:
             prompt = 'Enter API password for user %s: ' % username
             password = getpass.getpass(prompt)
-        self.info('Login to BigIP API with user %s' % username)
+        self.verbose('Login to BigIP API with user %s' % username)
 
         # Try a comma separated lists of F5 boxes, use the first one
-        loadbalancers = c.get('fapi', 'loadbalancers_' + a.e)
+        loadbalancers = a.b if a.b else c.get('fapi', 'loadbalancers_' + a.e)
         err = None
         for loadbalancer in loadbalancers.split(','):
             try:
-                self.info('Trying to login to \'%s\'' % loadbalancer)
+                self.verbose('Trying to login to \'%s\'' % loadbalancer)
                 self._f5 = bigsuds.BIGIP(hostname = loadbalancer,
                                          username = username,
                                          password = password)
                 self._f5.Management.Partition.set_active_partition(self._partition)
-                self.info('Set partition to \'%s\'' % self._partition)
+                self.verbose('Set partition to \'%s\'' % self._partition)
                 err = None
                 break
             except Exception, e:
@@ -106,22 +127,31 @@ class Fapi(object):
                 pass
 
         if err:
-            self.info(err)
+            self.verbose(err)
             sys.exit(2)
+
+
+    def verbose(self, message):
+        ''' Prints an informational message to stderr '''
+
+        if self._args.v: self.info(message)
 
 
     def info(self, message):
         ''' Prints an informational message to stderr '''
 
-        if self._args.v: print >> sys.stderr, '%s %s' % (__prompt__, message)
+        print >> sys.stderr, '%s %s' % (__prompt__, message)
 
 
     def out(self, result):
         ''' Prints an iControl result to stdout '''
 
         if result != None:
-            pp = pprint.PrettyPrinter(indent=4)
-            pp.pprint(result)
+            if self._args.l and isinstance(result, (list, tuple)):
+                print"\n".join(result)
+            else:
+                pp = pprint.PrettyPrinter(indent=4)
+                pp.pprint(result)
 
 
     def lookup(self, what):
@@ -134,12 +164,12 @@ class Fapi(object):
         try:
             data = socket.gethostbyname_ex(what)
         except Exception, e:
-            self.info('Can\'t resolve \'%s\': %s' % (what, e))
+            self.verbose('Can\'t resolve \'%s\': %s' % (what, e))
             sys.exit(2)
         fqdn = data[0]
         ips = data[2]
         if len(ips) > 1:
-            self.info('\'%s\' resolves to multiple ips \'%s\'' % (fqdn, ips))
+            self.verbose('\'%s\' resolves to multiple ips \'%s\'' % (fqdn, ips))
             sys.exit(2)
         return (fqdn, ips[0], port)
 
@@ -172,16 +202,12 @@ class Fapi(object):
                 return lambda: f5().get_monitor_status([a.name])
 
         elif a.sub == 'create':
-                try:
-                    data = socket.gethostbyname_ex(a.name)
-                except Exception, e:
-                    self.info('Can\'t resolve \'%s\': %s' % (a.name, e))
-                    sys.exit(2)
-                fqdn, ip, _ = self.lookup(a.name)
-                return lambda: f5().create([fqdn],[ip],[0])
+            fqdn, ip, _ = self.lookup(a.name)
+            return lambda: f5().create([fqdn],[ip],[0])
 
         elif a.sub == 'delete':
-                return lambda: f5().delete_node_address([a.name])
+            fqdn, _, _ = self.lookup(a.name)
+            return lambda: f5().delete_node_address([fqdn])
 
 
     def __do_monitor(self, f5):
@@ -367,7 +393,7 @@ class Fapi(object):
                     'profile_context': 'PROFILE_CONTEXT_TYPE_ALL',
                     'profile_name': profile,
             }
-            self.info("vserver:%s netmask:%s resource:%s, profile:%s"
+            self.verbose("vserver:%s netmask:%s resource:%s, profile:%s"
                     % (vserver, netmask, resource, profile))
             def vserver_create():
                 f5().create([vserver], [netmask], [resource], [[profile]])
@@ -399,6 +425,174 @@ class Fapi(object):
                     return lambda: f5().set_source_address_translation_none([name])
 
 
+    def __do_vip(self, f5):
+        ''' Do stuff concerning virtual addresses '''
+
+        a = self._args
+
+        if not a.name:
+            return lambda: f5().get_list()
+
+        # Check for Pattern like /partition/foo-bar.example.com_443
+        m = re.match('^(.*)_(\d+)$', a.name)
+        if m:
+          fqdn = m.group(1)
+          _, ip, _ = self.lookup(fqdn)
+        else:
+          _, ip, _ = self.lookup(a.name)
+
+        name = ip
+
+        if a.sub == 'get':
+            if a.sub2 == 'detail':
+                def detail(f5):
+                    d = {}
+                    d['address'] = f5().get_address([name])
+                    d['arp_state'] = f5().get_arp_state([name])
+                    d['enabled_state'] = f5().get_enabled_state([name])
+                    d['is_floating_state'] = f5().get_is_floating_state([name])
+                    d['netmask'] = f5().get_netmask([name])
+                    d['object_status'] = f5().get_object_status([name])
+                    d['traffic_group'] = f5().get_traffic_group([name])
+                    d['is_traffic_group_inherited'] = f5().is_traffic_group_inherited([name])
+                    return d
+                return lambda: detail(f5)
+            elif a.sub2 == 'arp':
+                return lambda: f5().get_arp-state([name])
+            elif a.sub2 == 'status':
+                return lambda: f5().get_object_status([name])
+            elif a.sub2 == 'tgroup':
+                return lambda: f5().get_traffic_group([name])
+
+        elif a.sub == 'create':
+            netmask = a.sub2
+            return lambda: f5().create([name], [name], [netmask])
+
+        elif a.sub == 'delete':
+            return lambda: f5().delete_virtual_address([name])
+
+        elif a.sub == 'set':
+            if a.sub2 == 'arp':
+                if a.sub3 == 'disabled':
+                    return lambda: f5().set_arp_state([name], ['STATE_DISABLED'])
+                elif a.sub3 == 'enabled':
+                    return lambda: f5().set_arp_state([name], ['STATE_ENABLED'])
+            elif a.sub2 == 'tgroup':
+                tgroup = a.sub3
+                return lambda: f5().set_traffic_group([name], [tgroup])
+
+
+    def __do_vlan(self, f5):
+        ''' Do stuff concerning VLANs '''
+
+        a = self._args
+
+        if not a.name:
+            return lambda: f5().get_list()
+
+        if a.sub == 'get':
+            if a.sub2 == 'detail':
+                def detail(f5):
+                    d = {}
+                    d['auto_lasthop'] = f5().get_auto_lasthop([a.name])
+                    d['vlan_id'] = f5().get_vlan_id([a.name])
+                    d['member'] = f5().get_member([a.name])
+                    d['mtu'] = f5().get_mtu([a.name])
+                    return d
+                return lambda: detail(f5)
+
+        elif a.sub == 'create':
+            if a.sub2 == 'tagged':
+                vlanid = a.sub3
+                members = {
+                    'member_name': a.sub4,
+                    'member_type': 'MEMBER_TRUNK',
+                    'tag_state': 'MEMBER_TAGGED',
+                }
+                return lambda: f5().create_v2([a.name], [vlanid], [[members]], ['STATE_ENABLED'], [10])
+
+        elif a.sub == 'delete':
+            return lambda: f5().delete_vlan([a.name])
+
+
+    def __do_selfip(self, f5):
+        ''' Do stuff concerning Self IPs '''
+
+        a = self._args
+
+        if not a.name:
+            return lambda: f5().get_list()
+
+        if a.sub == 'get':
+            if a.sub2 == 'detail':
+                def detail(f5):
+                    d = {}
+                    d['address'] = f5().get_address([a.name])
+                    d['description'] = f5().get_description([a.name])
+                    d['floating_state'] = f5().get_floating_state([a.name])
+                    d['traffic_group'] = f5().get_traffic_group([a.name])
+                    return d
+                return lambda: detail(f5)
+            elif a.sub2 == 'tgroup':
+                return lambda: f5().get_traffic_group([a.name])
+            elif a.sub2 == 'address':
+                return lambda: f5().get_address([a.name])
+
+        if a.sub == 'set':
+            if a.sub2 == 'tgroup':
+                tgroup = a.sub3
+                return lambda: f5().set_traffic_group([a.name], [tgroup])
+
+        elif a.sub == 'create':
+            fqdn, ip, _ = self.lookup(a.name)
+            netmask = a.sub2
+            vlanname = a.sub3
+            trafficgroup = a.sub4 if a.sub4 else 'traffic-group-local-only'
+            # A floating traffic group will auto set floating state to ENABLED, regardless of the .create call.
+            return lambda: f5().create([a.name], [vlanname], [ip], [netmask], [trafficgroup], ['STATE_DISABLED'])
+
+        elif a.sub == 'delete':
+            return lambda: f5().delete_self_ip([a.name])
+
+
+    def __do_tgroup(self, f5):
+        ''' Do stuff concerning TrafficGroups'''
+
+        a = self._args
+
+        if not a.name:
+            return lambda: f5().get_list()
+
+        if a.sub == 'get':
+            if a.sub2 == 'detail':
+                def detail(f5):
+                    d = {}
+                    d['description'] = f5().get_description([a.name])
+                    d['ha_order'] = f5().get_ha_order([a.name])
+                    d['is_floating'] = f5().get_is_floating([a.name])
+                    d['auto_failback_enabled_state'] = f5().get_auto_failback_enabled_state([a.name])
+                    return d
+                return lambda: detail(f5)
+
+        elif a.sub == 'create':
+            return lambda: f5().create([a.name])
+
+        elif a.sub == 'delete':
+            return lambda: f5().delete_traffic_group([a.name])
+
+        elif a.sub == 'add':
+            if a.sub2 == 'ha_order':
+                orders = { 'device': a.sub3, 'order': a.sub4 }
+                return lambda: f5().add_ha_order([a.name], [[orders]])
+
+        elif a.sub == 'remove':
+            if a.sub2 == 'ha_order':
+                orders = { 'device': a.sub3, 'order': a.sub4 }
+                return lambda: f5().remove_ha_order([a.name], [[orders]])
+            elif a.sub2 == 'all_ha_orders':
+                orders = { 'device': a.sub3, 'order': a.sub4 }
+                return lambda: f5().remove_all_ha_orders([a.name])
+
 
     def run(self):
         ''' Do the actual stuff.
@@ -423,11 +617,20 @@ class Fapi(object):
             lazy = self.__do_pool(lambda: self._f5.LocalLB.Pool)
         elif a.what == 'vserver':
             lazy = self.__do_vserver(lambda: self._f5.LocalLB.VirtualServer)
+        elif a.what == 'vip':
+            lazy = self.__do_vip(lambda: self._f5.LocalLB.VirtualAddressV2)
+        elif a.what == 'vlan':
+            lazy = self.__do_vlan(lambda: self._f5.Networking.VLAN)
+        elif a.what == 'selfip':
+            lazy = self.__do_selfip(lambda: self._f5.Networking.SelfIPV2)
+        elif a.what == 'tgroup':
+            lazy = self.__do_tgroup(lambda: self._f5.Management.TrafficGroup)
 
         if isfunction(lazy):
-            self.info('Doing some stuf via the API, it may take a while')
+            self.verbose('Doing some stuf via the API, it may take a while')
             self.__login()
             self.out(lazy())
+            self.info('done')
         else:
             print_synopsis()
             sys.exit(1)
@@ -438,9 +641,11 @@ if __name__ == '__main__':
     ''' The main function, here we will have Popcorn for free! '''
 
     parser = argparse.ArgumentParser(add_help=False)
+    parser.add_argument('-b', action='store', help='Forces to use the secified loadbalancer')
     parser.add_argument('-e', action='store', help='Env to use, e.g. dev,qa,live',
         default='qa')
     parser.add_argument('-h', action='store_true', help='Help')
+    parser.add_argument('-l', action='store_true', help='Use list output')
     parser.add_argument('-p', action='store', help='Overwrite partition from fapi.conf')
     parser.add_argument('-v', action='store_true', help='Verbose')
     parser.add_argument('-V', action='store_true', help='Print version')
@@ -468,15 +673,7 @@ if __name__ == '__main__':
         sys.exit(0)
 
     fapi = Fapi(args)
-
     fapi.run()
 
-#   try: 
-#       if not fapi.run():
-#           fapi.info('Don\'t know what to do')
-#           sys.exit(1)
-#   except Exception, e:
-#       fapi.info(e)
-#       sys.exit(2)
 
 # vim: tabstop=4 expandtab shiftwidth=4 softtabstop=4
