@@ -114,6 +114,9 @@ A simple nPath service can be created as follows.
   f vserver myvserver.example.com:443 create PROTOCOL_TCP nPath
   f vserver myvserver.example.com:443 set pool foopool
 
+  # Put the VirtualAddress of the vserver into a specific traffic group
+  f vip myserver.example.com set tgroup some-traffic-group
+
 And everything can be deleted as folows:
 
   # You can also specify the full object name (including the partition)
