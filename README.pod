@@ -80,17 +80,7 @@ If you want to list all configured objects on your partition just run
   f pool # To list all pool
   ... # etc
 
-=head2 Setting up simple NAT Services
-
-  (Docu to be written)
-
-=head2 Setting up simple SNAT Services
-
-  (Docu to be written)
-
-=head2 Setting up a simple nPath Service
-
-A simple nPath service can be created as follows.
+=head2 Setting up a simple pool
 
   # Creating two nodes, fapi auto resolves the IP addresses, and use the
   # FQDN as the node name. 
@@ -105,6 +95,10 @@ A simple nPath service can be created as follows.
 
   # Add a monitor to the pool
   f pool foopool add monitor http_lbtest
+
+=head2 Setting up a simple nPath Service
+
+A simple nPath service can be created as follows.
 
   # Create a nPath HTTP vserver, 'nPath' also auto disables NAT and PAT
   # fapi auto resolves the IP address.
@@ -132,6 +126,13 @@ And everything can be deleted as folows:
   f node fooserver1.example.com delete
   f node fooserver2.example.com delete
 
+=head2 Setting up simple NAT Services
+
+  (Docu to be written)
+
+=head2 Setting up simple SNAT Services
+
+  (Docu to be written)
 
 =head1 AUTHOR
 

@@ -1,3 +1,9 @@
+fapi (0.0.5) stable; urgency=low
+
+  * Had a merge conflict the prev. release
+
+ -- Paul Buetow <paul@buetow.org>  Wed, 16 Apr 2014 09:08:40 +0200
+
 fapi (0.0.4) stable; urgency=low
 
   * Add -e option, to select the loadbalancer environment
