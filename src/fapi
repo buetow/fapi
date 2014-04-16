@@ -20,12 +20,14 @@ __program__ = 'fapi'
 __version__ = 'VERSION_DEVEL' # Replaced by a Makefile tsubet
 __prompt__  = '>>>' # Default prompt
 
+def print_version():
+    print 'This is %s version %s' % (__program__, __version__)
 
 def print_synopsis():
     ''' Prints the full Synopsis string '''
 
+    print_version()
     print "\n".join([
-        'This is %s version %s' % (__program__, __version__),
         '',
         'Synopsis:',
         ' fapi monitor',
@@ -230,7 +232,7 @@ class Fapi(object):
 
         elif a.sub == 'create':
                 poolmembers = []
-                method = a.m
+                method = 'LB_METHOD_ROUND_ROBIN'
                 if a.sub3:
                     for x in a.sub3.split(','):
                         fqdn, ip, port = self.lookup(x)
@@ -434,8 +436,6 @@ if __name__ == '__main__':
     parser.add_argument('-h', action='store_true', help='Help')
     parser.add_argument('-v', action='store_true', help='Verbose')
     parser.add_argument('-V', action='store_true', help='Print version')
-    parser.add_argument('-m', action='store', help='The default lbmethod',
-        default='LB_METHOD_ROUND_ROBIN')
     parser.add_argument('-C', action='store', help='Config file',
         default=expanduser('~') + '/.fapi.conf')
 
@@ -456,6 +456,7 @@ if __name__ == '__main__':
         sys.exit(0)
 
     if args.V:
+        print_version()
         sys.exit(0)
 
     fapi = Fapi(args)
