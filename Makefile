@@ -27,7 +27,8 @@ documentation:
 	# To be replaced with sphynx instead of pod
 	pod2man --release="$(NAME) $$(cat .version)" \
 		--center="User Commands" ./docs/$(NAME).pod > ./docs/$(NAME).1
-	pod2text ./docs/$(NAME).pod | tee ./docs/$(NAME).txt > README.txt
+	pod2text ./docs/$(NAME).pod > ./docs/$(NAME).txt
+	cp ./docs/$(NAME).pod README.pod
 # Build a debian package (don't sign it, modify the arguments if you want to sign it)
 deb: all
 	dpkg-buildpackage

@@ -2,6 +2,9 @@
 [fapi]
 username: paul
 password64: SECRET
-# Will try every box and will use the first one which works
-hostnames: bigip.example.com,bigip2.example.com
+# The qa loadbalancers (if specified -e qa)
+loadbalancers_qa: qa-01.example.com,qa-02.example.com
+# The qa loadbalancers (if specified -e live)
+loadbalancers_live: be-01.example.com,qa-be-02.example.com,qa-be-03.lb.server.la
+# You can specify your own/more envs too...
 partition: Common
