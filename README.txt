@@ -96,8 +96,8 @@ EXAMPLES
       # fapi auto resolves the IP address.
       f vserver myvserver.example.com:80 create PROTOCOL_TCP nPath
 
-      # Add the pool to the vserver. The vservers name inside of BigIP will be the
-      # FQDN followed by _PORT. In this case it would be:
+      # Add the pool to the vserver. The vservers name inside of BigIP will be
+      # the FQDN followed by _PORT. In this case it would be:
       #  myvserver.example.com_80 (or full: /Partition/myvserver.example.com_80)
       # The reason is that : are not allowed in vserver names.
       f vserver myvserver.example.com:80 set pool foopool
