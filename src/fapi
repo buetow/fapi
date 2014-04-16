@@ -88,12 +88,8 @@ class Fapi(object):
             password = getpass.getpass(prompt)
         self.info('Login to BigIP API with user %s' % username)
 
-        if a.e != None:
-            loadbalancers = c.get('fapi', 'loadbalancers_' + a.e)
-        else:
-            loadbalancers = c.get('fapi', 'loadbalancers')
-
         # Try a comma separated lists of F5 boxes, use the first one
+        loadbalancers = c.get('fapi', 'loadbalancers_' + a.e)
         err = None
         for loadbalancer in loadbalancers.split(','):
             try:
@@ -442,7 +438,8 @@ if __name__ == '__main__':
     ''' The main function, here we will have Popcorn for free! '''
 
     parser = argparse.ArgumentParser(add_help=False)
-    parser.add_argument('-e', action='store', help='Env to use, e.g. dev,qa,live')
+    parser.add_argument('-e', action='store', help='Env to use, e.g. dev,qa,live',
+        default='qa')
     parser.add_argument('-h', action='store_true', help='Help')
     parser.add_argument('-p', action='store', help='Overwrite partition from fapi.conf')
     parser.add_argument('-v', action='store_true', help='Verbose')
