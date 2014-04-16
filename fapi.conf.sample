@@ -6,6 +6,6 @@ password64: SECRET
 # The qa loadbalancers (if specified -e qa)
 loadbalancers_qa: qa-01.example.com,qa-02.example.com
 # The qa loadbalancers (if specified -e live)
-loadbalancers_live: be-01.example.com,qa-be-02.example.com,qa-be-03.lb.server.la
+loadbalancers_live: live-01.example.com,live-02.example.com,live-03.example.com
 # You can specify your own/more envs too...
 partition: Common
