@@ -1,3 +1,9 @@
+fapi (0.0.6) stable; urgency=low
+
+  * Introduce a bunch of new options.
+
+ -- Paul Buetow <paul@buetow.org>  Wed, 16 Apr 2014 22:27:41 +0200
+
 fapi (0.0.5) stable; urgency=low
 
   * Had a merge conflict the prev. release
