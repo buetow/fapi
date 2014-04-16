@@ -88,12 +88,17 @@ class Fapi(object):
             password = getpass.getpass(prompt)
         self.info('Login to BigIP API with user %s' % username)
 
+        if a.e != None:
+            loadbalancers = c.get('fapi', 'loadbalancers_' + a.e)
+        else:
+            loadbalancers = c.get('fapi', 'loadbalancers')
+
         # Try a comma separated lists of F5 boxes, use the first one
         err = None
-        for hostname in c.get('fapi', 'hostnames').split(','):
+        for loadbalancer in loadbalancers.split(','):
             try:
-                self.info('Trying to login to \'%s\'' % hostname)
-                self._f5 = bigsuds.BIGIP(hostname = hostname,
+                self.info('Trying to login to \'%s\'' % loadbalancer)
+                self._f5 = bigsuds.BIGIP(hostname = loadbalancer,
                                          username = username,
                                          password = password)
                 self._f5.Management.Partition.set_active_partition(self._partition)
@@ -101,7 +106,7 @@ class Fapi(object):
                 err = None
                 break
             except Exception, e:
-                err = '%s:%s' % (hostname, e)
+                err = '%s:%s' % (loadbalancer, e)
                 pass
 
         if err:
@@ -437,6 +442,7 @@ if __name__ == '__main__':
     ''' The main function, here we will have Popcorn for free! '''
 
     parser = argparse.ArgumentParser(add_help=False)
+    parser.add_argument('-e', action='store', help='Env to use, e.g. dev,qa,live')
     parser.add_argument('-h', action='store_true', help='Help')
     parser.add_argument('-p', action='store', help='Overwrite partition from fapi.conf')
     parser.add_argument('-v', action='store_true', help='Verbose')
