@@ -152,10 +152,11 @@ Examples:
   # Auto resolving of the virtual address (IP)
   f vserver fqdn.example.com:443 create
 
-  # Auto resolving of the FQDN and the virtual address (IP) and auto port 80
+  # Auto resolving of the FQDN (vserver name) and the virtual address (IP) 
+  # and auto port 80
   f vserver hostname create
 
-  # Auto resolving of the FQDN and the virtual address (IP) 
+  # Auto resolving of the FQDN (vserver name) and the virtual address (IP) 
   f vserver hostname:443 create
 
   # vserver name and its virtual address will be 1.2.3.4 and auto port 80

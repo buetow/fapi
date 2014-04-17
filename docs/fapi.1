@@ -124,7 +124,7 @@
 .\" ========================================================================
 .\"
 .IX Title "FAPI 1"
-.TH FAPI 1 "2014-04-16" "fapi 0.0.6" "User Commands"
+.TH FAPI 1 "2014-04-17" "fapi 0.0.6" "User Commands"
 .\" For nroff, turn off justification.  Always turn off hyphenation; it makes
 .\" way too many mistakes in technical documents.
 .if n .ad l
@@ -276,6 +276,40 @@ And everything can be deleted as folows:
 .IX Subsection "Setting up simple SNAT Services"
 .Vb 1
 \&  (Docu to be written)
+.Ve
+.SS "About the \s-1NAME\s0 argument"
+.IX Subsection "About the NAME argument"
+In most cases \s-1NAME\s0 can be a hostname, \s-1FQDN\s0 or an \s-1IP\s0 address. Optionally folled
+by a port:
+.PP
+.Vb 1
+\&  NAME := fqdn|hostname|ip[:ip2[:port]]
+.Ve
+.PP
+Examples:
+.PP
+.Vb 2
+\&  # Auto resolving of the virtual address (IP) and auto port 80
+\&  f vserver fqdn.example.com create
+\&
+\&  # Auto resolving of the virtual address (IP)
+\&  f vserver fqdn.example.com:443 create
+\&
+\&  # Auto resolving of the FQDN (vserver name) and the virtual address (IP) 
+\&  # and auto port 80
+\&  f vserver hostname create
+\&
+\&  # Auto resolving of the FQDN (vserver name) and the virtual address (IP) 
+\&  f vserver hostname:443 create
+\&
+\&  # vserver name and its virtual address will be 1.2.3.4 and auto port 80
+\&  f vserver 1.2.3.4 create
+\&
+\&  # vserver name and its virtual address will be 1.2.3.4 
+\&  f vserver 1.2.3.4:443 create
+\&
+\&  # vserver name is foo, its virtual address 1.2.3.4 and port is 80
+\&  f vserver foo:1.2.3.4:80 create
 .Ve
 .SH "AUTHOR"
 .IX Header "AUTHOR"

@@ -122,6 +122,36 @@ EXAMPLES
   Setting up simple SNAT Services
       (Docu to be written)
 
+  About the NAME argument
+    In most cases NAME can be a hostname, FQDN or an IP address. Optionally
+    folled by a port:
+
+      NAME := fqdn|hostname|ip[:ip2[:port]]
+
+    Examples:
+
+      # Auto resolving of the virtual address (IP) and auto port 80
+      f vserver fqdn.example.com create
+
+      # Auto resolving of the virtual address (IP)
+      f vserver fqdn.example.com:443 create
+
+      # Auto resolving of the FQDN (vserver name) and the virtual address (IP) 
+      # and auto port 80
+      f vserver hostname create
+
+      # Auto resolving of the FQDN (vserver name) and the virtual address (IP) 
+      f vserver hostname:443 create
+
+      # vserver name and its virtual address will be 1.2.3.4 and auto port 80
+      f vserver 1.2.3.4 create
+
+      # vserver name and its virtual address will be 1.2.3.4 
+      f vserver 1.2.3.4:443 create
+
+      # vserver name is foo, its virtual address 1.2.3.4 and port is 80
+      f vserver foo:1.2.3.4:80 create
+
 AUTHOR
     Paul C. Buetow - <paul@buetow.org>
 
