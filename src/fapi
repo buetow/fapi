@@ -33,14 +33,14 @@ def print_synopsis():
         ' fapi monitor',
         ' fapi monitor NAME get desc|state',
         ' fapi node',
-        ' fapi node NAME create|delete',
-        ' fapi node NAME get detail|status',
+        ' fapi node NODENAME create|delete',
+        ' fapi node NODENAME get detail|status',
         ' fapi pool',
-        ' fapi pool NAME add member MEMBERNAME:PORT',
-        ' fapi pool NAME add monitor MONITORNAME',
+        ' fapi pool NAME add member MEMBER:PORT',
+        ' fapi pool NAME add monitor MONITOR',
         ' fapi pool NAME create [LIST,OF,POOL,MEMBERS:PORT]',
         ' fapi pool NAME delete',
-        ' fapi pool NAME del member MEMBERNAME:PORT',
+        ' fapi pool NAME del member MEMBER:PORT',
         ' fapi pool NAME del monitors',
         ' fapi pool NAME get detail|lbmethod|members|monitor|status',
         ' fapi pool NAME set lbmethod LBMETHOD',
@@ -72,6 +72,7 @@ def print_synopsis():
         ' fapi -p Common -b balancer.example.com selfip NAME set tgroup TGROUP',
         ' fapi -p Common -b balancer.example.com selfip NAME create NETMASK VLANNAME [TGROUP]',
         ' fapi -p Common -b balancer.example.com selfip NAME delete',
+        'please consult the manpage for exaples',
     ])
 
 
@@ -127,8 +128,7 @@ class Fapi(object):
                 pass
 
         if err:
-            self.verbose(err)
-            sys.exit(2)
+            raise Exception(err)
 
 
     def verbose(self, message):
@@ -155,23 +155,51 @@ class Fapi(object):
 
 
     def lookup(self, what):
-        ''' Does a DNS lookup to fetch the FQDN and all the IPs '''
+        ''' Does a DNS lookup to fetch the name (mostly FQDN) and the IPs
+
+            hostname will be looked up to (fqdn,ip,80)
+            fqdn will be looked up to (fqdn,ip,80)
+            ip will be looked up to (ip,ip,80)
+
+            hostname:port will be looked up to (fqdn,ip,port)
+            fqdn:port will be looked up to (fqdn,ip,port)
+            ip:port will be looked up to (ip,ip,port)
+
+            hostname:ip:port will be looked up to (fqdn,ip,port)
+            fqdn:ip:port will be looked up to (fqdn,ip,port)
+            ip1:ip2:port will be looked up to (ip1,ip2,port)
+        '''
+
+        a = self._args
 
         tmp = what.split(':')
-        if 1 == len(tmp): tmp.append('80')
-        what = tmp[0]
-        port = tmp[1]
-        try:
+        if 1 == len(tmp): 
+            what = tmp[0]
+            ip = None
+            port = 80
+        elif 2 == len(tmp):
+            what = tmp[0]
+            ip = None
+            port = tmp[1]
+        elif 3 == len(tmp):
+            what = tmp[0]
+            ip = tmp[1]
+            port = tmp[2]
+        else:
+            raise Exception('\'%s\' can have at most three kolons' % what)
+
+        if ip:
+            name = what
+        else:
             data = socket.gethostbyname_ex(what)
-        except Exception, e:
-            self.verbose('Can\'t resolve \'%s\': %s' % (what, e))
-            sys.exit(2)
-        fqdn = data[0]
-        ips = data[2]
-        if len(ips) > 1:
-            self.verbose('\'%s\' resolves to multiple ips \'%s\'' % (fqdn, ips))
-            sys.exit(2)
-        return (fqdn, ips[0], port)
+            name = data[0]
+            ips = data[2]
+            if len(ips) > 1:
+                raise Exception('\'%s\' resolves to multiple ips \'%s\'' % (name, ips))
+            ip = ips[0]
+
+        self.verbose("Looked \'%s\' up to name:\'%s\', ip:\'%s\', port:\'%s\'" % (what, name, ip, port))
+        return (name, ip, port)
 
     def __do_node(self, f5):
         ''' Do stuff concerning nodes '''
@@ -202,12 +230,12 @@ class Fapi(object):
                 return lambda: f5().get_monitor_status([a.name])
 
         elif a.sub == 'create':
-            fqdn, ip, _ = self.lookup(a.name)
-            return lambda: f5().create([fqdn],[ip],[0])
+            fqdn_or_ip, ip, _ = self.lookup(a.name)
+            return lambda: f5().create([fqdn_or_ip],[ip],[0])
 
         elif a.sub == 'delete':
-            fqdn, _, _ = self.lookup(a.name)
-            return lambda: f5().delete_node_address([fqdn])
+            fqdn_or_ip, _, _ = self.lookup(a.name)
+            return lambda: f5().delete_node_address([fqdn_or_ip])
 
 
     def __do_monitor(self, f5):
@@ -266,8 +294,8 @@ class Fapi(object):
                 method = 'LB_METHOD_ROUND_ROBIN'
                 if a.sub3:
                     for x in a.sub3.split(','):
-                        fqdn, ip, port = self.lookup(x)
-                        pm = { 'address' : fqdn, 'port' : port }
+                        fqdn_or_ip, ip, port = self.lookup(x)
+                        pm = { 'address' : fqdn_or_ip, 'port' : port }
                         poolmembers.append(pm)
                 return lambda: f5().create_v2([a.name],[method],[poolmembers])
 
@@ -276,8 +304,8 @@ class Fapi(object):
 
         elif a.sub == 'add':
             if a.sub2 == 'member':
-                fqdn, _, port = self.lookup(a.sub3)
-                member = [{ 'address' : fqdn, 'port' : port }]
+                fqdn_or_ip, _, port = self.lookup(a.sub3)
+                member = [{ 'address' : fqdn_or_ip, 'port' : port }]
                 return lambda: f5().add_member_v2([a.name], [member])
             elif a.sub2 == 'monitor':
                 monitorname = a.sub3
@@ -291,8 +319,8 @@ class Fapi(object):
 
         elif a.sub == 'del':
             if a.sub2 == 'member':
-                fqdn, _, port = self.lookup(a.sub3)
-                member = [{ 'address' : fqdn, 'port' : port }]
+                fqdn_or_ip, _, port = self.lookup(a.sub3)
+                member = [{ 'address' : fqdn_or_ip, 'port' : port }]
                 return lambda: f5().remove_member_v2([a.name], [member])
             elif a.sub2 == 'monitors':
                 # Removes all monitor associations, not just one
@@ -310,13 +338,13 @@ class Fapi(object):
         # Check for Pattern like /partition/foo-bar.example.com_443
         m = re.match('^(.*)_(\d+)$', a.name)
         if m:
-          fqdn = m.group(1)
+          fqdn_or_ip = m.group(1)
           port = m.group(2)
-          _, ip, _ = self.lookup(fqdn)
+          _, ip, _ = self.lookup(fqdn_or_ip)
         else:
-          fqdn, ip, port = self.lookup(a.name)
+          fqdn_or_ip, ip, port = self.lookup(a.name)
 
-        name = fqdn + '_' + port
+        name = fqdn_or_ip + '_' + port
 
         if a.sub == 'get':
             if a.sub2 == 'detail':
@@ -436,8 +464,8 @@ class Fapi(object):
         # Check for Pattern like /partition/foo-bar.example.com_443
         m = re.match('^(.*)_(\d+)$', a.name)
         if m:
-          fqdn = m.group(1)
-          _, ip, _ = self.lookup(fqdn)
+          fqdn_or_ip = m.group(1)
+          _, ip, _ = self.lookup(fqdn_or_ip)
         else:
           _, ip, _ = self.lookup(a.name)
 
@@ -544,7 +572,7 @@ class Fapi(object):
                 return lambda: f5().set_traffic_group([a.name], [tgroup])
 
         elif a.sub == 'create':
-            fqdn, ip, _ = self.lookup(a.name)
+            _, ip, _ = self.lookup(a.name)
             netmask = a.sub2
             vlanname = a.sub3
             trafficgroup = a.sub4 if a.sub4 else 'traffic-group-local-only'
@@ -641,7 +669,8 @@ if __name__ == '__main__':
     ''' The main function, here we will have Popcorn for free! '''
 
     parser = argparse.ArgumentParser(add_help=False)
-    parser.add_argument('-b', action='store', help='Forces to use the secified loadbalancer')
+    parser.add_argument('-b', action='store', 
+            help='Forces to use the secified loadbalancer (overwrites -e)')
     parser.add_argument('-e', action='store', help='Env to use, e.g. dev,qa,live',
         default='qa')
     parser.add_argument('-h', action='store_true', help='Help')

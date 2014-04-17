@@ -1,6 +1,7 @@
 CHANGELOG
 MANIFEST.in
 bigsuds.py
+setup.cfg
 setup.py
 bigsuds.egg-info/PKG-INFO
 bigsuds.egg-info/SOURCES.txt
