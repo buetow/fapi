@@ -56,6 +56,7 @@ def print_synopsis():
         ' fapi vserver NAME set nat|pat disabled|enabled',
         ' fapi vserver NAME set pool POOLNAME',
         ' fapi vserver NAME set snat none',
+        'The following partially needs admininstrator privileges on partition Common',
         ' fapi -p Common vlan',
         ' fapi -p Common vlan NAME get detail',
         ' fapi -p Common vlan NAME create tagged VLANID internal|external|...',
@@ -72,7 +73,7 @@ def print_synopsis():
         ' fapi -p Common -b balancer.example.com selfip NAME set tgroup TGROUP',
         ' fapi -p Common -b balancer.example.com selfip NAME create NETMASK VLANNAME [TGROUP]',
         ' fapi -p Common -b balancer.example.com selfip NAME delete',
-        'please consult the manpage for exaples',
+        'Please consult the manpage for exaples.',
     ])
 
 
