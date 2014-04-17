@@ -168,6 +168,7 @@ Examples:
   # vserver name is foo, its virtual address 1.2.3.4 and port is 80
   f vserver foo:1.2.3.4:80 create
 
+Similar may apply to other object types such as nodes and vips.
 
 =head1 AUTHOR
 
