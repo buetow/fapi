@@ -73,7 +73,7 @@ def print_synopsis():
         ' fapi -p Common -b balancer.example.com selfip NAME set tgroup TGROUP',
         ' fapi -p Common -b balancer.example.com selfip NAME create NETMASK VLANNAME [TGROUP]',
         ' fapi -p Common -b balancer.example.com selfip NAME delete',
-        'Please consult the manpage for exaples.',
+        'Please consult the manpage for examples.',
     ])
 
 
