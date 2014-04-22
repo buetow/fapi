@@ -124,7 +124,7 @@
 .\" ========================================================================
 .\"
 .IX Title "FAPI 1"
-.TH FAPI 1 "2014-04-17" "fapi 0.0.6" "User Commands"
+.TH FAPI 1 "2014-04-22" "fapi 0.0.7" "User Commands"
 .\" For nroff, turn off justification.  Always turn off hyphenation; it makes
 .\" way too many mistakes in technical documents.
 .if n .ad l
@@ -191,15 +191,15 @@ Update your sources list:
 .PP
 .Vb 4
 \&  curl http://deb.buetow.org/apt/pubkey.gpg | sudo apt\-key add \-
-\&  echo \*(Aqdeb http://deb.buetow.org/apt wheezy main\*(Aq > \e
-\&    /etc/apt/sourcees.list.d/buetoworg.list
-\&  aptitude update
+\&  echo deb http://deb.buetow.org/apt wheezy main |
+\&    sudo tee /etc/apt/sourcees.list.d/buetoworg.list
+\&  sudo aptitude update
 .Ve
 .PP
 And run
 .PP
 .Vb 3
-\&  aptitude install fapi
+\&  sudo aptitude install fapi
 \&  cp /usr/share/fapi/fapi.conf.sample ~/.fapi.conf
 \&  vim ~/.fapi.conf
 .Ve
@@ -310,7 +310,12 @@ Examples:
 \&
 \&  # vserver name is foo, its virtual address 1.2.3.4 and port is 80
 \&  f vserver foo:1.2.3.4:80 create
+\&
+\&  # vserver name is 1.2.3.5, its virtual address 1.2.3.4 and port is 80
+\&  f vserver 1.2.3.5:1.2.3.4:80 create
 .Ve
+.PP
+Similar may apply to other object types such as nodes and vips.
 .SH "AUTHOR"
 .IX Header "AUTHOR"
 Paul C. Buetow \- <paul@buetow.org>

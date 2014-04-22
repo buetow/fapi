@@ -1,3 +1,10 @@
+fapi (0.0.7) stable; urgency=low
+
+  * Add the functionality to specify explicitly IP addresses even if the 
+    FQDN does not resolve to it. 
+
+ -- Paul Buetow <paul@buetow.org>  Tue, 22 Apr 2014 20:39:28 +0200
+
 fapi (0.0.6) stable; urgency=low
 
   * Introduce a bunch of new options.
