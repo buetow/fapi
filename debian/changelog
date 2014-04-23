@@ -1,3 +1,9 @@
+fapi (0.0.8) stable; urgency=low
+
+  * Can manage folders.
+
+ -- Paul Buetow <paul@buetow.org>  Wed, 23 Apr 2014 22:38:05 +0200
+
 fapi (0.0.7) stable; urgency=low
 
   * Add the functionality to specify explicitly IP addresses even if the 
