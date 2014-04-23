@@ -30,13 +30,11 @@ def print_synopsis():
     print "\n".join([
         '',
         'Synopsis:',
-        ' fapi monitor',
-        ' fapi monitor NAME get desc|state',
+        ' fapi monitor [NAME get desc|state]',
         ' fapi node',
         ' fapi node NODENAME create|delete',
         ' fapi node NODENAME get detail|status',
-        ' fapi pool',
-        ' fapi pool NAME add member MEMBER:PORT',
+        ' fapi pool [NAME add member MEMBER:PORT]',
         ' fapi pool NAME add monitor MONITOR',
         ' fapi pool NAME create [LIST,OF,POOL,MEMBERS:PORT]',
         ' fapi pool NAME delete',
@@ -44,32 +42,31 @@ def print_synopsis():
         ' fapi pool NAME del monitors',
         ' fapi pool NAME get detail|lbmethod|members|monitor|status',
         ' fapi pool NAME set lbmethod LBMETHOD',
-        ' fapi vip NAME',
-        ' fapi vip NAME create NETMASK',
+        ' fapi vip [NAME create NETMASK]',
         ' fapi vip NAME get arp|detail|status|tgroup',
         ' fapi vip NAME set arp enabled|disabled',
         ' fapi vip NAME set tgroup TGROUP',
-        ' fapi vserver',
-        ' fapi vserver NAME create [protocol] [profile] [poolname] [mask]',
+        ' fapi vserver [NAME create [protocol] [profile] [poolname] [mask]]',
         ' fapi vserver NAME delete',
         ' fapi vserver NAME get brief|detail|status',
         ' fapi vserver NAME set nat|pat disabled|enabled',
         ' fapi vserver NAME set pool POOLNAME',
         ' fapi vserver NAME set snat none',
-        'The following partially needs admininstrator privileges on partition Common',
-        ' fapi -p Common vlan',
-        ' fapi -p Common vlan NAME get detail',
+        'The following partially needs admininstrator privileges on / and /Common',
+        ' fapi -p / folder [NAME create|delete]',
+        ' fapi -p / folder NAME get detail|dgroup|tgroup',
+        ' fapi -p / folder NAME set dgroup|tgroup DGROUP|TGROUP',
+        ' fapi -p Common vlan [NAME get detail]',
         ' fapi -p Common vlan NAME create tagged VLANID internal|external|...',
         ' fapi -p Common vlan NAME delete',
-        ' fapi -p Common tgroup',
-        ' fapi -p Common tgroup NAME get detail',
+        ' fapi -p Common tgroup [NAME get detail]',
         ' fapi -p Common tgroup NAME create',
         ' fapi -p Common tgroup NAME delete',
         ' fapi -p Common tgroup NAME add ha_order DEVICE ORDER',
+        ' fapi -p Common tgroup NAME get ha_order',
         ' fapi -p Common tgroup NAME remove ha_order DEVICE ORDER',
         ' fapi -p Common tgroup NAME remove all_ha_orders',
-        ' fapi -p Common -b balancer.example.com selfip',
-        ' fapi -p Common -b balancer.example.com selfip NAME get detail|tgroup',
+        ' fapi -p Common -b balancer.example.com selfip [NAME get detail|tgroup]',
         ' fapi -p Common -b balancer.example.com selfip NAME set tgroup TGROUP',
         ' fapi -p Common -b balancer.example.com selfip NAME create NETMASK VLANNAME [TGROUP]',
         ' fapi -p Common -b balancer.example.com selfip NAME delete',
@@ -584,6 +581,45 @@ class Fapi(object):
             return lambda: f5().delete_self_ip([a.name])
 
 
+    def __do_folder(self, f5):
+        ''' Do stuff concerning administrative Partitions'''
+
+        a = self._args
+
+        if not a.name:
+            return lambda: f5().get_list()
+
+        if a.sub == 'create':
+            return lambda: f5().create([a.name])
+
+        elif a.sub == 'delete':
+            return lambda: f5().delete_folder([a.name])
+
+        elif a.sub == 'get':
+            if a.sub2 == 'detail':
+                def detail(f5):
+                    d = {}
+                    d['description']= f5().get_description([a.name])
+                    d['device_group']= f5().get_device_group([a.name])
+                    d['traffic_group']= f5().get_traffic_group([a.name])
+                    d['is_device_group_inherited']= f5().is_device_group_inherited([a.name])
+                    d['is_traffic_group_inherited']= f5().is_traffic_group_inherited([a.name])
+                    d['is_traffic_group_inherited']= f5().is_traffic_group_inherited([a.name])
+                    return d
+                return lambda: detail(f5)
+            elif a.sub2 == 'dgroup':
+                return lambda: f5().get_device_group([a.name])
+            elif a.sub2 == 'tgroup':
+                return lambda: f5().get_traffic_group([a.name])
+
+        elif a.sub == 'set':
+            if a.sub2 == 'dgroup':
+                return lambda: f5().set_device_group([a.name], [a.sub3])
+            elif a.sub2 == 'tgroup':
+                return lambda: f5().set_traffic_group([a.name], [a.sub3])
+
+
+
     def __do_tgroup(self, f5):
         ''' Do stuff concerning TrafficGroups'''
 
@@ -602,6 +638,8 @@ class Fapi(object):
                     d['auto_failback_enabled_state'] = f5().get_auto_failback_enabled_state([a.name])
                     return d
                 return lambda: detail(f5)
+            elif a.sub2 == 'ha_order':
+                return lambda: f5().get_ha_order([a.name])
 
         elif a.sub == 'create':
             return lambda: f5().create([a.name])
@@ -654,6 +692,8 @@ class Fapi(object):
             lazy = self.__do_selfip(lambda: self._f5.Networking.SelfIPV2)
         elif a.what == 'tgroup':
             lazy = self.__do_tgroup(lambda: self._f5.Management.TrafficGroup)
+        elif a.what == 'folder':
+            lazy = self.__do_folder(lambda: self._f5.Management.Folder)
 
         if isfunction(lazy):
             self.verbose('Doing some stuf via the API, it may take a while')
