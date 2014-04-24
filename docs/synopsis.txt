@@ -1,0 +1,66 @@
+usage: fapi [-b B] [-e E] [-h] [-l] [-p P] [-v] [-V] [-C C]
+            [what] [name] [sub] [sub2] [sub3] [sub4] [sub5]
+
+positional arguments:
+  what  node|pool|monitor|vserver|...
+  name  The object name to operate on
+  sub   First sub command
+  sub2  Second sub command
+  sub3  Third sub command
+  sub4  Fourth sub command
+  sub5  Fith sub command
+
+optional arguments:
+  -b B  Forces to use the secified loadbalancer (overwrites -e)
+  -e E  Env to use, e.g. dev,qa,live
+  -h    Help
+  -l    Use list output
+  -p P  Overwrite partition from fapi.conf
+  -v    Verbose
+  -V    Print version
+  -C C  Config file
+
+This is fapi version 0.0.8
+
+Synopsis:
+ fapi monitor [NAME get desc|state]
+ fapi node
+ fapi node NODENAME create|delete
+ fapi node NODENAME get detail|status
+ fapi pool [NAME add member MEMBER:PORT]
+ fapi pool NAME add monitor MONITOR
+ fapi pool NAME create [LIST,OF,POOL,MEMBERS:PORT]
+ fapi pool NAME delete
+ fapi pool NAME del member MEMBER:PORT
+ fapi pool NAME del monitors
+ fapi pool NAME get detail|lbmethod|members|monitor|status
+ fapi pool NAME set lbmethod LBMETHOD
+ fapi vip [NAME create NETMASK]
+ fapi vip NAME get arp|detail|status|tgroup
+ fapi vip NAME set arp enabled|disabled
+ fapi vip NAME set tgroup TGROUP
+ fapi vserver [NAME create [protocol] [profile] [poolname] [mask]]
+ fapi vserver NAME delete
+ fapi vserver NAME get brief|detail|status
+ fapi vserver NAME set nat|pat disabled|enabled
+ fapi vserver NAME set pool POOLNAME
+ fapi vserver NAME set snat none
+The following partially needs admininstrator privileges on / and /Common
+ fapi -p / folder [NAME create|delete]
+ fapi -p / folder NAME get detail|dgroup|tgroup
+ fapi -p / folder NAME set dgroup|tgroup DGROUP|TGROUP
+ fapi -p Common vlan [NAME get detail]
+ fapi -p Common vlan NAME create tagged VLANID internal|external|...
+ fapi -p Common vlan NAME delete
+ fapi -p Common tgroup [NAME get detail]
+ fapi -p Common tgroup NAME create
+ fapi -p Common tgroup NAME delete
+ fapi -p Common tgroup NAME add ha_order DEVICE ORDER
+ fapi -p Common tgroup NAME get ha_order
+ fapi -p Common tgroup NAME remove ha_order DEVICE ORDER
+ fapi -p Common tgroup NAME remove all_ha_orders
+ fapi -p Common -b balancer.example.com selfip [NAME get detail|tgroup]
+ fapi -p Common -b balancer.example.com selfip NAME set tgroup TGROUP
+ fapi -p Common -b balancer.example.com selfip NAME create NETMASK VLANNAME [TGROUP]
+ fapi -p Common -b balancer.example.com selfip NAME delete
+Please consult the manpage for examples.

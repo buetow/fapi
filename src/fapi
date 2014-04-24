@@ -16,7 +16,7 @@ from inspect import isfunction
 
 import ConfigParser
 
-__program__ = 'fapi
+__program__ = 'fapi'
 __version__ = 'VERSION_DEVEL' # Replaced by a Makefile target
 __prompt__  = '> ' # Default prompt
 

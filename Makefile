@@ -1,5 +1,5 @@
 NAME=fapi
-all: version documentation build
+all: version build documentation 
 build:
 	test ! -d bin && mkdir bin || exit 0
 	cp -p ./src/$(NAME) bin/$(NAME)
@@ -29,6 +29,7 @@ documentation:
 		--center="User Commands" ./docs/$(NAME).pod > ./docs/$(NAME).1
 	pod2text ./docs/$(NAME).pod > ./docs/$(NAME).txt
 	cp ./docs/$(NAME).pod README.pod
+	./bin/fapi -h > ./docs/synopsis.txt
 # Build a debian package (don't sign it, modify the arguments if you want to sign it)
 deb: all
 	dpkg-buildpackage
