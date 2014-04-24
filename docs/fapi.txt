@@ -8,6 +8,7 @@ SYNOPSIS
 
     or
 
+      alias f=fapi
       f -h
 
     because it's shorter to type.
@@ -65,56 +66,56 @@ EXAMPLES
   Listing
     If you want to list all configured objects on your partition just run
 
-      f node # To list all nodes
-      f pool # To list all pool
+      fapi node # To list all nodes
+      fapi pool # To list all pool
       ... # etc
 
   Setting up a simple pool
       # Creating two nodes, fapi auto resolves the IP addresses, and use the
       # FQDN as the node name. 
-      f node fooserver1.example.com create
-      f node fooserver2.example.com create
+      fapi node fooserver1.example.com create
+      fapi node fooserver2.example.com create
 
       # Creating a pool and add the nodes to it. Also specify the node ports to 
       # use by the monitors (and maybe PAT if enabled)
-      f pool foopool create
-      f pool foopool add member fooserver1.example.com:80
-      f pool foopool add member fooserver2.example.com:80
+      fapi pool foopool create
+      fapi pool foopool add member fooserver1.example.com:80
+      fapi pool foopool add member fooserver2.example.com:80
 
       # Add a monitor to the pool
-      f pool foopool add monitor http_lbtest
+      fapi pool foopool add monitor http_lbtest
 
   Setting up a simple nPath Service
     A simple nPath service can be created as follows.
 
       # Create a nPath HTTP vserver, 'nPath' also auto disables NAT and PAT
       # fapi auto resolves the IP address.
-      f vserver myvserver.example.com:80 create PROTOCOL_TCP nPath
+      fapi vserver myvserver.example.com:80 create PROTOCOL_TCP nPath
 
       # Add the pool to the vserver. The vservers name inside of BigIP will be
       # the FQDN followed by _PORT. In this case it would be:
       #  myvserver.example.com_80 (or full: /Partition/myvserver.example.com_80)
       # The reason is that : are not allowed in vserver names.
-      f vserver myvserver.example.com:80 set pool foopool
+      fapi vserver myvserver.example.com:80 set pool foopool
 
       # Add a nPath HTTPS vserver
-      f vserver myvserver.example.com:443 create PROTOCOL_TCP nPath
-      f vserver myvserver.example.com:443 set pool foopool
+      fapi vserver myvserver.example.com:443 create PROTOCOL_TCP nPath
+      fapi vserver myvserver.example.com:443 set pool foopool
 
       # Put the VirtualAddress of the vserver into a specific traffic group
-      f vip myserver.example.com set tgroup some-traffic-group
+      fapi vip myserver.example.com set tgroup some-traffic-group
 
     And everything can be deleted as folows:
 
       # You can also specify the full object name (including the partition)
-      f vserver /Common/myvserver.example.com_80 delete
+      fapi vserver /Common/myvserver.example.com_80 delete
 
       # Or just the way the service was created from command line
-      f vserver myvserver.example.com:443 delete
+      fapi vserver myvserver.example.com:443 delete
 
-      f pool foopool delete
-      f node fooserver1.example.com delete
-      f node fooserver2.example.com delete
+      fapi pool foopool delete
+      fapi node fooserver1.example.com delete
+      fapi node fooserver2.example.com delete
 
   Setting up simple NAT Services
       (Docu to be written)
@@ -131,29 +132,29 @@ EXAMPLES
     Examples:
 
       # Auto resolving of the virtual address (IP) and auto port 80
-      f vserver fqdn.example.com create
+      fapi vserver fqdn.example.com create
 
       # Auto resolving of the virtual address (IP)
-      f vserver fqdn.example.com:443 create
+      fapi vserver fqdn.example.com:443 create
 
       # Auto resolving of the FQDN (vserver name) and the virtual address (IP) 
       # and auto port 80
-      f vserver hostname create
+      fapi vserver hostname create
 
       # Auto resolving of the FQDN (vserver name) and the virtual address (IP) 
-      f vserver hostname:443 create
+      fapi vserver hostname:443 create
 
       # vserver name and its virtual address will be 1.2.3.4 and auto port 80
-      f vserver 1.2.3.4 create
+      fapi vserver 1.2.3.4 create
 
       # vserver name and its virtual address will be 1.2.3.4 
-      f vserver 1.2.3.4:443 create
+      fapi vserver 1.2.3.4:443 create
 
       # vserver name is foo, its virtual address 1.2.3.4 and port is 80
-      f vserver foo:1.2.3.4:80 create
+      fapi vserver foo:1.2.3.4:80 create
 
       # vserver name is 1.2.3.5, its virtual address 1.2.3.4 and port is 80
-      f vserver 1.2.3.5:1.2.3.4:80 create
+      fapi vserver 1.2.3.5:1.2.3.4:80 create
 
     Similar may apply to other object types such as nodes and vips.
 
