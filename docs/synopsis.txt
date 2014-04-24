@@ -1,4 +1,4 @@
-usage: fapi [-b B] [-e E] [-h] [-l] [-p P] [-v] [-V] [-C C]
+usage: fapi [-b B] [-e E] [-f F] [-h] [-l] [-v] [-V] [-C C]
             [what] [name] [sub] [sub2] [sub3] [sub4] [sub5]
 
 positional arguments:
@@ -13,9 +13,9 @@ positional arguments:
 optional arguments:
   -b B  Forces to use the secified loadbalancer (overwrites -e)
   -e E  Env to use, e.g. dev,qa,live
+  -f F  Overwrite partition/folder from fapi.conf
   -h    Help
   -l    Use list output
-  -p P  Overwrite partition from fapi.conf
   -v    Verbose
   -V    Print version
   -C C  Config file
@@ -50,25 +50,25 @@ Synopsis:
  fapi vserver NAME set pool POOLNAME
  fapi vserver NAME set snat none
 The following partially needs admininstrator privileges on / and /Common
- fapi -p Common -b balancer.example.com selfip
- fapi -p Common -b balancer.example.com selfip NAME create NETMASK VLANNAME [TGROUP]
- fapi -p Common -b balancer.example.com selfip NAME delete
- fapi -p Common -b balancer.example.com selfip NAME get detail|tgroup
- fapi -p Common -b balancer.example.com selfip NAME set tgroup TGROUP
- fapi -p Common tgroup
- fapi -p Common tgroup NAME add ha_order DEVICE ORDER
- fapi -p Common tgroup NAME create
- fapi -p Common tgroup NAME delete
- fapi -p Common tgroup NAME get detail
- fapi -p Common tgroup NAME get ha_order
- fapi -p Common tgroup NAME remove all_ha_orders
- fapi -p Common tgroup NAME remove ha_order DEVICE ORDER
- fapi -p Common vlan
- fapi -p Common vlan NAME create tagged VLANID internal|external|...
- fapi -p Common vlan NAME delete
- fapi -p Common vlan NAME get detail
- fapi -p / folder
- fapi -p / folder NAME create|delete
- fapi -p / folder NAME get detail|dgroup|tgroup
- fapi -p / folder NAME set dgroup|tgroup DGROUP|TGROUP
+ fapi -f Common -b balancer.example.com selfip
+ fapi -f Common -b balancer.example.com selfip NAME create NETMASK VLANNAME [TGROUP]
+ fapi -f Common -b balancer.example.com selfip NAME delete
+ fapi -f Common -b balancer.example.com selfip NAME get detail|tgroup
+ fapi -f Common -b balancer.example.com selfip NAME set tgroup TGROUP
+ fapi -f Common tgroup
+ fapi -f Common tgroup NAME add ha_order DEVICE ORDER
+ fapi -f Common tgroup NAME create
+ fapi -f Common tgroup NAME delete
+ fapi -f Common tgroup NAME get detail
+ fapi -f Common tgroup NAME get ha_order
+ fapi -f Common tgroup NAME remove all_ha_orders
+ fapi -f Common tgroup NAME remove ha_order DEVICE ORDER
+ fapi -f Common vlan
+ fapi -f Common vlan NAME create tagged VLANID internal|external|...
+ fapi -f Common vlan NAME delete
+ fapi -f Common vlan NAME get detail
+ fapi -f / folder
+ fapi -f / folder NAME create|delete
+ fapi -f / folder NAME get detail|dgroup|tgroup
+ fapi -f / folder NAME set dgroup|tgroup DGROUP|TGROUP
 Please consult the manpage for examples.

@@ -94,13 +94,13 @@ class Fapi(object):
         self._config.read(args.C)
 
         if args.f != None:
-            self._partition = args.f
+            self._folder = args.f
         else:
-            self._partition = self._config.get('fapi', 'partition')
+            self._folder = self._config.get('fapi', 'folder')
 
 
     def __login(self):
-        ''' Logs into the F5 BigIP SOAP API and changes the partition'''
+        ''' Logs into the F5 BigIP SOAP API and changes the folder/adm. partition'''
 
         c = self._config
         a = self._args
@@ -125,8 +125,8 @@ class Fapi(object):
                 self._f5 = bigsuds.BIGIP(hostname = loadbalancer,
                                          username = username,
                                          password = password)
-                self._f5.Management.Partition.set_active_partition(self._partition)
-                self.verbose('Set partition to \'%s\'' % self._partition)
+                self._f5.Management.Partition.set_active_partition(self._folder)
+                self.verbose('Set folder/adm. partition to \'%s\'' % self._folder)
                 err = None
                 break
             except Exception, e:
@@ -681,7 +681,7 @@ class Fapi(object):
         if a.name:
           # Remove the /partition/ prefix, setting default partition after 
           # login instead
-          a.name = re.sub(self._partition, '', a.name)
+          a.name = re.sub(self._folder, '', a.name)
           a.name = re.sub('^/+', '', a.name)
 
         if a.what == 'node':
