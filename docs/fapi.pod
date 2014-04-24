@@ -72,7 +72,7 @@ And run
 
 Or if you want to install it from the source dir, just run:
 
-  make all 
+  make
   sudo make install
 
 =head1 EXAMPLES
