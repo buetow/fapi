@@ -1,3 +1,9 @@
+fapi (0.0.9) stable; urgency=low
+
+  * Add synopsis.txt
+
+ -- Paul Buetow <paul@buetow.org>  Thu, 24 Apr 2014 08:59:25 +0200
+
 fapi (0.0.8) stable; urgency=low
 
   * Can manage folders.
