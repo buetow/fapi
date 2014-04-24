@@ -70,6 +70,10 @@ And run
   cp /usr/share/fapi/fapi.conf.sample ~/.fapi.conf
   vim ~/.fapi.conf
 
+Or if you want to install it from the source dir, just run:
+
+  make all 
+  sudo make install
 
 =head1 EXAMPLES
 

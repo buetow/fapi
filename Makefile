@@ -5,7 +5,7 @@ build:
 	cp -p ./src/$(NAME) bin/$(NAME)
 	sed -i "s/VERSION_DEVEL/$$(cat .version)/" bin/$(NAME)
 # 'install' installes a fake-root, which will be used to build the Debian package
-# $DESTDIR is actually set by the Debian tools.
+# $DESTDIR is actually set by the Debian tools
 install:
 	test ! -d $(DESTDIR)/usr/bin && mkdir -p $(DESTDIR)/usr/bin || exit 0
 	test ! -d $(DESTDIR)/usr/share/$(NAME) && mkdir -p $(DESTDIR)/usr/share/$(NAME) || exit 0
