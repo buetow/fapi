@@ -20,7 +20,7 @@ optional arguments:
   -V    Print version
   -C C  Config file
 
-This is fapi version 0.0.10
+This is fapi version 0.0.11
 
 Synopsis:
  fapi monitor
