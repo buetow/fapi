@@ -57,27 +57,27 @@ def print_synopsis():
         ' fapi vserver NAME set pool POOLNAME',
         ' fapi vserver NAME set snat none',
         'The following partially needs admininstrator privileges on / and /Common',
-        ' fapi -p Common -b balancer.example.com selfip',
-        ' fapi -p Common -b balancer.example.com selfip NAME create NETMASK VLANNAME [TGROUP]',
-        ' fapi -p Common -b balancer.example.com selfip NAME delete',
-        ' fapi -p Common -b balancer.example.com selfip NAME get detail|tgroup',
-        ' fapi -p Common -b balancer.example.com selfip NAME set tgroup TGROUP',
-        ' fapi -p Common tgroup',
-        ' fapi -p Common tgroup NAME add ha_order DEVICE ORDER',
-        ' fapi -p Common tgroup NAME create',
-        ' fapi -p Common tgroup NAME delete',
-        ' fapi -p Common tgroup NAME get detail',
-        ' fapi -p Common tgroup NAME get ha_order',
-        ' fapi -p Common tgroup NAME remove all_ha_orders',
-        ' fapi -p Common tgroup NAME remove ha_order DEVICE ORDER',
-        ' fapi -p Common vlan',
-        ' fapi -p Common vlan NAME create tagged VLANID internal|external|...',
-        ' fapi -p Common vlan NAME delete',
-        ' fapi -p Common vlan NAME get detail',
-        ' fapi -p / folder',
-        ' fapi -p / folder NAME create|delete',
-        ' fapi -p / folder NAME get detail|dgroup|tgroup',
-        ' fapi -p / folder NAME set dgroup|tgroup DGROUP|TGROUP',
+        ' fapi -f Common -b balancer.example.com selfip',
+        ' fapi -f Common -b balancer.example.com selfip NAME create NETMASK VLANNAME [TGROUP]',
+        ' fapi -f Common -b balancer.example.com selfip NAME delete',
+        ' fapi -f Common -b balancer.example.com selfip NAME get detail|tgroup',
+        ' fapi -f Common -b balancer.example.com selfip NAME set tgroup TGROUP',
+        ' fapi -f Common tgroup',
+        ' fapi -f Common tgroup NAME add ha_order DEVICE ORDER',
+        ' fapi -f Common tgroup NAME create',
+        ' fapi -f Common tgroup NAME delete',
+        ' fapi -f Common tgroup NAME get detail',
+        ' fapi -f Common tgroup NAME get ha_order',
+        ' fapi -f Common tgroup NAME remove all_ha_orders',
+        ' fapi -f Common tgroup NAME remove ha_order DEVICE ORDER',
+        ' fapi -f Common vlan',
+        ' fapi -f Common vlan NAME create tagged VLANID internal|external|...',
+        ' fapi -f Common vlan NAME delete',
+        ' fapi -f Common vlan NAME get detail',
+        ' fapi -f / folder',
+        ' fapi -f / folder NAME create|delete',
+        ' fapi -f / folder NAME get detail|dgroup|tgroup',
+        ' fapi -f / folder NAME set dgroup|tgroup DGROUP|TGROUP',
         'Please consult the manpage for examples.',
     ])
 
@@ -93,8 +93,8 @@ class Fapi(object):
         self._config = ConfigParser.ConfigParser()
         self._config.read(args.C)
 
-        if args.p != None:
-            self._partition = args.p
+        if args.f != None:
+            self._partition = args.f
         else:
             self._partition = self._config.get('fapi', 'partition')
 
@@ -722,9 +722,9 @@ if __name__ == '__main__':
             help='Forces to use the secified loadbalancer (overwrites -e)')
     parser.add_argument('-e', action='store', help='Env to use, e.g. dev,qa,live',
         default='qa')
+    parser.add_argument('-f', action='store', help='Overwrite partition/folder from fapi.conf')
     parser.add_argument('-h', action='store_true', help='Help')
     parser.add_argument('-l', action='store_true', help='Use list output')
-    parser.add_argument('-p', action='store', help='Overwrite partition from fapi.conf')
     parser.add_argument('-v', action='store_true', help='Verbose')
     parser.add_argument('-V', action='store_true', help='Print version')
     parser.add_argument('-C', action='store', help='Config file',
