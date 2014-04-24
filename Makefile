@@ -10,7 +10,6 @@ install:
 	test ! -d $(DESTDIR)/usr/bin && mkdir -p $(DESTDIR)/usr/bin || exit 0
 	test ! -d $(DESTDIR)/usr/share/$(NAME) && mkdir -p $(DESTDIR)/usr/share/$(NAME) || exit 0
 	cp ./bin/$(NAME) $(DESTDIR)/usr/bin/$(NAME)
-	cp ./bin/$(NAME) $(DESTDIR)/usr/bin/f
 	cp $(NAME).conf.sample $(DESTDIR)/usr/share/$(NAME)
 	test -z '$(DESTDIR)' && gzip -c ./docs/$(NAME).1 > /usr/share/man/man1/$(NAME).1.gz || exit 0
 deinstall:
