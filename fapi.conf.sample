@@ -4,7 +4,7 @@ username: paul
 # Or uncomment this option, password will be prompted then
 # Howto generate the base64 string?
 #   bash -c 'read -s PASSWORD; tr -d "\n" <<< "$PASSWORD" | base64'
-password64: SECRET
+password64: U0VDUkVU
 # The qa loadbalancers (if specified -e qa)
 loadbalancers_qa: qa-01.example.com,qa-02.example.com
 # The qa loadbalancers (if specified -e live)

@@ -6,90 +6,177 @@ import argparse
 import base64
 import bigsuds
 import getpass 
+import os
 import pprint
+import re
+import readline
 import socket
 import sys
-import re
-
-from os.path import expanduser
-from inspect import isfunction
 
 import ConfigParser
+
+from inspect import isfunction
 
 __program__ = 'fapi'
 __version__ = 'VERSION_DEVEL' # Replaced by a Makefile target
 __prompt__  = '> ' # Default prompt
+__interactive__ = False
 
-def print_version():
-    print 'This is %s version %s' % (__program__, __version__)
+class FapiBase(object):
+    ''' Some base functionality used by any Fapi class '''
 
-def print_synopsis():
-    ''' Prints the full Synopsis string '''
-
-    print_version()
-    print "\n".join([
-        '',
-        'Synopsis:',
-        ' fapi monitor',
-        ' fapi monitor NAME get desc|state',
-        ' fapi node',
-        ' fapi node NODENAME create|delete',
-        ' fapi node NODENAME get detail|status',
-        ' fapi pool',
-        ' fapi pool NAME add member MEMBER:PORT',
-        ' fapi pool NAME add monitor MONITOR',
-        ' fapi pool NAME create [LIST,OF,POOL,MEMBERS:PORT]',
-        ' fapi pool NAME delete',
-        ' fapi pool NAME del member MEMBER:PORT',
-        ' fapi pool NAME del monitors',
-        ' fapi pool NAME get detail|lbmethod|members|monitor|status',
-        ' fapi pool NAME set lbmethod LBMETHOD',
-        ' fapi vip',
-        ' fapi vip NAME create NETMASK',
-        ' fapi vip NAME get arp|detail|status|tgroup',
-        ' fapi vip NAME set arp enabled|disabled',
-        ' fapi vip NAME set tgroup TGROUP',
-        ' fapi vserver',
-        ' fapi vserver NAME create [protocol] [profile] [poolname] [mask]',
-        ' fapi vserver NAME delete',
-        ' fapi vserver NAME get brief|detail|status',
-        ' fapi vserver NAME set nat|pat disabled|enabled',
-        ' fapi vserver NAME set pool POOLNAME',
-        ' fapi vserver NAME set snat none',
-        'The following partially needs admininstrator privileges on / and /Common',
-        ' fapi -f Common -b balancer.example.com selfip',
-        ' fapi -f Common -b balancer.example.com selfip NAME create NETMASK VLANNAME [TGROUP]',
-        ' fapi -f Common -b balancer.example.com selfip NAME delete',
-        ' fapi -f Common -b balancer.example.com selfip NAME get detail|tgroup',
-        ' fapi -f Common -b balancer.example.com selfip NAME set tgroup TGROUP',
-        ' fapi -f Common tgroup',
-        ' fapi -f Common tgroup NAME add ha_order DEVICE ORDER',
-        ' fapi -f Common tgroup NAME create',
-        ' fapi -f Common tgroup NAME delete',
-        ' fapi -f Common tgroup NAME get detail',
-        ' fapi -f Common tgroup NAME get ha_order',
-        ' fapi -f Common tgroup NAME remove all_ha_orders',
-        ' fapi -f Common tgroup NAME remove ha_order DEVICE ORDER',
-        ' fapi -f Common vlan',
-        ' fapi -f Common vlan NAME create tagged VLANID internal|external|...',
-        ' fapi -f Common vlan NAME delete',
-        ' fapi -f Common vlan NAME get detail',
-        ' fapi -f / folder',
-        ' fapi -f / folder NAME create|delete',
-        ' fapi -f / folder NAME get detail|dgroup|tgroup',
-        ' fapi -f / folder NAME set dgroup|tgroup DGROUP|TGROUP',
-        'Please consult the manpage for examples.',
-    ])
+    def __init__(self, args ):
+        ''' Initializes the base '''
+        self._args = args
 
 
+    def verbose(self, message):
+        ''' Prints an informational message to stderr '''
 
-class Fapi(object):
+        if self._args.v: self.info(message)
+
+
+    def info(self, message):
+        ''' Prints an informational message to stderr '''
+
+        print >> sys.stderr, '%s %s' % (__prompt__, message)
+
+
+    def out(self, result):
+        ''' Prints an iControl result to stdout '''
+
+        if result != None:
+            if self._args.l and isinstance(result, (list, tuple)):
+                print"\n".join(result)
+            else:
+                pp = pprint.PrettyPrinter(indent=4)
+                pp.pprint(result)
+
+    def print_version(self):
+        ''' Prints out the version '''
+
+        print 'This is %s version %s' % (__program__, __version__)
+
+
+    def print_synopsis(self):
+        ''' Prints the full Synopsis string '''
+
+        self.print_version()
+        print "\n".join([
+            '',
+            'Synopsis:',
+            '    monitor',
+            '    monitor NAME get desc|state',
+            '    node',
+            '    node NODENAME create|delete',
+            '    node NODENAME get detail|status',
+            '    pool',
+            '    pool NAME add member MEMBER:PORT',
+            '    pool NAME add monitor MONITOR',
+            '    pool NAME create [LIST,OF,POOL,MEMBERS:PORT]',
+            '    pool NAME delete',
+            '    pool NAME del member MEMBER:PORT',
+            '    pool NAME del monitors',
+            '    pool NAME get detail|lbmethod|members|monitor|status',
+            '    pool NAME set lbmethod LBMETHOD',
+            '    vip',
+            '    vip NAME create NETMASK',
+            '    vip NAME get arp|detail|status|tgroup',
+            '    vip NAME set arp enabled|disabled',
+            '    vip NAME set tgroup TGROUP',
+            '    vserver',
+            '    vserver NAME create [protocol] [profile] [poolname] [mask]',
+            '    vserver NAME delete',
+            '    vserver NAME get brief|detail|status',
+            '    vserver NAME set nat|pat disabled|enabled',
+            '    vserver NAME set pool POOLNAME',
+            '    vserver NAME set snat none',
+            'The following partially needs admininstrator privileges on / and /Common',
+            '    -f Common -b balancer.example.com selfip',
+            '    -f Common -b balancer.example.com selfip NAME create NETMASK VLANNAME [TGROUP]',
+            '    -f Common -b balancer.example.com selfip NAME delete',
+            '    -f Common -b balancer.example.com selfip NAME get detail|tgroup',
+            '    -f Common -b balancer.example.com selfip NAME set tgroup TGROUP',
+            '    -f Common tgroup',
+            '    -f Common tgroup NAME add ha_order DEVICE ORDER',
+            '    -f Common tgroup NAME create',
+            '    -f Common tgroup NAME delete',
+            '    -f Common tgroup NAME get detail',
+            '    -f Common tgroup NAME get ha_order',
+            '    -f Common tgroup NAME remove all_ha_orders',
+            '    -f Common tgroup NAME remove ha_order DEVICE ORDER',
+            '    -f Common vlan',
+            '    -f Common vlan NAME create tagged VLANID internal|external|...',
+            '    -f Common vlan NAME delete',
+            '    -f Common vlan NAME get detail',
+            '    -f / folder',
+            '    -f / folder NAME create|delete',
+            '    -f / folder NAME get detail|dgroup|tgroup',
+            '    -f / folder NAME set dgroup|tgroup DGROUP|TGROUP',
+            'Please consult the manpage for examples.',
+        ])
+
+        if __interactive__: print '(To exit interactive shell use \'Ctrl+d\')'
+
+
+
+class ArgumentParser(FapiBase):
+    ''' The argument parser class '''
+
+    def __init__(self):
+        ''' Initialize the argument parser '''
+
+        self._parser = parser = argparse.ArgumentParser(add_help=False)
+        parser.add_argument('-b', action='store', 
+                help='Forces to use the secified loadbalancer (overwrites -e)')
+        parser.add_argument('-e', action='store', help='Env to use, e.g. dev,qa,live',
+            default='qa')
+        parser.add_argument('-f', action='store', help='Overwrite partition/folder from fapi.conf')
+        parser.add_argument('-h', action='store_true', help='Print this help')
+        parser.add_argument('-i', action='store_true', help='Interactive shell')
+        parser.add_argument('-l', action='store_true', help='Use list output')
+        parser.add_argument('-v', action='store_true', help='Verbose')
+        parser.add_argument('-V', action='store_true', help='Print program version')
+        parser.add_argument('-C', action='store', help='Config file',
+            default=os.path.expanduser('~') + '/.fapi.conf')
+
+        parser.add_argument('what', nargs='?', help='node|pool|monitor|vserver|...')
+        parser.add_argument('name', nargs='?', help='The object name to operate on')
+        parser.add_argument('sub', nargs='?', help='First sub command')
+        parser.add_argument('sub2', nargs='?', help='Second sub command')
+        parser.add_argument('sub3', nargs='?', help='Third sub command')
+        parser.add_argument('sub4', nargs='?', help='Fourth sub command')
+        parser.add_argument('sub5', nargs='?', help='Fith sub command')
+
+
+    def parse(self, arguments = []):
+        ''' Parse the arguments '''
+
+        if not arguments:
+            args = self._parser.parse_args()
+        else:
+            args = self._parser.parse_args(arguments)
+
+        if args.h:
+            self._parser.print_help()
+            print ''
+            self.print_synopsis()
+            return None
+
+        elif args.V:
+            self.print_version()
+            return None
+
+        return args
+
+
+class Fapi(FapiBase):
     ''' The main F5 API Tool Object '''
 
     def __init__(self, args):
         ''' Initialize the config file, username and password '''
 
-        self._args = args
+        FapiBase.__init__(self, args)
         self._config = ConfigParser.ConfigParser()
         self._config.read(args.C)
 
@@ -135,29 +222,6 @@ class Fapi(object):
 
         if err:
             raise Exception(err)
-
-
-    def verbose(self, message):
-        ''' Prints an informational message to stderr '''
-
-        if self._args.v: self.info(message)
-
-
-    def info(self, message):
-        ''' Prints an informational message to stderr '''
-
-        print >> sys.stderr, '%s %s' % (__prompt__, message)
-
-
-    def out(self, result):
-        ''' Prints an iControl result to stdout '''
-
-        if result != None:
-            if self._args.l and isinstance(result, (list, tuple)):
-                print"\n".join(result)
-            else:
-                pp = pprint.PrettyPrinter(indent=4)
-                pp.pprint(result)
 
 
     def lookup(self, what):
@@ -709,49 +773,58 @@ class Fapi(object):
             self.out(lazy())
             self.info('done')
         else:
-            print_synopsis()
-            sys.exit(1)
+            self.print_synopsis()
+            return 1
+
+        return 0
 
 
+class FapiInteractive(FapiBase):
+    ''' This is an  interactive shell wrapper for Fapi '''
+
+    def __init__(self, args, parser):
+        ''' Initialize the interactive Fapi shell'''
+
+        global __interactive__
+        __interactive__ = True
+        FapiBase.__init__(self, args)
+        self._parser = parser
+
+
+    def run(self):
+        ''' Runs the interactive fapi shell '''
+
+
+        histfile = os.path.join(os.path.expanduser('~'), '.fapihist')
+        try:
+            readline.read_history_file(histfile)
+        except IOError:
+            pass
+
+        self.print_version()
+
+        while True:
+            try:
+                arguments = raw_input(__prompt__).split(' ')
+                args = self._parser.parse(arguments)
+                if args: Fapi(args).run()
+            except EOFError:
+                self.info("Good bye\n")
+                break
+
+
+        return 0
 
 if __name__ == '__main__':
     ''' The main function, here we will have Popcorn for free! '''
 
-    parser = argparse.ArgumentParser(add_help=False)
-    parser.add_argument('-b', action='store', 
-            help='Forces to use the secified loadbalancer (overwrites -e)')
-    parser.add_argument('-e', action='store', help='Env to use, e.g. dev,qa,live',
-        default='qa')
-    parser.add_argument('-f', action='store', help='Overwrite partition/folder from fapi.conf')
-    parser.add_argument('-h', action='store_true', help='Help')
-    parser.add_argument('-l', action='store_true', help='Use list output')
-    parser.add_argument('-v', action='store_true', help='Verbose')
-    parser.add_argument('-V', action='store_true', help='Print version')
-    parser.add_argument('-C', action='store', help='Config file',
-        default=expanduser('~') + '/.fapi.conf')
+    parser = ArgumentParser()
+    args = parser.parse()
+    if not args: sys.exit(0)
 
-    parser.add_argument('what', nargs='?', help='node|pool|monitor|vserver|...')
-    parser.add_argument('name', nargs='?', help='The object name to operate on')
-    parser.add_argument('sub', nargs='?', help='First sub command')
-    parser.add_argument('sub2', nargs='?', help='Second sub command')
-    parser.add_argument('sub3', nargs='?', help='Third sub command')
-    parser.add_argument('sub4', nargs='?', help='Fourth sub command')
-    parser.add_argument('sub5', nargs='?', help='Fith sub command')
+    fapi = FapiInteractive(args, parser) if args.i else Fapi(args)
+    sys.exit(fapi.run())
 
-    args = parser.parse_args()
-
-    if args.h:
-        parser.print_help()
-        print ''
-        print_synopsis()
-        sys.exit(0)
-
-    if args.V:
-        print_version()
-        sys.exit(0)
-
-    fapi = Fapi(args)
-    fapi.run()
 
 
 # vim: tabstop=4 expandtab shiftwidth=4 softtabstop=4
