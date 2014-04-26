@@ -794,7 +794,6 @@ class FapiInteractive(FapiBase):
     def run(self):
         ''' Runs the interactive fapi shell '''
 
-
         histfile = os.path.join(os.path.expanduser('~'), '.fapihist')
         try:
             readline.read_history_file(histfile)
