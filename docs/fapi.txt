@@ -27,6 +27,8 @@ ABOUT
     Please open bug reports, feature requests and pull requests at
     <https://github.com/rantanplan/fapi>.
 
+    CAUTION: This script has been tested on Debian GNU/Linux Wheezy only.
+
 BIGSUDS
   Requirement of bigsuds
     This tool depends on bigsuds. Please install this library from F5 dev
