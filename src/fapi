@@ -16,6 +16,7 @@ import sys
 import ConfigParser
 
 from inspect import isfunction
+from colorama import Fore, Back, Style
 
 __program__ = 'fapi'
 __version__ = 'VERSION_DEVEL' # Replaced by a Makefile target
@@ -33,16 +34,22 @@ class FapiBase(object):
     def verbose(self, message):
         ''' Prints an informational message to stderr '''
 
-        if self._args.v: self.info(message)
+        if self._args.v: self.info(message, Style.DIM)
 
 
-    def info(self, message):
+    def info(self, message, color=''):
         ''' Prints an informational message to stderr '''
 
-        print >> sys.stderr, '%s %s' % (__prompt__, message)
+        if self._args.n:
+            reset = ''
+            color = ''
+        else:
+            reset = '' if color == '' else Style.RESET_ALL
+
+        print >> sys.stderr, (color+'%s'+reset) % message
 
 
-    def out(self, result):
+    def out(self, result, color=''):
         ''' Prints an iControl result to stdout '''
 
         if result != None:
@@ -55,16 +62,23 @@ class FapiBase(object):
     def print_version(self):
         ''' Prints out the version '''
 
-        print 'This is %s version %s' % (__program__, __version__)
+        self.info('This is %s version %s' % (__program__, __version__), Fore.RED)
 
 
     def print_synopsis(self):
         ''' Prints the full Synopsis string '''
 
+        if self._args.n:
+            style = reset = ''
+        else:
+            style = Style.DIM
+            reset = Style.RESET_ALL
+
         self.print_version()
         print "\n".join([
             '',
-            'Synopsis:',
+            'Synopsis:', 
+            style +
             '    monitor',
             '    monitor NAME get desc|state',
             '    node',
@@ -90,8 +104,10 @@ class FapiBase(object):
             '    vserver NAME get brief|detail|status',
             '    vserver NAME set nat|pat disabled|enabled',
             '    vserver NAME set pool POOLNAME',
-            '    vserver NAME set snat none',
-            'The following partially needs admininstrator privileges on / and /Common',
+            '    vserver NAME set snat none'
+            + reset, 
+            'The following partially needs admininstrator privileges on / and /Common', 
+            style +
             '    -f Common -b balancer.example.com selfip',
             '    -f Common -b balancer.example.com selfip NAME create NETMASK VLANNAME [TGROUP]',
             '    -f Common -b balancer.example.com selfip NAME delete',
@@ -112,7 +128,8 @@ class FapiBase(object):
             '    -f / folder',
             '    -f / folder NAME create|delete',
             '    -f / folder NAME get detail|dgroup|tgroup',
-            '    -f / folder NAME set dgroup|tgroup DGROUP|TGROUP',
+            '    -f / folder NAME set dgroup|tgroup DGROUP|TGROUP'
+            + reset,
             'Please consult the manpage for examples.',
         ])
 
@@ -135,6 +152,7 @@ class ArgumentParser(FapiBase):
         parser.add_argument('-h', action='store_true', help='Print this help')
         parser.add_argument('-i', action='store_true', help='Interactive shell')
         parser.add_argument('-l', action='store_true', help='Use list output')
+        parser.add_argument('-n', action='store_true', help='No color (disable colorful output)')
         parser.add_argument('-v', action='store_true', help='Verbose')
         parser.add_argument('-V', action='store_true', help='Print program version')
         parser.add_argument('-C', action='store', help='Config file',
@@ -153,9 +171,9 @@ class ArgumentParser(FapiBase):
         ''' Parse the arguments '''
 
         if not arguments:
-            args = self._parser.parse_args()
+            args = self._args = self._parser.parse_args()
         else:
-            args = self._parser.parse_args(arguments)
+            args = self._args = self._parser.parse_args(arguments)
 
         if args.h:
             self._parser.print_help()
@@ -771,7 +789,7 @@ class Fapi(FapiBase):
             self.verbose('Doing some stuf via the API, it may take a while')
             self.__login()
             self.out(lazy())
-            self.info('done')
+            self.info('done', Fore.GREEN)
         else:
             self.print_synopsis()
             return 1
@@ -808,11 +826,12 @@ class FapiInteractive(FapiBase):
                 args = self._parser.parse(arguments)
                 if args: Fapi(args).run()
             except EOFError:
-                self.info("Good bye\n")
+                self.info("Good bye\n", Fore.GREEN)
                 break
 
-
         return 0
+
+
 
 if __name__ == '__main__':
     ''' The main function, here we will have Popcorn for free! '''
