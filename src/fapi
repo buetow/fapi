@@ -41,8 +41,7 @@ class FapiBase(object):
         ''' Prints an informational message to stderr '''
 
         if self._args.n:
-            reset = ''
-            color = ''
+            color = reset = ''
         else:
             reset = '' if color == '' else Style.RESET_ALL
 
@@ -58,6 +57,7 @@ class FapiBase(object):
             else:
                 pp = pprint.PrettyPrinter(indent=4)
                 pp.pprint(result)
+
 
     def print_version(self):
         ''' Prints out the version '''
@@ -188,6 +188,7 @@ class ArgumentParser(FapiBase):
         return args
 
 
+
 class Fapi(FapiBase):
     ''' The main F5 API Tool Object '''
 
@@ -288,6 +289,7 @@ class Fapi(FapiBase):
 
         self.verbose("Looked \'%s\' up to name:\'%s\', ip:\'%s\', port:\'%s\'" % (what, name, ip, port))
         return (name, ip, port)
+
 
     def __do_node(self, f5):
         ''' Do stuff concerning nodes '''
