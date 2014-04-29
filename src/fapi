@@ -36,7 +36,7 @@ class FapiBase(object):
 
     def info(self, message, color=''):
         ''' Prints an informational message to stderr '''
-        if self._args.n:
+        if self._args.d:
             color = reset = ''
         else:
             reset = '' if color == '' else Style.RESET_ALL
@@ -57,7 +57,7 @@ class FapiBase(object):
 
     def print_synopsis(self):
         ''' Prints the full Synopsis string '''
-        if self._args.n:
+        if self._args.d:
             style = reset = ''
         else:
             style = Style.DIM
@@ -131,13 +131,13 @@ class ArgumentParser(FapiBase):
         self._parser = parser = argparse.ArgumentParser(add_help=False)
         parser.add_argument('-b', action='store', 
                 help='Forces to use the secified loadbalancer (overwrites -e)')
+        parser.add_argument('-d', action='store_true', help='Disable colorful output')
         parser.add_argument('-e', action='store', help='Env to use, e.g. dev,qa,live',
             default='qa')
         parser.add_argument('-f', action='store', help='Overwrite partition/folder from fapi.conf')
         parser.add_argument('-h', action='store_true', help='Print this help')
         parser.add_argument('-i', action='store_true', help='Interactive shell')
         parser.add_argument('-l', action='store_true', help='Use list output')
-        parser.add_argument('-n', action='store_true', help='No color (disable colorful output)')
         parser.add_argument('-v', action='store_true', help='Verbose')
         parser.add_argument('-V', action='store_true', help='Print program version')
         parser.add_argument('-C', action='store', help='Config file',
@@ -681,13 +681,14 @@ class Fapi(FapiBase):
         elif a.what == 'folder':
             return self.__do_folder(lambda: self._f5.Management.Folder)
 
-
     def run(self):
         ''' Do the actual stuff.
             We are doning some lazy evaluation stuff here. The command line
             tool does not do anything with the slow F5 API until it is clear
             what to do and that there is no semantic or syntax error. '''
         a = self._args
+        if a.name == '_':
+            print "BULK"
         lazy = self._lazy()
         if isfunction(lazy):
             self.verbose('Doing some stuf via the API, it may take a while')
