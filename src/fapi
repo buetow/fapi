@@ -242,7 +242,7 @@ class Fapi(FapiBase):
                 fqdns += fqdn
                 ips += ip
                 ports += ports
-            return (fqdns, ips, ports)
+            return (fqdns, ips, port)
         tmp = what.split(':')
         if 1 == len(tmp): 
             what = tmp[0]
