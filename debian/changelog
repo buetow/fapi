@@ -1,3 +1,9 @@
+fapi (0.6.1) stable; urgency=low
+
+  * Minor fix in synopsis.txt generation
+
+ -- Paul Buetow <paul@buetow.org>  Tue, 29 Apr 2014 07:39:13 +0200
+
 fapi (0.6.0) stable; urgency=low
 
   * Count version to 0.6.0, it's the 6th release introducing new features
