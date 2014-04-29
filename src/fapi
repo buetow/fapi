@@ -40,7 +40,6 @@ class FapiBase(object):
             color = reset = ''
         else:
             reset = '' if color == '' else Style.RESET_ALL
-
         print >> sys.stderr, (color+'%s'+reset) % message
 
     def out(self, result, color=''):

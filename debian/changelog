@@ -1,3 +1,9 @@
+fapi (0.6.2) stable; urgency=low
+
+  * Some more PEP8
+
+ -- Paul Buetow <paul@buetow.org>  Tue, 29 Apr 2014 07:44:58 +0200
+
 fapi (0.6.1) stable; urgency=low
 
   * Minor fix in synopsis.txt generation
