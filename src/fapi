@@ -221,6 +221,7 @@ class Fapi(FapiBase):
 
     def lookup(self, what):
         ''' Does a DNS lookup to fetch the name (mostly FQDN) and the IPs
+            If what is a list, the retval will be a list of results as well.
 
             hostname will be looked up to (fqdn,ip,80)
             fqdn will be looked up to (fqdn,ip,80)
@@ -235,6 +236,14 @@ class Fapi(FapiBase):
             ip1:ip2:port will be looked up to (ip1,ip2,port)
         '''
         a = self._args
+        if isinstance(what, list):
+            fqdns = ips = ports = []
+            for w in what: 
+                fqdn, ip, port = self.lookup(w)
+                fqdns.append(fqdn)
+                ips.append(ip)
+                ports.append(port)
+            return (fqdns, ips, ports)
         tmp = what.split(':')
         if 1 == len(tmp): 
             what = tmp[0]
@@ -277,7 +286,6 @@ class Fapi(FapiBase):
             paramlist.append(params)
         return paramlist
 
-
     def __do_node(self, f5):
         ''' Do stuff concerning nodes '''
         a = self._args
@@ -303,13 +311,11 @@ class Fapi(FapiBase):
             if a.sub2 == 'status':
                 return lambda: f5().get_monitor_status(li(a.name))
         elif a.sub == 'create':
-            fqdn_or_ip, ip, _ = self.lookup(a.name)
-            return lambda: f5().create(li(fqdn_or_ip), 
-                [ip],
-                pa(len(fqdn_or_ip),0))
+            fqdn_or_ips, ips, _ = self.lookup(a.name)
+            return lambda: f5().create(fqdn_or_ips, ips, pa(len(ips),0))
         elif a.sub == 'delete':
-            fqdn_or_ip, _, _ = self.lookup(a.name)
-            return lambda: f5().delete_node_address([fqdn_or_ip])
+            fqdn_or_ips, _, _ = self.lookup(a.name)
+            return lambda: f5().delete_node_address(fqdn_or_ips)
 
     def __do_monitor(self, f5):
         ''' Do stuff concerning monitor templates '''
@@ -317,11 +323,10 @@ class Fapi(FapiBase):
         if not a.name:
             return lambda: f5().get_template_list()
         if a.sub == 'get':
-            monitorname = a.sub3
             if a.sub2 == 'desc':
-                return lambda: f5().get_description([monitorname])
+                return lambda: f5().get_description(li(a.name))
             if a.sub2 == 'state':
-                return lambda: f5().get_template_state([monitorname])
+                return lambda: f5().get_template_state(li(a.name))
 
     def __do_pool(self, f5):
         ''' Do stuff concerning pools '''
