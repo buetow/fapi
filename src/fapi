@@ -30,16 +30,12 @@ class FapiBase(object):
         ''' Initializes the base '''
         self._args = args
 
-
     def verbose(self, message):
         ''' Prints an informational message to stderr '''
-
         if self._args.v: self.info(message, Style.DIM)
-
 
     def info(self, message, color=''):
         ''' Prints an informational message to stderr '''
-
         if self._args.n:
             color = reset = ''
         else:
@@ -47,10 +43,8 @@ class FapiBase(object):
 
         print >> sys.stderr, (color+'%s'+reset) % message
 
-
     def out(self, result, color=''):
         ''' Prints an iControl result to stdout '''
-
         if result != None:
             if self._args.l and isinstance(result, (list, tuple)):
                 print"\n".join(result)
@@ -58,22 +52,17 @@ class FapiBase(object):
                 pp = pprint.PrettyPrinter(indent=4)
                 pp.pprint(result)
 
-
     def print_version(self):
         ''' Prints out the version '''
-
         self.info('This is %s version %s' % (__program__, __version__), Fore.RED)
-
 
     def print_synopsis(self):
         ''' Prints the full Synopsis string '''
-
         if self._args.n:
             style = reset = ''
         else:
             style = Style.DIM
             reset = Style.RESET_ALL
-
         self.print_version()
         print "\n".join([
             '',
@@ -132,9 +121,7 @@ class FapiBase(object):
             + reset,
             'Please consult the manpage for examples.',
         ])
-
         if __interactive__: print '(To exit interactive shell use \'Ctrl+d\')'
-
 
 
 class ArgumentParser(FapiBase):
@@ -142,7 +129,6 @@ class ArgumentParser(FapiBase):
 
     def __init__(self):
         ''' Initialize the argument parser '''
-
         self._parser = parser = argparse.ArgumentParser(add_help=False)
         parser.add_argument('-b', action='store', 
                 help='Forces to use the secified loadbalancer (overwrites -e)')
@@ -157,7 +143,6 @@ class ArgumentParser(FapiBase):
         parser.add_argument('-V', action='store_true', help='Print program version')
         parser.add_argument('-C', action='store', help='Config file',
             default=os.path.expanduser('~') + '/.fapi.conf')
-
         parser.add_argument('what', nargs='?', help='node|pool|monitor|vserver|...')
         parser.add_argument('name', nargs='?', help='The object name to operate on')
         parser.add_argument('sub', nargs='?', help='First sub command')
@@ -166,27 +151,21 @@ class ArgumentParser(FapiBase):
         parser.add_argument('sub4', nargs='?', help='Fourth sub command')
         parser.add_argument('sub5', nargs='?', help='Fith sub command')
 
-
     def parse(self, arguments = []):
         ''' Parse the arguments '''
-
         if not arguments:
             args = self._args = self._parser.parse_args()
         else:
             args = self._args = self._parser.parse_args(arguments)
-
         if args.h:
             self._parser.print_help()
             print ''
             self.print_synopsis()
             return None
-
         elif args.V:
             self.print_version()
             return None
-
         return args
-
 
 
 class Fapi(FapiBase):
@@ -194,23 +173,18 @@ class Fapi(FapiBase):
 
     def __init__(self, args):
         ''' Initialize the config file, username and password '''
-
         FapiBase.__init__(self, args)
         self._config = ConfigParser.ConfigParser()
         self._config.read(args.C)
-
         if args.f != None:
             self._folder = args.f
         else:
             self._folder = self._config.get('fapi', 'folder')
 
-
     def __login(self):
         ''' Logs into the F5 BigIP SOAP API and changes the folder/adm. partition'''
-
         c = self._config
         a = self._args
-
         if c.has_option('fapi', 'username'):
             username = c.get('fapi', 'username')
         else:
@@ -238,10 +212,8 @@ class Fapi(FapiBase):
             except Exception, e:
                 err = '%s:%s' % (loadbalancer, e)
                 pass
-
         if err:
             raise Exception(err)
-
 
     def lookup(self, what):
         ''' Does a DNS lookup to fetch the name (mostly FQDN) and the IPs
@@ -258,9 +230,7 @@ class Fapi(FapiBase):
             fqdn:ip:port will be looked up to (fqdn,ip,port)
             ip1:ip2:port will be looked up to (ip1,ip2,port)
         '''
-
         a = self._args
-
         tmp = what.split(':')
         if 1 == len(tmp): 
             what = tmp[0]
@@ -276,7 +246,6 @@ class Fapi(FapiBase):
             port = tmp[2]
         else:
             raise Exception('\'%s\' can have at most three kolons' % what)
-
         if ip:
             name = what
         else:
@@ -286,19 +255,14 @@ class Fapi(FapiBase):
             if len(ips) > 1:
                 raise Exception('\'%s\' resolves to multiple ips \'%s\'' % (name, ips))
             ip = ips[0]
-
         self.verbose("Looked \'%s\' up to name:\'%s\', ip:\'%s\', port:\'%s\'" % (what, name, ip, port))
         return (name, ip, port)
 
-
     def __do_node(self, f5):
         ''' Do stuff concerning nodes '''
-
         a = self._args
-
         if not a.name:
             return lambda: f5().get_list()
-
         if a.sub == 'get':
             if a.sub2 == 'detail':
                 def detail(f5):
@@ -318,24 +282,18 @@ class Fapi(FapiBase):
                 return lambda: detail(f5)
             if a.sub2 == 'status':
                 return lambda: f5().get_monitor_status([a.name])
-
         elif a.sub == 'create':
             fqdn_or_ip, ip, _ = self.lookup(a.name)
             return lambda: f5().create([fqdn_or_ip],[ip],[0])
-
         elif a.sub == 'delete':
             fqdn_or_ip, _, _ = self.lookup(a.name)
             return lambda: f5().delete_node_address([fqdn_or_ip])
 
-
     def __do_monitor(self, f5):
         ''' Do stuff concerning monitor templates '''
-
         a = self._args
-
         if not a.name:
             return lambda: f5().get_template_list()
-
         if a.sub == 'get':
             monitorname = a.sub3
             if a.sub2 == 'desc':
@@ -343,15 +301,11 @@ class Fapi(FapiBase):
             if a.sub2 == 'state':
                 return lambda: f5().get_template_state([monitorname])
 
-
     def __do_pool(self, f5):
         ''' Do stuff concerning pools '''
-
         a = self._args
-
         if not a.name:
             return lambda: f5().get_list()
-
         if a.sub == 'get':
             if a.sub2 == 'detail':
                 def detail(f5):
@@ -373,12 +327,10 @@ class Fapi(FapiBase):
                 return lambda: f5().get_monitor_instance([a.name])
             elif a.sub2 == 'status':
                 return lambda: f5().get_object_status([a.name])
-
         elif a.sub == 'set':
             if a.sub2 == 'lbmethod':
                 lbmethod = a.sub3
                 return lambda: f5().set_lb_method([a.name], [lbmethod])
-
         elif a.sub == 'create':
                 poolmembers = []
                 method = 'LB_METHOD_ROUND_ROBIN'
@@ -388,10 +340,8 @@ class Fapi(FapiBase):
                         pm = { 'address' : fqdn_or_ip, 'port' : port }
                         poolmembers.append(pm)
                 return lambda: f5().create_v2([a.name],[method],[poolmembers])
-
         elif a.sub == 'delete':
             return lambda: f5().delete_pool([a.name])
-
         elif a.sub == 'add':
             if a.sub2 == 'member':
                 fqdn_or_ip, _, port = self.lookup(a.sub3)
@@ -406,7 +356,6 @@ class Fapi(FapiBase):
                 }
                 association = { 'pool_name': a.name, 'monitor_rule': rule }
                 return lambda: f5().set_monitor_association([association])
-
         elif a.sub == 'del':
             if a.sub2 == 'member':
                 fqdn_or_ip, _, port = self.lookup(a.sub3)
@@ -416,15 +365,11 @@ class Fapi(FapiBase):
                 # Removes all monitor associations, not just one
                 return lambda: f5().remove_monitor_association([a.name])
 
-
     def __do_vserver(self, f5):
         ''' Do stuff concerning virtual servers '''
-
         a = self._args
-
         if not a.name:
             return lambda: f5().get_list()
-
         # Check for Pattern like /partition/foo-bar.example.com_443
         m = re.match('^(.*)_(\d+)$', a.name)
         if m:
@@ -433,9 +378,7 @@ class Fapi(FapiBase):
           _, ip, _ = self.lookup(fqdn_or_ip)
         else:
           fqdn_or_ip, ip, port = self.lookup(a.name)
-
         name = fqdn_or_ip + '_' + port
-
         if a.sub == 'get':
             if a.sub2 == 'detail':
                 def detail(f5):
@@ -488,7 +431,6 @@ class Fapi(FapiBase):
                 return lambda: brief(f5)
             elif a.sub2 == 'status':
                 return lambda: f5().get_object_status([name])
-
         elif a.sub == 'create':
             protocol = a.sub2 if a.sub2 else 'PROTOCOL_TCP'
             if a.sub3:
@@ -520,10 +462,8 @@ class Fapi(FapiBase):
                     f5().set_translate_address_state([name], ['STATE_DISABLED'])
                     f5().set_translate_port_state([name], ['STATE_DISABLED'])
             return lambda: vserver_create()
-
         elif a.sub == 'delete':
             return lambda: f5().delete_virtual_server([name])
-
         elif a.sub == 'set':
             if a.sub2 == 'pool':
                 poolname = a.sub3
@@ -542,15 +482,11 @@ class Fapi(FapiBase):
                 if a.sub3 == 'none':
                     return lambda: f5().set_source_address_translation_none([name])
 
-
     def __do_vip(self, f5):
         ''' Do stuff concerning virtual addresses '''
-
         a = self._args
-
         if not a.name:
             return lambda: f5().get_list()
-
         # Check for Pattern like /partition/foo-bar.example.com_443
         m = re.match('^(.*)_(\d+)$', a.name)
         if m:
@@ -558,7 +494,6 @@ class Fapi(FapiBase):
           _, ip, _ = self.lookup(fqdn_or_ip)
         else:
           _, ip, _ = self.lookup(a.name)
-
         name = ip
 
         if a.sub == 'get':
@@ -581,14 +516,11 @@ class Fapi(FapiBase):
                 return lambda: f5().get_object_status([name])
             elif a.sub2 == 'tgroup':
                 return lambda: f5().get_traffic_group([name])
-
         elif a.sub == 'create':
             netmask = a.sub2
             return lambda: f5().create([name], [name], [netmask])
-
         elif a.sub == 'delete':
             return lambda: f5().delete_virtual_address([name])
-
         elif a.sub == 'set':
             if a.sub2 == 'arp':
                 if a.sub3 == 'disabled':
@@ -599,15 +531,11 @@ class Fapi(FapiBase):
                 tgroup = a.sub3
                 return lambda: f5().set_traffic_group([name], [tgroup])
 
-
     def __do_vlan(self, f5):
         ''' Do stuff concerning VLANs '''
-
         a = self._args
-
         if not a.name:
             return lambda: f5().get_list()
-
         if a.sub == 'get':
             if a.sub2 == 'detail':
                 def detail(f5):
@@ -618,7 +546,6 @@ class Fapi(FapiBase):
                     d['mtu'] = f5().get_mtu([a.name])
                     return d
                 return lambda: detail(f5)
-
         elif a.sub == 'create':
             if a.sub2 == 'tagged':
                 vlanid = a.sub3
@@ -628,19 +555,14 @@ class Fapi(FapiBase):
                     'tag_state': 'MEMBER_TAGGED',
                 }
                 return lambda: f5().create_v2([a.name], [vlanid], [[members]], ['STATE_ENABLED'], [10])
-
         elif a.sub == 'delete':
             return lambda: f5().delete_vlan([a.name])
 
-
     def __do_selfip(self, f5):
         ''' Do stuff concerning Self IPs '''
-
         a = self._args
-
         if not a.name:
             return lambda: f5().get_list()
-
         if a.sub == 'get':
             if a.sub2 == 'detail':
                 def detail(f5):
@@ -655,12 +577,10 @@ class Fapi(FapiBase):
                 return lambda: f5().get_traffic_group([a.name])
             elif a.sub2 == 'address':
                 return lambda: f5().get_address([a.name])
-
         if a.sub == 'set':
             if a.sub2 == 'tgroup':
                 tgroup = a.sub3
                 return lambda: f5().set_traffic_group([a.name], [tgroup])
-
         elif a.sub == 'create':
             _, ip, _ = self.lookup(a.name)
             netmask = a.sub2
@@ -668,25 +588,18 @@ class Fapi(FapiBase):
             trafficgroup = a.sub4 if a.sub4 else 'traffic-group-local-only'
             # A floating traffic group will auto set floating state to ENABLED, regardless of the .create call.
             return lambda: f5().create([a.name], [vlanname], [ip], [netmask], [trafficgroup], ['STATE_DISABLED'])
-
         elif a.sub == 'delete':
             return lambda: f5().delete_self_ip([a.name])
 
-
     def __do_folder(self, f5):
         ''' Do stuff concerning administrative Partitions'''
-
         a = self._args
-
         if not a.name:
             return lambda: f5().get_list()
-
         if a.sub == 'create':
             return lambda: f5().create([a.name])
-
         elif a.sub == 'delete':
             return lambda: f5().delete_folder([a.name])
-
         elif a.sub == 'get':
             if a.sub2 == 'detail':
                 def detail(f5):
@@ -703,23 +616,17 @@ class Fapi(FapiBase):
                 return lambda: f5().get_device_group([a.name])
             elif a.sub2 == 'tgroup':
                 return lambda: f5().get_traffic_group([a.name])
-
         elif a.sub == 'set':
             if a.sub2 == 'dgroup':
                 return lambda: f5().set_device_group([a.name], [a.sub3])
             elif a.sub2 == 'tgroup':
                 return lambda: f5().set_traffic_group([a.name], [a.sub3])
 
-
-
     def __do_tgroup(self, f5):
         ''' Do stuff concerning TrafficGroups'''
-
         a = self._args
-
         if not a.name:
             return lambda: f5().get_list()
-
         if a.sub == 'get':
             if a.sub2 == 'detail':
                 def detail(f5):
@@ -732,18 +639,14 @@ class Fapi(FapiBase):
                 return lambda: detail(f5)
             elif a.sub2 == 'ha_order':
                 return lambda: f5().get_ha_order([a.name])
-
         elif a.sub == 'create':
             return lambda: f5().create([a.name])
-
         elif a.sub == 'delete':
             return lambda: f5().delete_traffic_group([a.name])
-
         elif a.sub == 'add':
             if a.sub2 == 'ha_order':
                 orders = { 'device': a.sub3, 'order': a.sub4 }
                 return lambda: f5().add_ha_order([a.name], [[orders]])
-
         elif a.sub == 'remove':
             if a.sub2 == 'ha_order':
                 orders = { 'device': a.sub3, 'order': a.sub4 }
@@ -752,22 +655,18 @@ class Fapi(FapiBase):
                 orders = { 'device': a.sub3, 'order': a.sub4 }
                 return lambda: f5().remove_all_ha_orders([a.name])
 
-
     def run(self):
         ''' Do the actual stuff.
             We are doning some lazy evaluation stuff here. The command line
             tool does not do anything with the slow F5 API until it is clear
             what to do and that there is no semantic or syntax error. '''
-
         a = self._args
         lazy = None
-
         if a.name:
           # Remove the /partition/ prefix, setting default partition after 
           # login instead
           a.name = re.sub(self._folder, '', a.name)
           a.name = re.sub('^/+', '', a.name)
-
         if a.what == 'node':
             lazy = self.__do_node(lambda: self._f5.LocalLB.NodeAddressV2)
         elif a.what == 'monitor':
@@ -786,7 +685,6 @@ class Fapi(FapiBase):
             lazy = self.__do_tgroup(lambda: self._f5.Management.TrafficGroup)
         elif a.what == 'folder':
             lazy = self.__do_folder(lambda: self._f5.Management.Folder)
-
         if isfunction(lazy):
             self.verbose('Doing some stuf via the API, it may take a while')
             self.__login()
@@ -795,7 +693,6 @@ class Fapi(FapiBase):
         else:
             self.print_synopsis()
             return 1
-
         return 0
 
 
@@ -804,24 +701,19 @@ class FapiInteractive(FapiBase):
 
     def __init__(self, args, parser):
         ''' Initialize the interactive Fapi shell'''
-
         global __interactive__
         __interactive__ = True
         FapiBase.__init__(self, args)
         self._parser = parser
 
-
     def run(self):
         ''' Runs the interactive fapi shell '''
-
         histfile = os.path.join(os.path.expanduser('~'), '.fapihist')
         try:
             readline.read_history_file(histfile)
         except IOError:
             pass
-
         self.print_version()
-
         while True:
             try:
                 arguments = raw_input(__prompt__).split(' ')
@@ -830,21 +722,15 @@ class FapiInteractive(FapiBase):
             except EOFError:
                 self.info("Good bye\n", Fore.GREEN)
                 break
-
         return 0
-
 
 
 if __name__ == '__main__':
     ''' The main function, here we will have Popcorn for free! '''
-
     parser = ArgumentParser()
     args = parser.parse()
     if not args: sys.exit(0)
-
     fapi = FapiInteractive(args, parser) if args.i else Fapi(args)
     sys.exit(fapi.run())
-
-
 
 # vim: tabstop=4 expandtab shiftwidth=4 softtabstop=4
