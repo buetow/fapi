@@ -271,11 +271,9 @@ class Fapi(FapiBase):
         self.verbose("Looked \'%s\' up to name:\'%s\', ip:\'%s\', port:\'%s\'" % (what, name, ip, port))
         return (name, ip, port)
 
-
     def li(self, name):
         ''' Checks if name is a list and returns a list if not. '''
         return name if isinstance(name, list) else [name]
-
 
     def pa(self, length, params):
         ''' Checks if name is a list and returns a list of params if so '''
