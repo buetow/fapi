@@ -138,6 +138,7 @@ class ArgumentParser(FapiBase):
         parser.add_argument('-h', action='store_true', help='Print this help')
         parser.add_argument('-i', action='store_true', help='Interactive shell')
         parser.add_argument('-l', action='store_true', help='Use list output')
+        parser.add_argument('-n', action='store_true', help='No-op (don\'t do actual stuff)')
         parser.add_argument('-v', action='store_true', help='Verbose')
         parser.add_argument('-V', action='store_true', help='Print program version')
         parser.add_argument('-C', action='store', help='Config file',
@@ -691,10 +692,13 @@ class Fapi(FapiBase):
             print "BULK"
         lazy = self._lazy()
         if isfunction(lazy):
-            self.verbose('Doing some stuf via the API, it may take a while')
-            self.__login()
-            self.out(lazy())
-            self.info('done', Fore.GREEN)
+            if a.n:
+                self.info('no-op', Fore.GREEN)
+            else:
+                self.verbose('Doing some stuf via the API, it may take a while')
+                self.__login()
+                self.out(lazy())
+                self.info('done', Fore.GREEN)
         else:
             self.print_synopsis()
             return 1
