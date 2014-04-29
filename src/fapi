@@ -239,9 +239,9 @@ class Fapi(FapiBase):
             fqdns = ips = ports = []
             for w in what: 
                 fqdn, ip, port = self.lookup(w)
-                fqdns.append(fqdn)
-                ips.append(ip)
-                ports.append(port)
+                fqdns += fqdn
+                ips += ip
+                ports += ports
             return (fqdns, ips, ports)
         tmp = what.split(':')
         if 1 == len(tmp): 
