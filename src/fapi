@@ -202,8 +202,8 @@ class Fapi(FapiBase):
             try:
                 self.verbose('Trying to login to \'%s\'' % loadbalancer)
                 self._f5 = bigsuds.BIGIP(hostname = loadbalancer,
-                                         username = username,
-                                         password = password)
+                    username = username,
+                    password = password)
                 self._f5.Management.Partition.set_active_partition(self._folder)
                 self.verbose('Set folder/adm. partition to \'%s\'' % self._folder)
                 err = None
@@ -449,8 +449,8 @@ class Fapi(FapiBase):
             resource = { 'type': 'RESOURCE_TYPE_POOL' }
             if poolname: resource['default_pool_name'] = poolname
             profile = {
-                    'profile_context': 'PROFILE_CONTEXT_TYPE_ALL',
-                    'profile_name': profile,
+                'profile_context': 'PROFILE_CONTEXT_TYPE_ALL',
+                'profile_name': profile,
             }
             self.verbose("vserver:%s netmask:%s resource:%s, profile:%s"
                     % (vserver, netmask, resource, profile))
@@ -494,7 +494,7 @@ class Fapi(FapiBase):
         else:
           _, ip, _ = self.lookup(a.name)
         name = ip
-
+        # Do the actual stuff
         if a.sub == 'get':
             if a.sub2 == 'detail':
                 def detail(f5):
