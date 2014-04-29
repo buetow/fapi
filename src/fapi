@@ -221,7 +221,6 @@ class Fapi(FapiBase):
 
     def lookup(self, what):
         ''' Does a DNS lookup to fetch the name (mostly FQDN) and the IPs
-            If what is a list, the retval will be a list of results as well.
 
             hostname will be looked up to (fqdn,ip,80)
             fqdn will be looked up to (fqdn,ip,80)
@@ -269,14 +268,18 @@ class Fapi(FapiBase):
                 raise Exception('\'%s\' resolves to multiple ips \'%s\'' % (name, ips))
             ip = ips[0]
         self.verbose("Looked \'%s\' up to name:\'%s\', ip:\'%s\', port:\'%s\'" % (what, name, ip, port))
-        return (name, ip, port)
+        return ([name], [ip], [port])
 
     def li(self, name):
-        ''' Checks if name is a list and returns a list if not. '''
+        ''' Checks if name is a list and returns a list if not.
+            This is a helper function needed for the bulk edit feature.
+        '''
         return name if isinstance(name, list) else [name]
 
     def pa(self, length, params):
-        ''' Checks if name is a list and returns a list of params if so '''
+        ''' Checks if name is a list and returns a list of params if so.
+            This is a helper function needed for the bulk edit feature.
+        '''
         paramlist = []
         if length > 1:
             for _ in xrange(length): paramlist.append(params)
