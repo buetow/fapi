@@ -654,36 +654,41 @@ class Fapi(FapiBase):
                 orders = { 'device': a.sub3, 'order': a.sub4 }
                 return lambda: f5().remove_all_ha_orders([a.name])
 
-    def run(self):
-        ''' Do the actual stuff.
-            We are doning some lazy evaluation stuff here. The command line
-            tool does not do anything with the slow F5 API until it is clear
-            what to do and that there is no semantic or syntax error. '''
+    def _lazy(self):
+        ''' Get the lazy code block to be executed '''
         a = self._args
-        lazy = None
         if a.name:
           # Remove the /partition/ prefix, setting default partition after 
           # login instead
           a.name = re.sub(self._folder, '', a.name)
           a.name = re.sub('^/+', '', a.name)
         if a.what == 'node':
-            lazy = self.__do_node(lambda: self._f5.LocalLB.NodeAddressV2)
+            return self.__do_node(lambda: self._f5.LocalLB.NodeAddressV2)
         elif a.what == 'monitor':
-            lazy = self.__do_monitor(lambda: self._f5.LocalLB.Monitor)
+            return self.__do_monitor(lambda: self._f5.LocalLB.Monitor)
         elif a.what == 'pool':
-            lazy = self.__do_pool(lambda: self._f5.LocalLB.Pool)
+            return self.__do_pool(lambda: self._f5.LocalLB.Pool)
         elif a.what == 'vserver':
-            lazy = self.__do_vserver(lambda: self._f5.LocalLB.VirtualServer)
+            return self.__do_vserver(lambda: self._f5.LocalLB.VirtualServer)
         elif a.what == 'vip':
-            lazy = self.__do_vip(lambda: self._f5.LocalLB.VirtualAddressV2)
+            return self.__do_vip(lambda: self._f5.LocalLB.VirtualAddressV2)
         elif a.what == 'vlan':
-            lazy = self.__do_vlan(lambda: self._f5.Networking.VLAN)
+            return self.__do_vlan(lambda: self._f5.Networking.VLAN)
         elif a.what == 'selfip':
-            lazy = self.__do_selfip(lambda: self._f5.Networking.SelfIPV2)
+            return self.__do_selfip(lambda: self._f5.Networking.SelfIPV2)
         elif a.what == 'tgroup':
-            lazy = self.__do_tgroup(lambda: self._f5.Management.TrafficGroup)
+            return self.__do_tgroup(lambda: self._f5.Management.TrafficGroup)
         elif a.what == 'folder':
-            lazy = self.__do_folder(lambda: self._f5.Management.Folder)
+            return self.__do_folder(lambda: self._f5.Management.Folder)
+
+
+    def run(self):
+        ''' Do the actual stuff.
+            We are doning some lazy evaluation stuff here. The command line
+            tool does not do anything with the slow F5 API until it is clear
+            what to do and that there is no semantic or syntax error. '''
+        a = self._args
+        lazy = self._lazy()
         if isfunction(lazy):
             self.verbose('Doing some stuf via the API, it may take a while')
             self.__login()
