@@ -1,4 +1,4 @@
-usage: fapi [-b B] [-e E] [-f F] [-h] [-i] [-l] [-v] [-V] [-C C]
+usage: fapi [-b B] [-e E] [-f F] [-h] [-i] [-l] [-n] [-v] [-V] [-C C]
             [what] [name] [sub] [sub2] [sub3] [sub4] [sub5]
 
 positional arguments:
@@ -17,14 +17,14 @@ optional arguments:
   -h    Print this help
   -i    Interactive shell
   -l    Use list output
+  -n    No color (disable colorful output)
   -v    Verbose
   -V    Print program version
   -C C  Config file
 
-This is fapi version 0.0.11
 
 Synopsis:
-    monitor
+[2m    monitor
     monitor NAME get desc|state
     node
     node NODENAME create|delete
@@ -49,9 +49,9 @@ Synopsis:
     vserver NAME get brief|detail|status
     vserver NAME set nat|pat disabled|enabled
     vserver NAME set pool POOLNAME
-    vserver NAME set snat none
+    vserver NAME set snat none[0m
 The following partially needs admininstrator privileges on / and /Common
-    -f Common -b balancer.example.com selfip
+[2m    -f Common -b balancer.example.com selfip
     -f Common -b balancer.example.com selfip NAME create NETMASK VLANNAME [TGROUP]
     -f Common -b balancer.example.com selfip NAME delete
     -f Common -b balancer.example.com selfip NAME get detail|tgroup
@@ -71,5 +71,5 @@ The following partially needs admininstrator privileges on / and /Common
     -f / folder
     -f / folder NAME create|delete
     -f / folder NAME get detail|dgroup|tgroup
-    -f / folder NAME set dgroup|tgroup DGROUP|TGROUP
+    -f / folder NAME set dgroup|tgroup DGROUP|TGROUP[0m
 Please consult the manpage for examples.

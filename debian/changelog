@@ -1,3 +1,12 @@
+fapi (0.6.0) stable; urgency=low
+
+  * Count version to 0.6.0, it's the 6th release introducing new features
+  * Add colorful terminal output (can be disabled with -n)
+  * Add initial interactive shell (-i)
+  * Respect more of PEP8
+
+ -- Paul Buetow <paul@buetow.org>  Tue, 29 Apr 2014 07:35:52 +0200
+
 fapi (0.0.11) stable; urgency=low
 
   * Rename partition to folder
