@@ -46,10 +46,11 @@ Synopsis:
     vserver
     vserver NAME create [protocol] [profile] [poolname] [mask]
     vserver NAME delete
-    vserver NAME get brief|detail|status
+    vserver NAME get brief|detail|status|vlan
     vserver NAME set nat|pat disabled|enabled
     vserver NAME set pool POOLNAME
-    vserver NAME set snat none
+    vserver NAME set snat automap|none
+    vserver NAME set vlan [list,of,vlans,to,allow]
 The following partially needs admininstrator privileges on / and /Common
     -f Common -b balancer.example.com selfip
     -f Common -b balancer.example.com selfip NAME create NETMASK VLANNAME [TGROUP]
