@@ -89,11 +89,11 @@ class FapiBase(object):
             '    vserver',
             '    vserver NAME create [protocol] [profile] [poolname] [mask]',
             '    vserver NAME delete',
-            '    vserver NAME get brief|detail|status',
+            '    vserver NAME get brief|detail|status|vlan',
             '    vserver NAME set nat|pat disabled|enabled',
             '    vserver NAME set pool POOLNAME',
             '    vserver NAME set snat automap|none'
-            '    vserver NAME set vlans [list,of,vlans,to,allow]',
+            '    vserver NAME set vlan [list,of,vlans,to,allow]',
             + reset, 
             'The following partially needs admininstrator privileges on / and /Common', 
             style +
@@ -431,6 +431,8 @@ class Fapi(FapiBase):
                 return lambda: brief(f5)
             elif a.sub2 == 'status':
                 return lambda: f5().get_object_status([name])
+            elif a.sub2 == 'vlan':
+                return lambda: f5().get_vlan([name])
         elif a.sub == 'create':
             protocol = a.sub2 if a.sub2 else 'PROTOCOL_TCP'
             if a.sub3:
@@ -483,7 +485,7 @@ class Fapi(FapiBase):
                     return lambda: f5().set_source_address_translation_none([name])
                 elif a.sub3 == 'automap':
                     return lambda: f5().set_source_address_translation_automap([name])
-            elif a.sub2 == 'vlans':
+            elif a.sub2 == 'vlan':
                 vlans = a.sub3.split(',') if a.sub3 else []
                 vlan_filter_list = {
                     'state': 'STATE_ENABLED',

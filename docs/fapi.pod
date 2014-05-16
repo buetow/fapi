@@ -123,7 +123,7 @@ A simple nPath service can be created as follows.
 
   # Restrict the vserver to a specific VLAN (IMPORTANT! security
   # hole otherwise!)
-  fapi vserver myvserver.example.com:443 set vlans VLANNAME
+  fapi vserver myvserver.example.com:443 set vlan VLANNAME
 
   # Put the VirtualAddress of the vserver into a specific traffic group
   fapi vip myserver.example.com set tgroup some-traffic-group
