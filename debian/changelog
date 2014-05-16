@@ -1,3 +1,9 @@
+fapi (0.7.2) stable; urgency=low
+
+  * Fixes documentation
+
+ -- Paul Buetow <paul@buetow.org>  Fri, 16 May 2014 20:11:45 +0200
+
 fapi (0.7.1) stable; urgency=low
 
   * Add example how to create a NATed VirtualServer...
