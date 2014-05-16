@@ -93,7 +93,7 @@ class FapiBase(object):
             '    vserver NAME set nat|pat disabled|enabled',
             '    vserver NAME set pool POOLNAME',
             '    vserver NAME set snat automap|none'
-            '    vserver NAME set vlans list[,of,vlans,to,allow]',
+            '    vserver NAME set vlans [list,of,vlans,to,allow]',
             + reset, 
             'The following partially needs admininstrator privileges on / and /Common', 
             style +
