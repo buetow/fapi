@@ -31,7 +31,7 @@ documentation:
 	./bin/fapi -h -n > ./docs/synopsis.txt
 # Build a debian package 
 deb: all
-	dpkg-buildpackage -us -uc
+	dpkg-buildpackage # -us -uc
 dch: 
 	dch -i
 release: dch deb 
