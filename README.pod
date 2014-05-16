@@ -140,13 +140,39 @@ And everything can be deleted as folows:
   fapi node fooserver1.example.com delete
   fapi node fooserver2.example.com delete
 
-=head2 Setting up simple NAT Services
+=head2 Setting up simple HTTP NAT Services
 
-  (Docu to be written)
+A simple HTTP NATed service can be created as follows.
+
+  # Create a NATed HTTP vserver
+  # fapi auto resolves the IP address.
+  fapi vserver myvserver.example.com:80 create PROTOCOL_TCP /Common/http
+
+  # Add the pool to the vserver. 
+  fapi vserver myvserver.example.com:80 set pool foopool
+
+  # Add a NATed HTTPS vserver
+  fapi vserver myvserver.example.com:443 create PROTOCOL_TCP /Common/http
+  fapi vserver myvserver.example.com:443 set pool foopool
+
+  # Restrict the vserver to a specific VLAN (IMPORTANT! security
+  # hole otherwise!)
+  fapi vserver myvserver.example.com:443 set vlan VLANNAME
+
+  # Put the VirtualAddress of the vserver into a specific traffic group
+  fapi vip myserver.example.com set tgroup some-traffic-group
+
+In order to make this work your application servers need to have setup a
+default route to the loadbalancers floating self IP.
 
 =head2 Setting up simple SNAT Services
 
-  (Docu to be written)
+Same as setting up a NATed services, but you don't need to configure default 
+routes from your application servers to the loadbalancers floating self IP.
+
+You need also to set the SNAT flag as follows:
+
+  fapi vserver myvserver.example.com:443 set snat automap
 
 =head2 About the NAME argument
 

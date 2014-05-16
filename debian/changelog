@@ -1,3 +1,11 @@
+fapi (0.7.1) stable; urgency=low
+
+  * Add example how to create a NATed VirtualServer...
+  * Add example how to create a SNATed VirtualServer...
+  ... to the manpage
+
+ -- Paul Buetow <paul@buetow.org>  Fri, 16 May 2014 20:01:48 +0200
+
 fapi (0.7.0) stable; urgency=low
 
   * Can also set and get the vlan of a vserver
