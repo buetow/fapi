@@ -93,6 +93,7 @@ class FapiBase(object):
             '    vserver NAME set nat|pat disabled|enabled',
             '    vserver NAME set pool POOLNAME',
             '    vserver NAME set snat automap|none'
+            '    vserver NAME set vlans list[,of,vlans,to,allow]',
             + reset, 
             'The following partially needs admininstrator privileges on / and /Common', 
             style +
@@ -482,6 +483,13 @@ class Fapi(FapiBase):
                     return lambda: f5().set_source_address_translation_none([name])
                 elif a.sub3 == 'automap':
                     return lambda: f5().set_source_address_translation_automap([name])
+            elif a.sub2 == 'vlans':
+                vlans = a.sub3.split(',') if a.sub3 else []
+                vlan_filter_list = {
+                    'state': 'STATE_ENABLED',
+                    'vlans': vlans
+                }
+                return lambda: f5().set_vlan([name], [vlan_filter_list])
 
     def __do_vip(self, f5):
         ''' Do stuff concerning virtual addresses '''
