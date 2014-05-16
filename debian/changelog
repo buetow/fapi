@@ -4,7 +4,7 @@ fapi (0.7.0) stable; urgency=low
   * Can also set SNAT to automap
   * Small updates in the documentation
 
- -- Paul Buetow <paul.buetow@1und1.de>  Fri, 16 May 2014 17:52:31 +0200
+ -- Paul Buetow <paul@buetow.org>  Fri, 16 May 2014 17:52:31 +0200
 
 fapi (0.6.2) stable; urgency=low
 
