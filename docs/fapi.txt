@@ -40,7 +40,7 @@ BIGSUDS
 
     Unzip it and run
 
-      sudo python setyp.py install
+      sudo python setup.py install
 
     You may also install bigsuds from the contrib dir of the fapi source
     tree.
@@ -108,6 +108,10 @@ EXAMPLES
       # Add a nPath HTTPS vserver
       fapi vserver myvserver.example.com:443 create PROTOCOL_TCP nPath
       fapi vserver myvserver.example.com:443 set pool foopool
+
+      # Restrict the vserver to a specific VLAN (IMPORTANT! security
+      # hole otherwise!)
+      fapi vserver myvserver.example.com:443 set vlan VLANNAME
 
       # Put the VirtualAddress of the vserver into a specific traffic group
       fapi vip myserver.example.com set tgroup some-traffic-group
