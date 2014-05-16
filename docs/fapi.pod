@@ -46,7 +46,7 @@ L<https://devcentral.f5.com/d/bigsuds-python-icontrol-library>
 
 Unzip it and run
 
-  sudo python setyp.py install
+  sudo python setup.py install
 
 You may also install bigsuds from the contrib dir of the fapi source tree.
 
