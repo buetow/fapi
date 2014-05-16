@@ -1,3 +1,9 @@
+fapi (0.7.3) stable; urgency=low
+
+  * Fixes documentation
+
+ -- Paul Buetow <paul@buetow.org>  Fri, 16 May 2014 20:13:29 +0200
+
 fapi (0.7.2) stable; urgency=low
 
   * Fixes documentation

@@ -148,7 +148,7 @@ routes from your application servers to the loadbalancers floating self IP.
 
 You need also to set the SNAT flag as follows:
 
-  fapi vserver myvserver.example.com:443 set snat automap
+  fapi vserver myvserver.example.com:80 set snat automap
 
 =head2 About the NAME argument
 

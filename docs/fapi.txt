@@ -135,7 +135,7 @@ EXAMPLES
 
     You need also to set the SNAT flag as follows:
 
-      fapi vserver myvserver.example.com:443 set snat automap
+      fapi vserver myvserver.example.com:80 set snat automap
 
   About the NAME argument
     In most cases NAME can be a hostname, FQDN or an IP address. Optionally
