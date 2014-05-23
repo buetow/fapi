@@ -298,8 +298,8 @@ class Fapi(object):
         elif a.sub == 'create':
                 poolmembers = []
                 method = 'LB_METHOD_ROUND_ROBIN'
-                if a.sub3:
-                    for x in a.sub3.split(','):
+                if a.sub2:
+                    for x in a.sub2.split(','):
                         fqdn_or_ip, ip, port = self.lookup(x)
                         pm = { 'address' : fqdn_or_ip, 'port' : port }
                         poolmembers.append(pm)
