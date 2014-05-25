@@ -1,6 +1,8 @@
 #!/usr/bin/env python
 
 # 2014 (c) Paul C. Buetow
+# I'm sorry, but this is my first Python program to find out if it's worth
+# using it.  I'm more into Perl, and it will stay so.
 
 import argparse
 import base64
