@@ -174,8 +174,6 @@ class ArgumentParser(FapiBase):
 class Fapi(FapiBase):
     ''' The main F5 API Tool Object '''
 
-    __loggedin = False
-
     def __init__(self, args):
         ''' Initialize the config file, username and password '''
         FapiBase.__init__(self, args)
@@ -188,7 +186,6 @@ class Fapi(FapiBase):
 
     def __login(self):
         ''' Logs into the F5 BigIP SOAP API and changes the folder/adm. partition'''
-        if __loggedin: return 
         c = self._config
         a = self._args
         if c.has_option('fapi', 'username'):
@@ -220,7 +217,6 @@ class Fapi(FapiBase):
                 pass
         if err:
             raise Exception(err)
-        __loggedin = True
 
     def lookup(self, what):
         ''' Does a DNS lookup to fetch the name (mostly FQDN) and the IPs
