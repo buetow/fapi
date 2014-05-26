@@ -47,11 +47,19 @@ Synopsis:
     vserver
     vserver NAME create [protocol] [profile] [poolname] [mask]
     vserver NAME delete
-    vserver NAME get brief|detail|status|vlan
+    vserver NAME get brief|detail|status|vlan|profile|rule
     vserver NAME set nat|pat disabled|enabled
     vserver NAME set pool POOLNAME
     vserver NAME set snat automap|none
-    vserver NAME set vlan [list,of,vlans,to,allow][0m
+    vserver NAME set vlan [list,of,vlans,to,allow]
+    vserver NAME profile add PROFILENAME [PROFILECONTEXT]
+    vserver NAME profile remove PROFILENAME
+    vserver NAME rule add RULENAME [RULEPRIORITY]
+    vserver NAME rule remove RULENAME
+    profileclientssl
+    profileclientssl PROFILENAME create [SSLKEYNAME] [SSLCERTNAME]
+    profileclientssl PROFILENAME delete
+    profileclientssl PROFILENAME get detail[0m
 The following partially needs admininstrator privileges on / and /Common
 [2m    -f Common -b balancer.example.com selfip
     -f Common -b balancer.example.com selfip NAME create NETMASK VLANNAME [TGROUP]

@@ -91,11 +91,19 @@ class FapiBase(object):
             '    vserver',
             '    vserver NAME create [protocol] [profile] [poolname] [mask]',
             '    vserver NAME delete',
-            '    vserver NAME get brief|detail|status|vlan',
+            '    vserver NAME get brief|detail|status|vlan|profile|rule',
             '    vserver NAME set nat|pat disabled|enabled',
             '    vserver NAME set pool POOLNAME',
             '    vserver NAME set snat automap|none',
-            '    vserver NAME set vlan [list,of,vlans,to,allow]'
+            '    vserver NAME set vlan [list,of,vlans,to,allow]',
+            '    vserver NAME profile add PROFILENAME [PROFILECONTEXT]',
+            '    vserver NAME profile remove PROFILENAME',
+            '    vserver NAME rule add RULENAME [RULEPRIORITY]',
+            '    vserver NAME rule remove RULENAME',
+            '    profileclientssl',
+            '    profileclientssl PROFILENAME create [SSLKEYNAME] [SSLCERTNAME]',
+            '    profileclientssl PROFILENAME delete',
+            '    profileclientssl PROFILENAME get detail'
             + reset, 
             'The following partially needs admininstrator privileges on / and /Common', 
             style +
@@ -132,6 +140,7 @@ class ArgumentParser(FapiBase):
     def __init__(self):
         ''' Initialize the argument parser '''
         self._parser = parser = argparse.ArgumentParser(add_help=False)
+        parser.add_argument('-a', action='store_true', help='Disables auto port in vserver name')
         parser.add_argument('-b', action='store', 
                 help='Forces to use the secified loadbalancer (overwrites -e)')
         parser.add_argument('-d', action='store_true', help='Disable colorful output')
@@ -399,7 +408,10 @@ class Fapi(FapiBase):
           _, ip, _ = self.lookup(fqdn_or_ip)
         else:
           fqdn_or_ip, ip, port = self.lookup(a.name)
-        name = fqdn_or_ip + '_' + port
+        if a.a:
+            name = fqdn_or_ip 
+        else:
+            name = fqdn_or_ip + '_' + port
         if a.sub == 'get':
             if a.sub2 == 'detail':
                 def detail(f5):
@@ -454,6 +466,10 @@ class Fapi(FapiBase):
                 return lambda: f5().get_object_status([name])
             elif a.sub2 == 'vlan':
                 return lambda: f5().get_vlan([name])
+            elif a.sub2 == 'profile':
+                return lambda: f5().get_profile([name])
+            elif a.sub2 == 'rule':
+                return lambda: f5().get_rule([name])
         elif a.sub == 'create':
             protocol = a.sub2 if a.sub2 else 'PROTOCOL_TCP'
             if a.sub3:
@@ -513,6 +529,24 @@ class Fapi(FapiBase):
                     'vlans': vlans
                 }
                 return lambda: f5().set_vlan([name], [vlan_filter_list])
+        elif a.sub == 'profile':
+            profiles = {
+                'profile_context': a.sub4 if a.sub4 else 'PROFILE_CONTEXT_TYPE_CLIENT',
+                'profile_name': a.sub3,
+            }
+            if a.sub2 == 'add':
+                return lambda: f5().add_profile([name], [[profiles]])
+            elif a.sub2 == 'remove':
+                return lambda: f5().remove_profile([name], [[profiles]])
+        elif a.sub == 'rule':
+            rules = {
+                'priority': a.sub4 if a.sub4 else '1',
+                'rule_name': a.sub3,
+            }
+            if a.sub2 == 'add':
+                return lambda: f5().add_rule([name], [[rules]])
+            elif a.sub2 == 'remove':
+                return lambda: f5().remove_rule([name], [[rules]])
 
     def __do_vip(self, f5):
         ''' Do stuff concerning virtual addresses '''
@@ -562,6 +596,39 @@ class Fapi(FapiBase):
             elif a.sub2 == 'tgroup':
                 tgroup = a.sub3
                 return lambda: f5().set_traffic_group([name], [tgroup])
+
+    def __do_profileclientssl(self, f5):
+        ''' Do stuff concerning SSL client certs '''
+        a = self._args
+        if not a.name:
+            return lambda: f5().get_list()
+        # Do the actual stuff
+        if a.sub == 'get':
+            if a.sub2 == 'detail':
+                def detail(f5):
+                    d = {}
+                    d['ca_file'] = f5().get_ca_file_v2([a.name])
+                    d['key_file'] = f5().get_key_file_v2([a.name])
+                    d['certificate_file'] = f5().get_certificate_file_v2([a.name])
+                    d['chain_file'] = f5().get_chain_file_v2([a.name])
+                    d['client_certificate_ca_file'] = f5().get_client_certificate_ca_file_v2([a.name])
+                    d['description'] = f5().get_description([a.name])
+                    return d
+                return lambda: detail(f5)
+        if a.sub == 'create':
+            key_path = a.sub2 if a.sub2 else a.name + '.key'
+            certificate_path = a.sub3 if a.sub3 else a.name + '.crt'
+            key_file = {
+                'value': key_path,
+                'default_flag': False,
+            }
+            certificate_file = {
+                'value': certificate_path,
+                'default_flag': False,
+            }
+            return lambda: f5().create_v2([a.name], [key_file], [certificate_file])
+        elif a.sub == 'delete':
+            return lambda: f5().delete_profile([a.name])
 
     def __do_vlan(self, f5):
         ''' Do stuff concerning VLANs '''
@@ -654,6 +721,13 @@ class Fapi(FapiBase):
             elif a.sub2 == 'tgroup':
                 return lambda: f5().set_traffic_group([a.name], [a.sub3])
 
+    def __do_keycertificate(self, f5):
+        ''' Do stuff concerning SSL keys and Certificates'''
+        a = self._args
+        if not a.name:
+            # Somehow does not work with bugsuds 1.0.0
+            return lambda: f5().get_certificate_list_v2(0)
+
     def __do_tgroup(self, f5):
         ''' Do stuff concerning TrafficGroups'''
         a = self._args
@@ -711,6 +785,8 @@ class Fapi(FapiBase):
             return self.__do_vserver(lambda: self._f5.LocalLB.VirtualServer)
         elif a.what == 'vip':
             return self.__do_vip(lambda: self._f5.LocalLB.VirtualAddressV2)
+        elif a.what == 'profileclientssl':
+            return self.__do_profileclientssl(lambda: self._f5.LocalLB.ProfileClientSSL)
         elif a.what == 'vlan':
             return self.__do_vlan(lambda: self._f5.Networking.VLAN)
         elif a.what == 'selfip':
@@ -719,6 +795,11 @@ class Fapi(FapiBase):
             return self.__do_tgroup(lambda: self._f5.Management.TrafficGroup)
         elif a.what == 'folder':
             return self.__do_folder(lambda: self._f5.Management.Folder)
+        elif a.what == 'folder':
+            return self.__do_folder(lambda: self._f5.Management.Folder)
+        # Somehow does not work with bigsuds 1.0.0
+        # elif a.what == 'kc' or a.what == 'keycertificate':
+        #    return self.__do_keycertificate(lambda: self._f5.Management.KeyCertificate)
 
     def run(self):
         ''' Do the actual stuff.

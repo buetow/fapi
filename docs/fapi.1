@@ -124,7 +124,7 @@
 .\" ========================================================================
 .\"
 .IX Title "FAPI 1"
-.TH FAPI 1 "2014-05-16" "fapi 0.7.3" "User Commands"
+.TH FAPI 1 "2014-05-26" "fapi 0.7.3" "User Commands"
 .\" For nroff, turn off justification.  Always turn off hyphenation; it makes
 .\" way too many mistakes in technical documents.
 .if n .ad l
@@ -276,7 +276,7 @@ And everything can be deleted as folows:
 A simple \s-1HTTP\s0 NATed service can be created as follows.
 .PP
 .Vb 3
-\&  fapi vserver myvserver.example.com:80 create PROTOCOL_TCP /Common/http
+\&  fapi vserver myvserver.example.com:80 create PROTOCOL_TCP http
 \&  fapi vserver myvserver.example.com:80 set vlan VLANNAME
 \&  fapi vserver myvserver.example.com:80 set pool foopool
 .Ve
@@ -292,6 +292,22 @@ You need also to set the \s-1SNAT\s0 flag as follows:
 .PP
 .Vb 1
 \&  fapi vserver myvserver.example.com:80 set snat automap
+.Ve
+.SS "Settung up simple \s-1SNAT\s0 Services with \s-1SSL\s0 offloading enabled"
+.IX Subsection "Settung up simple SNAT Services with SSL offloading enabled"
+Just like \s-1SNAT\s0 service (use port 443) but with these additional steps
+.PP
+First Upload the \s-1SSL\s0 certificate to the F5 \s-1BIG\s0 \s-1IP\s0 (e.g. System \-> File Management
+\&\-> \s-1SSL\s0 Certificate List on \s-1BIG\s0 \s-1IP\s0 V11.4).
+.PP
+.Vb 3
+\&  # Afterwards create a new SSL profile to use the new certificate:
+\&  # (Will automatically use key/crt myserver.example.com.{key,crt})
+\&  fapi profileclientssl myserver.example.com create
+\&
+\&  # Then attach that profile to the vserver (default context is 
+\&  # PROFILE_TYPE_CLIENT_SSL, which means SSL between F5 and Clients)
+\&  fapi vserver myvserver.example.com:443 profile add myserver.example.com
 .Ve
 .SS "About the \s-1NAME\s0 argument"
 .IX Subsection "About the NAME argument"
