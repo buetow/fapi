@@ -1,6 +1,8 @@
 #!/usr/bin/env python
 
 # 2014 (c) Paul C. Buetow
+# I'm sorry, but this is my first Python program to find out if it's worth
+# using it.  I'm more into Perl, and it will stay so.
 
 import argparse
 import base64
@@ -36,7 +38,7 @@ class FapiBase(object):
 
     def info(self, message, color=''):
         ''' Prints an informational message to stderr '''
-        if self._args.n:
+        if self._args.d:
             color = reset = ''
         else:
             reset = '' if color == '' else Style.RESET_ALL
@@ -57,7 +59,7 @@ class FapiBase(object):
 
     def print_synopsis(self):
         ''' Prints the full Synopsis string '''
-        if self._args.n:
+        if self._args.d:
             style = reset = ''
         else:
             style = Style.DIM
@@ -132,13 +134,14 @@ class ArgumentParser(FapiBase):
         self._parser = parser = argparse.ArgumentParser(add_help=False)
         parser.add_argument('-b', action='store', 
                 help='Forces to use the secified loadbalancer (overwrites -e)')
+        parser.add_argument('-d', action='store_true', help='Disable colorful output')
         parser.add_argument('-e', action='store', help='Env to use, e.g. dev,qa,live',
             default='qa')
         parser.add_argument('-f', action='store', help='Overwrite partition/folder from fapi.conf')
         parser.add_argument('-h', action='store_true', help='Print this help')
         parser.add_argument('-i', action='store_true', help='Interactive shell')
         parser.add_argument('-l', action='store_true', help='Use list output')
-        parser.add_argument('-n', action='store_true', help='No color (disable colorful output)')
+        parser.add_argument('-n', action='store_true', help='No-op (don\'t do actual stuff)')
         parser.add_argument('-v', action='store_true', help='Verbose')
         parser.add_argument('-V', action='store_true', help='Print program version')
         parser.add_argument('-C', action='store', help='Config file',
@@ -171,6 +174,8 @@ class ArgumentParser(FapiBase):
 class Fapi(FapiBase):
     ''' The main F5 API Tool Object '''
 
+    __loggedin = False
+
     def __init__(self, args):
         ''' Initialize the config file, username and password '''
         FapiBase.__init__(self, args)
@@ -183,6 +188,7 @@ class Fapi(FapiBase):
 
     def __login(self):
         ''' Logs into the F5 BigIP SOAP API and changes the folder/adm. partition'''
+        if __loggedin: return 
         c = self._config
         a = self._args
         if c.has_option('fapi', 'username'):
@@ -203,8 +209,8 @@ class Fapi(FapiBase):
             try:
                 self.verbose('Trying to login to \'%s\'' % loadbalancer)
                 self._f5 = bigsuds.BIGIP(hostname = loadbalancer,
-                                         username = username,
-                                         password = password)
+                    username = username,
+                    password = password)
                 self._f5.Management.Partition.set_active_partition(self._folder)
                 self.verbose('Set folder/adm. partition to \'%s\'' % self._folder)
                 err = None
@@ -214,6 +220,7 @@ class Fapi(FapiBase):
                 pass
         if err:
             raise Exception(err)
+        __loggedin = True
 
     def lookup(self, what):
         ''' Does a DNS lookup to fetch the name (mostly FQDN) and the IPs
@@ -258,6 +265,22 @@ class Fapi(FapiBase):
         self.verbose("Looked \'%s\' up to name:\'%s\', ip:\'%s\', port:\'%s\'" % (what, name, ip, port))
         return (name, ip, port)
 
+
+    def li(self, name):
+        ''' Checks if name is a list and returns a list if not. '''
+        return name if isinstance(name, list) else [name]
+
+
+    def pa(self, length, params):
+        ''' Checks if name is a list and returns a list of params if so '''
+        paramlist = []
+        if length > 1:
+            for _ in xrange(length): paramlist.append(params)
+        else:
+            paramlist.append(params)
+        return paramlist
+
+
     def __do_node(self, f5):
         ''' Do stuff concerning nodes '''
         a = self._args
@@ -267,24 +290,26 @@ class Fapi(FapiBase):
             if a.sub2 == 'detail':
                 def detail(f5):
                     d = {}
-                    d['connection_limit'] = f5().get_connection_limit([a.name])
+                    d['connection_limit'] = f5().get_connection_limit(li(a.name))
                     d['default_node_monitor'] = f5().get_default_node_monitor()
-                    d['description'] = f5().get_description([a.name])
-                    d['dynamic_ratio'] = f5().get_dynamic_ratio_v2([a.name])
-                    d['monitor_instance'] = f5().get_monitor_instance([a.name])
-                    d['monitor_rule'] = f5().get_monitor_rule([a.name])
-                    d['monitor_status'] = f5().get_monitor_status([a.name])
-                    d['object_status'] = f5().get_object_status([a.name])
-                    d['rate_limit'] = f5().get_rate_limit([a.name])
-                    d['ratio'] = f5().get_ratio([a.name])
-                    d['session_status'] = f5().get_session_status([a.name])
+                    d['description'] = f5().get_description(li(a.name))
+                    d['dynamic_ratio'] = f5().get_dynamic_ratio_v2(li(a.name))
+                    d['monitor_instance'] = f5().get_monitor_instance(li(a.name))
+                    d['monitor_rule'] = f5().get_monitor_rule(li(a.name))
+                    d['monitor_status'] = f5().get_monitor_status(li(a.name))
+                    d['object_status'] = f5().get_object_status(li(a.name))
+                    d['rate_limit'] = f5().get_rate_limit(li(a.name))
+                    d['ratio'] = f5().get_ratio(li(a.name))
+                    d['session_status'] = f5().get_session_status(li(a.name))
                     return d
                 return lambda: detail(f5)
             if a.sub2 == 'status':
-                return lambda: f5().get_monitor_status([a.name])
+                return lambda: f5().get_monitor_status(li(a.name))
         elif a.sub == 'create':
             fqdn_or_ip, ip, _ = self.lookup(a.name)
-            return lambda: f5().create([fqdn_or_ip],[ip],[0])
+            return lambda: f5().create(li(fqdn_or_ip), 
+                [ip],
+                pa(len(fqdn_or_ip),0))
         elif a.sub == 'delete':
             fqdn_or_ip, _, _ = self.lookup(a.name)
             return lambda: f5().delete_node_address([fqdn_or_ip])
@@ -452,8 +477,8 @@ class Fapi(FapiBase):
             resource = { 'type': 'RESOURCE_TYPE_POOL' }
             if poolname: resource['default_pool_name'] = poolname
             profile = {
-                    'profile_context': 'PROFILE_CONTEXT_TYPE_ALL',
-                    'profile_name': profile,
+                'profile_context': 'PROFILE_CONTEXT_TYPE_ALL',
+                'profile_name': profile,
             }
             self.verbose("vserver:%s netmask:%s resource:%s, profile:%s"
                     % (vserver, netmask, resource, profile))
@@ -506,7 +531,7 @@ class Fapi(FapiBase):
         else:
           _, ip, _ = self.lookup(a.name)
         name = ip
-
+        # Do the actual stuff
         if a.sub == 'get':
             if a.sub2 == 'detail':
                 def detail(f5):
@@ -666,41 +691,58 @@ class Fapi(FapiBase):
                 orders = { 'device': a.sub3, 'order': a.sub4 }
                 return lambda: f5().remove_all_ha_orders([a.name])
 
+    def _lazy(self):
+        ''' Get the lazy code block to be executed '''
+        a = self._args
+        def namify(name):
+          # Remove the /partition/ prefix, setting default partition after 
+          # login instead
+          name = re.sub(self._folder, '', name)
+          name = re.sub('^/+', '', name)
+          return name
+        if a.name:
+            if isinstance(a.name, list):
+                a.name = map(namify, a.name)
+            else:
+                a.name = namify(a.name)
+        if a.what == 'node':
+            return self.__do_node(lambda: self._f5.LocalLB.NodeAddressV2)
+        elif a.what == 'monitor':
+            return self.__do_monitor(lambda: self._f5.LocalLB.Monitor)
+        elif a.what == 'pool':
+            return self.__do_pool(lambda: self._f5.LocalLB.Pool)
+        elif a.what == 'vserver':
+            return self.__do_vserver(lambda: self._f5.LocalLB.VirtualServer)
+        elif a.what == 'vip':
+            return self.__do_vip(lambda: self._f5.LocalLB.VirtualAddressV2)
+        elif a.what == 'vlan':
+            return self.__do_vlan(lambda: self._f5.Networking.VLAN)
+        elif a.what == 'selfip':
+            return self.__do_selfip(lambda: self._f5.Networking.SelfIPV2)
+        elif a.what == 'tgroup':
+            return self.__do_tgroup(lambda: self._f5.Management.TrafficGroup)
+        elif a.what == 'folder':
+            return self.__do_folder(lambda: self._f5.Management.Folder)
+
     def run(self):
         ''' Do the actual stuff.
             We are doning some lazy evaluation stuff here. The command line
             tool does not do anything with the slow F5 API until it is clear
             what to do and that there is no semantic or syntax error. '''
         a = self._args
-        lazy = None
-        if a.name:
-          # Remove the /partition/ prefix, setting default partition after 
-          # login instead
-          a.name = re.sub(self._folder, '', a.name)
-          a.name = re.sub('^/+', '', a.name)
-        if a.what == 'node':
-            lazy = self.__do_node(lambda: self._f5.LocalLB.NodeAddressV2)
-        elif a.what == 'monitor':
-            lazy = self.__do_monitor(lambda: self._f5.LocalLB.Monitor)
-        elif a.what == 'pool':
-            lazy = self.__do_pool(lambda: self._f5.LocalLB.Pool)
-        elif a.what == 'vserver':
-            lazy = self.__do_vserver(lambda: self._f5.LocalLB.VirtualServer)
-        elif a.what == 'vip':
-            lazy = self.__do_vip(lambda: self._f5.LocalLB.VirtualAddressV2)
-        elif a.what == 'vlan':
-            lazy = self.__do_vlan(lambda: self._f5.Networking.VLAN)
-        elif a.what == 'selfip':
-            lazy = self.__do_selfip(lambda: self._f5.Networking.SelfIPV2)
-        elif a.what == 'tgroup':
-            lazy = self.__do_tgroup(lambda: self._f5.Management.TrafficGroup)
-        elif a.what == 'folder':
-            lazy = self.__do_folder(lambda: self._f5.Management.Folder)
+        # Inline bulk 
+        if a.name and ',' in a.name:
+            a.name = a.name.split(',')
+        lazy = self._lazy()
         if isfunction(lazy):
-            self.verbose('Doing some stuf via the API, it may take a while')
-            self.__login()
-            self.out(lazy())
-            self.info('done', Fore.GREEN)
+            if a.n:
+                self.verbose(lazy)
+                self.info('no-op', Fore.GREEN)
+            else:
+                self.verbose('Doing some stuf via the API, it may take a while')
+                self.__login()
+                self.out(lazy())
+                self.info('done', Fore.GREEN)
         else:
             self.print_synopsis()
             return 1

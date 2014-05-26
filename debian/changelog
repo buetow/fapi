@@ -1,10 +1,30 @@
+fapi (0.7.3) stable; urgency=low
+
+  * Fixes documentation
+
+ -- Paul Buetow <paul@buetow.org>  Fri, 16 May 2014 20:13:29 +0200
+
+fapi (0.7.2) stable; urgency=low
+
+  * Fixes documentation
+
+ -- Paul Buetow <paul@buetow.org>  Fri, 16 May 2014 20:11:45 +0200
+
+fapi (0.7.1) stable; urgency=low
+
+  * Add example how to create a NATed VirtualServer...
+  * Add example how to create a SNATed VirtualServer...
+  ... to the manpage
+
+ -- Paul Buetow <paul@buetow.org>  Fri, 16 May 2014 20:01:48 +0200
+
 fapi (0.7.0) stable; urgency=low
 
   * Can also set and get the vlan of a vserver
   * Can also set SNAT to automap
   * Small updates in the documentation
 
- -- Paul Buetow <paul.buetow@1und1.de>  Fri, 16 May 2014 17:52:31 +0200
+ -- Paul Buetow <paul@buetow.org>  Fri, 16 May 2014 17:52:31 +0200
 
 fapi (0.6.2) stable; urgency=low
 

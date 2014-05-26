@@ -1,4 +1,4 @@
-usage: fapi [-b B] [-e E] [-f F] [-h] [-i] [-l] [-n] [-v] [-V] [-C C]
+usage: fapi [-b B] [-d] [-e E] [-f F] [-h] [-i] [-l] [-n] [-v] [-V] [-C C]
             [what] [name] [sub] [sub2] [sub3] [sub4] [sub5]
 
 positional arguments:
@@ -12,19 +12,20 @@ positional arguments:
 
 optional arguments:
   -b B  Forces to use the secified loadbalancer (overwrites -e)
+  -d    Disable colorful output
   -e E  Env to use, e.g. dev,qa,live
   -f F  Overwrite partition/folder from fapi.conf
   -h    Print this help
   -i    Interactive shell
   -l    Use list output
-  -n    No color (disable colorful output)
+  -n    No-op (don't do actual stuff)
   -v    Verbose
   -V    Print program version
   -C C  Config file
 
 
 Synopsis:
-    monitor
+[2m    monitor
     monitor NAME get desc|state
     node
     node NODENAME create|delete
@@ -50,9 +51,9 @@ Synopsis:
     vserver NAME set nat|pat disabled|enabled
     vserver NAME set pool POOLNAME
     vserver NAME set snat automap|none
-    vserver NAME set vlan [list,of,vlans,to,allow]
+    vserver NAME set vlan [list,of,vlans,to,allow][0m
 The following partially needs admininstrator privileges on / and /Common
-    -f Common -b balancer.example.com selfip
+[2m    -f Common -b balancer.example.com selfip
     -f Common -b balancer.example.com selfip NAME create NETMASK VLANNAME [TGROUP]
     -f Common -b balancer.example.com selfip NAME delete
     -f Common -b balancer.example.com selfip NAME get detail|tgroup
@@ -72,5 +73,5 @@ The following partially needs admininstrator privileges on / and /Common
     -f / folder
     -f / folder NAME create|delete
     -f / folder NAME get detail|dgroup|tgroup
-    -f / folder NAME set dgroup|tgroup DGROUP|TGROUP
+    -f / folder NAME set dgroup|tgroup DGROUP|TGROUP[0m
 Please consult the manpage for examples.
