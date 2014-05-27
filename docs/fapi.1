@@ -124,7 +124,7 @@
 .\" ========================================================================
 .\"
 .IX Title "FAPI 1"
-.TH FAPI 1 "2014-05-26" "fapi 0.7.3" "User Commands"
+.TH FAPI 1 "2014-05-27" "fapi 0.8.0" "User Commands"
 .\" For nroff, turn off justification.  Always turn off hyphenation; it makes
 .\" way too many mistakes in technical documents.
 .if n .ad l
@@ -320,9 +320,17 @@ by a port:
 .PP
 Examples:
 .PP
-.Vb 2
-\&  # Auto resolving of the virtual address (IP) and auto port 80
+.Vb 3
+\&  # Auto resolving of the virtual address (IP) and auto port 80. The vserver
+\&  # name will have added an automatic _PORT suffix to it\*(Aqs name.
 \&  fapi vserver fqdn.example.com create
+\&
+\&  # Or just ignore the auto port, will not add any _PORT suffix to the 
+\&  # vserver name.
+\&  fapi \-a ....
+\&
+\&  # Example:
+\&  fapi \-a vserver fqdn.example.com_ssl create
 \&
 \&  # Auto resolving of the virtual address (IP)
 \&  fapi vserver fqdn.example.com:443 create

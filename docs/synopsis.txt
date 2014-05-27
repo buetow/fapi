@@ -1,4 +1,5 @@
-usage: fapi [-b B] [-d] [-e E] [-f F] [-h] [-i] [-l] [-n] [-v] [-V] [-C C]
+usage: fapi [-a] [-b B] [-d] [-e E] [-f F] [-h] [-i] [-l] [-n] [-v] [-V]
+            [-C C]
             [what] [name] [sub] [sub2] [sub3] [sub4] [sub5]
 
 positional arguments:
@@ -11,6 +12,7 @@ positional arguments:
   sub5  Fith sub command
 
 optional arguments:
+  -a    Disables auto port in vserver name
   -b B  Forces to use the secified loadbalancer (overwrites -e)
   -d    Disable colorful output
   -e E  Env to use, e.g. dev,qa,live

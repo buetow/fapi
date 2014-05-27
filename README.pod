@@ -174,8 +174,16 @@ by a port:
 
 Examples:
 
-  # Auto resolving of the virtual address (IP) and auto port 80
+  # Auto resolving of the virtual address (IP) and auto port 80. The vserver
+  # name will have added an automatic _PORT suffix to it's name.
   fapi vserver fqdn.example.com create
+
+  # Or just ignore the auto port, will not add any _PORT suffix to the 
+  # vserver name.
+  fapi -a ....
+
+  # Example:
+  fapi -a vserver fqdn.example.com_ssl create
 
   # Auto resolving of the virtual address (IP)
   fapi vserver fqdn.example.com:443 create
@@ -198,6 +206,7 @@ Examples:
 
   # vserver name is 1.2.3.5, its virtual address 1.2.3.4 and port is 80
   fapi vserver 1.2.3.5:1.2.3.4:80 create
+
 
 Similar may apply to other object types such as nodes and vips.
 

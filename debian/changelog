@@ -1,3 +1,14 @@
+fapi (0.8.0) stable; urgency=low
+
+  * Add option -a
+  * Add possibility to manage SSL Client Profiles
+  * Add possibility to manage VirtualServer rules
+  * Add gitignore file
+  * Small bugfixes
+  * Enhancements in the documentation/manual page
+
+ -- Paul Buetow <paul@buetow.org>  Tue, 27 May 2014 20:17:19 +0200
+
 fapi (0.7.3) stable; urgency=low
 
   * Fixes documentation
