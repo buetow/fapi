@@ -1,3 +1,9 @@
+fapi (0.8.1) stable; urgency=low
+
+  * Hotfix release, could not manage nodes
+
+ -- Paul Buetow <paul@buetow.org>  Fri, 30 May 2014 20:03:31 +0200
+
 fapi (0.8.0) stable; urgency=low
 
   * Add option -a

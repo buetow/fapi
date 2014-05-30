@@ -271,21 +271,6 @@ class Fapi(FapiBase):
         return (name, ip, port)
 
 
-    def li(self, name):
-        ''' Checks if name is a list and returns a list if not. '''
-        return name if isinstance(name, list) else [name]
-
-
-    def pa(self, length, params):
-        ''' Checks if name is a list and returns a list of params if so '''
-        paramlist = []
-        if length > 1:
-            for _ in xrange(length): paramlist.append(params)
-        else:
-            paramlist.append(params)
-        return paramlist
-
-
     def __do_node(self, f5):
         ''' Do stuff concerning nodes '''
         a = self._args
