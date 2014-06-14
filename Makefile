@@ -46,5 +46,6 @@ clean-top:
 	rm ../$(NAME)_*.deb
 dput:
 	dput -u wheezy-buetowdotorg ../$(NAME)_$$(cat ./.version)_amd64.changes
+	dput -u jessie-buetowdotorg ../$(NAME)_$$(cat ./.version)_amd64.changes
 dput-debrepo:
 	dput -u incoming-debrepo ../$(NAME)_$$(cat ./.version)_amd64.changes
