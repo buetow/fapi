@@ -112,6 +112,10 @@ class FapiBase(object):
             '    -f Common -b balancer.example.com selfip NAME delete',
             '    -f Common -b balancer.example.com selfip NAME get detail|tgroup',
             '    -f Common -b balancer.example.com selfip NAME set tgroup TGROUP',
+            '    -f Common -b balancer.example.com vlan',
+            '    -f Common -b balancer.example.com vlan NAME create tagged VLANID internal|external|...',
+            '    -f Common -b balancer.example.com vlan NAME delete',
+            '    -f Common -b balancer.example.com vlan NAME get detail',
             '    -f Common tgroup',
             '    -f Common tgroup NAME add ha_order DEVICE ORDER',
             '    -f Common tgroup NAME create',
@@ -120,10 +124,6 @@ class FapiBase(object):
             '    -f Common tgroup NAME get ha_order',
             '    -f Common tgroup NAME remove all_ha_orders',
             '    -f Common tgroup NAME remove ha_order DEVICE ORDER',
-            '    -f Common vlan',
-            '    -f Common vlan NAME create tagged VLANID internal|external|...',
-            '    -f Common vlan NAME delete',
-            '    -f Common vlan NAME get detail',
             '    -f / folder',
             '    -f / folder NAME create|delete',
             '    -f / folder NAME get detail|dgroup|tgroup',
@@ -636,7 +636,7 @@ class Fapi(FapiBase):
                     'member_type': 'MEMBER_TRUNK',
                     'tag_state': 'MEMBER_TAGGED',
                 }
-                return lambda: f5().create_v2([a.name], [vlanid], [[members]], ['STATE_ENABLED'], [10])
+                return lambda: f5().create_v2([a.name], [vlanid], [[members]], ['STATE_DISABLED'], [10])
         elif a.sub == 'delete':
             return lambda: f5().delete_vlan([a.name])
 
