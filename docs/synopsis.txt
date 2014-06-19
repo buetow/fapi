@@ -68,6 +68,10 @@ The following partially needs admininstrator privileges on / and /Common
     -f Common -b balancer.example.com selfip NAME delete
     -f Common -b balancer.example.com selfip NAME get detail|tgroup
     -f Common -b balancer.example.com selfip NAME set tgroup TGROUP
+    -f Common -b balancer.example.com vlan
+    -f Common -b balancer.example.com vlan NAME create tagged VLANID internal|external|...
+    -f Common -b balancer.example.com vlan NAME delete
+    -f Common -b balancer.example.com vlan NAME get detail
     -f Common tgroup
     -f Common tgroup NAME add ha_order DEVICE ORDER
     -f Common tgroup NAME create
@@ -76,10 +80,6 @@ The following partially needs admininstrator privileges on / and /Common
     -f Common tgroup NAME get ha_order
     -f Common tgroup NAME remove all_ha_orders
     -f Common tgroup NAME remove ha_order DEVICE ORDER
-    -f Common vlan
-    -f Common vlan NAME create tagged VLANID internal|external|...
-    -f Common vlan NAME delete
-    -f Common vlan NAME get detail
     -f / folder
     -f / folder NAME create|delete
     -f / folder NAME get detail|dgroup|tgroup
