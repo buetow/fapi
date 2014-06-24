@@ -1,8 +1,8 @@
-fapi (0.8.3+nmu1) stable; urgency=low
+fapi (0.9.0) stable; urgency=low
 
   * Can get and set poolmember ratios
 
- -- Paul Buetow <paul.buetow@1und1.de>  Tue, 24 Jun 2014 16:41:06 +0200
+ -- Paul Buetow <paul@buetow.org>  Tue, 24 Jun 2014 19:13:51 +0200
 
 fapi (0.8.3) stable; urgency=low
 
