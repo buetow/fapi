@@ -65,75 +65,83 @@ class FapiBase(object):
             style = Style.DIM
             reset = Style.RESET_ALL
         self.print_version()
-        print "\n".join([
-            '',
-            'Synopsis:', 
-            style +
-            '    monitor',
-            '    monitor NAME get desc|state',
-            '    node',
-            '    node NODENAME create|delete',
-            '    node NODENAME get detail|status|ratio',
-            '    node NODENAME set ratio RATIO',
-            '    pool',
-            '    pool NAME add member MEMBER:PORT',
-            '    pool NAME add monitor MONITOR',
-            '    pool NAME create [LIST,OF,POOL,MEMBERS:PORT]',
-            '    pool NAME delete',
-            '    pool NAME del member MEMBER:PORT',
-            '    pool NAME del monitors',
-            '    pool NAME get detail|lbmethod|members|monitor|status',
-            '    pool NAME set lbmethod LBMETHOD',
-            '    poolmember NAME MEMBER:PORT get ratio',
-            '    poolmember NAME MEMBER:PORT set ratio RATIO',
-            '    vip',
-            '    vip NAME create NETMASK',
-            '    vip NAME get arp|detail|status|tgroup',
-            '    vip NAME set arp enabled|disabled',
-            '    vip NAME set tgroup TGROUP',
-            '    vserver',
-            '    vserver NAME create [protocol] [profile] [poolname] [mask]',
-            '    vserver NAME delete',
-            '    vserver NAME get brief|detail|status|vlan|profile|rule',
-            '    vserver NAME set nat|pat disabled|enabled',
-            '    vserver NAME set pool POOLNAME',
-            '    vserver NAME set snat automap|none',
-            '    vserver NAME set vlan [list,of,vlans,to,allow]',
-            '    vserver NAME profile add PROFILENAME [PROFILECONTEXT]',
-            '    vserver NAME profile remove PROFILENAME',
-            '    vserver NAME rule add RULENAME [RULEPRIORITY]',
-            '    vserver NAME rule remove RULENAME',
-            '    profileclientssl',
-            '    profileclientssl PROFILENAME create [SSLKEYNAME] [SSLCERTNAME]',
-            '    profileclientssl PROFILENAME delete',
-            '    profileclientssl PROFILENAME get detail'
-            + reset, 
-            'The following partially needs admininstrator privileges on / and /Common', 
-            style +
-            '    -f Common -b balancer.example.com selfip',
-            '    -f Common -b balancer.example.com selfip NAME create NETMASK VLANNAME [TGROUP]',
-            '    -f Common -b balancer.example.com selfip NAME delete',
-            '    -f Common -b balancer.example.com selfip NAME get detail|tgroup',
-            '    -f Common -b balancer.example.com selfip NAME set tgroup TGROUP',
-            '    -f Common -b balancer.example.com vlan',
-            '    -f Common -b balancer.example.com vlan NAME create tagged VLANID internal|external|...',
-            '    -f Common -b balancer.example.com vlan NAME delete',
-            '    -f Common -b balancer.example.com vlan NAME get detail',
-            '    -f Common tgroup',
-            '    -f Common tgroup NAME add ha_order DEVICE ORDER',
-            '    -f Common tgroup NAME create',
-            '    -f Common tgroup NAME delete',
-            '    -f Common tgroup NAME get detail',
-            '    -f Common tgroup NAME get ha_order',
-            '    -f Common tgroup NAME remove all_ha_orders',
-            '    -f Common tgroup NAME remove ha_order DEVICE ORDER',
-            '    -f / folder',
-            '    -f / folder NAME create|delete',
-            '    -f / folder NAME get detail|dgroup|tgroup',
-            '    -f / folder NAME set dgroup|tgroup DGROUP|TGROUP'
-            + reset,
-            'Please consult the manpage for examples.',
-        ])
+
+        if not self._args.E:
+            print "\n".join([
+                '',
+                'Synopsis:', 
+                style +
+                '    monitor',
+                '    monitor NAME get desc|state',
+                '    node',
+                '    node NODENAME create|delete',
+                '    node NODENAME get detail|status|ratio',
+                '    node NODENAME set ratio RATIO',
+                '    pool',
+                '    pool NAME add member MEMBER:PORT',
+                '    pool NAME add monitor MONITOR',
+                '    pool NAME create [LIST,OF,POOL,MEMBERS:PORT]',
+                '    pool NAME delete',
+                '    pool NAME del member MEMBER:PORT',
+                '    pool NAME del monitors',
+                '    pool NAME get detail|lbmethod|members|monitor|status',
+                '    pool NAME set lbmethod LBMETHOD',
+                '    poolmember NAME MEMBER:PORT get ratio',
+                '    poolmember NAME MEMBER:PORT set ratio RATIO',
+                '    vip',
+                '    vip NAME create NETMASK',
+                '    vip NAME get arp|detail|status|tgroup',
+                '    vip NAME set arp enabled|disabled',
+                '    vip NAME set tgroup TGROUP',
+                '    vserver',
+                '    vserver NAME create [protocol] [profile] [poolname] [mask]',
+                '    vserver NAME delete',
+                '    vserver NAME get brief|detail|status|vlan|profile|rule',
+                '    vserver NAME set nat|pat disabled|enabled',
+                '    vserver NAME set pool POOLNAME',
+                '    vserver NAME set snat automap|none',
+                '    vserver NAME set vlan [list,of,vlans,to,allow]',
+                '    vserver NAME profile add PROFILENAME [PROFILECONTEXT]',
+                '    vserver NAME profile remove PROFILENAME',
+                '    vserver NAME rule add RULENAME [RULEPRIORITY]',
+                '    vserver NAME rule remove RULENAME',
+                '    profileclientssl',
+                '    profileclientssl PROFILENAME create [SSLKEYNAME] [SSLCERTNAME]',
+                '    profileclientssl PROFILENAME delete',
+                '    profileclientssl PROFILENAME get detail'
+                + reset,
+                'Please consult the manpage for examples.',
+                'Please run with -E for more (extended commands) synopsis!'
+                ])
+        else:
+            print "\n".join([
+                '',
+                'Extended synopsis.', 
+                'The following partially needs admininstrator privileges on / and /Common:', 
+                style +
+                '    -f Common -b balancer.example.com selfip',
+                '    -f Common -b balancer.example.com selfip NAME create NETMASK VLANNAME [TGROUP]',
+                '    -f Common -b balancer.example.com selfip NAME delete',
+                '    -f Common -b balancer.example.com selfip NAME get detail|tgroup',
+                '    -f Common -b balancer.example.com selfip NAME set tgroup TGROUP',
+                '    -f Common -b balancer.example.com vlan',
+                '    -f Common -b balancer.example.com vlan NAME create tagged VLANID internal|external|...',
+                '    -f Common -b balancer.example.com vlan NAME delete',
+                '    -f Common -b balancer.example.com vlan NAME get detail',
+                '    -f Common tgroup',
+                '    -f Common tgroup NAME add ha_order DEVICE ORDER',
+                '    -f Common tgroup NAME create',
+                '    -f Common tgroup NAME delete',
+                '    -f Common tgroup NAME get detail',
+                '    -f Common tgroup NAME get ha_order',
+                '    -f Common tgroup NAME remove all_ha_orders',
+                '    -f Common tgroup NAME remove ha_order DEVICE ORDER',
+                '    -f / folder',
+                '    -f / folder NAME create|delete',
+                '    -f / folder NAME get detail|dgroup|tgroup',
+                '    -f / folder NAME set dgroup|tgroup DGROUP|TGROUP'
+                + reset
+            ])
         if __interactive__: print '(To exit interactive shell use \'Ctrl+d\')'
 
 
@@ -147,6 +155,7 @@ class ArgumentParser(FapiBase):
         parser.add_argument('-b', action='store', 
                 help='Forces to use the secified loadbalancer (overwrites -e)')
         parser.add_argument('-d', action='store_true', help='Disable colorful output')
+        parser.add_argument('-E', action='store_true', help='Show extended synopsis')
         parser.add_argument('-e', action='store', help='Env to use, e.g. dev,qa,live',
             default='qa')
         parser.add_argument('-f', action='store', help='Overwrite partition/folder from fapi.conf')
