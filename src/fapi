@@ -295,6 +295,12 @@ class Fapi(FapiBase):
                 return lambda: detail(f5)
             if a.sub2 == 'status':
                 return lambda: f5().get_monitor_status([a.name])
+            if a.sub2 == 'ratio':
+                return lambda: f5().get_ratio([a.name])
+        if a.sub == 'set':
+            if a.sub2 == 'ratio':
+                ratio = a.sub3
+                return lambda: f5().set_ratio([a.name], [ratio])
         elif a.sub == 'create':
             fqdn_or_ip, ip, _ = self.lookup(a.name)
             return lambda: f5().create([fqdn_or_ip], [ip], [0])
