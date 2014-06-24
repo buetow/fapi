@@ -1,4 +1,4 @@
-usage: fapi [-a] [-b B] [-d] [-e E] [-f F] [-h] [-i] [-l] [-n] [-v] [-V]
+usage: fapi [-a] [-b B] [-d] [-E] [-e E] [-f F] [-h] [-i] [-l] [-n] [-v] [-V]
             [-C C]
             [what] [name] [sub] [sub2] [sub3] [sub4] [sub5]
 
@@ -15,6 +15,7 @@ optional arguments:
   -a    Disables auto port in vserver name
   -b B  Forces to use the secified loadbalancer (overwrites -e)
   -d    Disable colorful output
+  -E    Show extended synopsis
   -e E  Env to use, e.g. dev,qa,live
   -f F  Overwrite partition/folder from fapi.conf
   -h    Print this help
@@ -65,26 +66,5 @@ Synopsis:
     profileclientssl PROFILENAME create [SSLKEYNAME] [SSLCERTNAME]
     profileclientssl PROFILENAME delete
     profileclientssl PROFILENAME get detail[0m
-The following partially needs admininstrator privileges on / and /Common
-[2m    -f Common -b balancer.example.com selfip
-    -f Common -b balancer.example.com selfip NAME create NETMASK VLANNAME [TGROUP]
-    -f Common -b balancer.example.com selfip NAME delete
-    -f Common -b balancer.example.com selfip NAME get detail|tgroup
-    -f Common -b balancer.example.com selfip NAME set tgroup TGROUP
-    -f Common -b balancer.example.com vlan
-    -f Common -b balancer.example.com vlan NAME create tagged VLANID internal|external|...
-    -f Common -b balancer.example.com vlan NAME delete
-    -f Common -b balancer.example.com vlan NAME get detail
-    -f Common tgroup
-    -f Common tgroup NAME add ha_order DEVICE ORDER
-    -f Common tgroup NAME create
-    -f Common tgroup NAME delete
-    -f Common tgroup NAME get detail
-    -f Common tgroup NAME get ha_order
-    -f Common tgroup NAME remove all_ha_orders
-    -f Common tgroup NAME remove ha_order DEVICE ORDER
-    -f / folder
-    -f / folder NAME create|delete
-    -f / folder NAME get detail|dgroup|tgroup
-    -f / folder NAME set dgroup|tgroup DGROUP|TGROUP[0m
 Please consult the manpage for examples.
+Please run with -E for more (extended commands) synopsis!
