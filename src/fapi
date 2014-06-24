@@ -403,7 +403,6 @@ class Fapi(FapiBase):
                 _, ip, port = self.lookup(member)
                 ipport = { "address": ip, "port": port }
                 memberratio = { "member": ipport, "ratio": ratio }
-                return lambda: memberratio
                 return lambda: f5().set_ratio([a.name], [[memberratio]])
 
 

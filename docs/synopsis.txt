@@ -42,6 +42,8 @@ Synopsis:
     pool NAME del monitors
     pool NAME get detail|lbmethod|members|monitor|status
     pool NAME set lbmethod LBMETHOD
+    poolmember NAME MEMBER:PORT get ratio
+    poolmember NAME MEMBER:PORT set ratio RATIO
     vip
     vip NAME create NETMASK
     vip NAME get arp|detail|status|tgroup
