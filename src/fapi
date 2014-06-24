@@ -84,6 +84,8 @@ class FapiBase(object):
             '    pool NAME del monitors',
             '    pool NAME get detail|lbmethod|members|monitor|status',
             '    pool NAME set lbmethod LBMETHOD',
+            '    poolmember NAME MEMBER:PORT get ratio',
+            '    poolmember NAME MEMBER:PORT set ratio RATIO',
             '    vip',
             '    vip NAME create NETMASK',
             '    vip NAME get arp|detail|status|tgroup',
@@ -384,6 +386,26 @@ class Fapi(FapiBase):
             elif a.sub2 == 'monitors':
                 # Removes all monitor associations, not just one
                 return lambda: f5().remove_monitor_association([a.name])
+
+
+    def __do_poolmember(self, f5):
+        ''' Do stuff concerning poolmebers '''
+        a = self._args
+        member = a.sub
+        if not member:
+            return lambda: f5().get_ratio([a.name])
+        elif a.sub2 == 'get':
+            if a.sub3 == 'ratio':
+                return lambda: f5().get_ratio([a.name])
+        elif a.sub2 == 'set':
+            if a.sub3 == 'ratio':
+                ratio = a.sub4
+                _, ip, port = self.lookup(member)
+                ipport = { "address": ip, "port": port }
+                memberratio = { "member": ipport, "ratio": ratio }
+                return lambda: memberratio
+                return lambda: f5().set_ratio([a.name], [[memberratio]])
+
 
     def __do_vserver(self, f5):
         ''' Do stuff concerning virtual servers '''
@@ -771,6 +793,8 @@ class Fapi(FapiBase):
             return self.__do_monitor(lambda: self._f5.LocalLB.Monitor)
         elif a.what == 'pool':
             return self.__do_pool(lambda: self._f5.LocalLB.Pool)
+        elif a.what == 'poolmember':
+            return self.__do_poolmember(lambda: self._f5.LocalLB.PoolMember)
         elif a.what == 'vserver':
             return self.__do_vserver(lambda: self._f5.LocalLB.VirtualServer)
         elif a.what == 'vip':

@@ -31,7 +31,8 @@ Synopsis:
     monitor NAME get desc|state
     node
     node NODENAME create|delete
-    node NODENAME get detail|status
+    node NODENAME get detail|status|ratio
+    node NODENAME set ratio RATIO
     pool
     pool NAME add member MEMBER:PORT
     pool NAME add monitor MONITOR
