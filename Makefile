@@ -29,7 +29,7 @@ documentation:
 	pod2text ./docs/$(NAME).pod > ./docs/$(NAME).txt
 	cp ./docs/$(NAME).pod README.pod
 	./bin/fapi -d -h -n > ./docs/synopsis.txt
-	./bin/fapi -d -h -n -E  > ./docs/extended-synopsis.txt
+	./bin/fapi -d -n -E  > ./docs/extended-synopsis.txt || exit 0
 # Build a debian package 
 deb: all
 	dpkg-buildpackage # -us -uc

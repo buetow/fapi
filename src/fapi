@@ -156,7 +156,7 @@ class ArgumentParser(FapiBase):
                 help='Forces to use the secified loadbalancer (overwrites -e)')
         parser.add_argument('-d', action='store_true', help='Disable colorful output')
         parser.add_argument('-E', action='store_true', help='Show extended synopsis')
-        parser.add_argument('-e', action='store', help='Env to use, e.g. dev,qa,live',
+        parser.add_argument('-e', action='store', help='Environment to use, e.g. dev,qa,live',
             default='qa')
         parser.add_argument('-f', action='store', help='Overwrite partition/folder from fapi.conf')
         parser.add_argument('-h', action='store_true', help='Print this help')
