@@ -1,3 +1,9 @@
+fapi (0.9.4) stable; urgency=low
+
+  * Fix fapi.buetow.org HP (Synopsis text)
+
+ -- Paul Buetow <paul@buetow.org>  Wed, 25 Jun 2014 09:25:32 +0200
+
 fapi (0.9.3) stable; urgency=low
 
   * Fix the extended synopsis

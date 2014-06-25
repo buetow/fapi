@@ -29,7 +29,7 @@ optional arguments:
 
 Extended synopsis.
 The following partially needs admininstrator privileges on / and /Common:
-[2m    -f Common -b balancer.example.com selfip
+    -f Common -b balancer.example.com selfip
     -f Common -b balancer.example.com selfip NAME create NETMASK VLANNAME [TGROUP]
     -f Common -b balancer.example.com selfip NAME delete
     -f Common -b balancer.example.com selfip NAME get detail|tgroup
@@ -49,4 +49,4 @@ The following partially needs admininstrator privileges on / and /Common:
     -f / folder
     -f / folder NAME create|delete
     -f / folder NAME get detail|dgroup|tgroup
-    -f / folder NAME set dgroup|tgroup DGROUP|TGROUP[0m
+    -f / folder NAME set dgroup|tgroup DGROUP|TGROUP

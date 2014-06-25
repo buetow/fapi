@@ -28,8 +28,8 @@ documentation:
 		--center="User Commands" ./docs/$(NAME).pod > ./docs/$(NAME).1
 	pod2text ./docs/$(NAME).pod > ./docs/$(NAME).txt
 	cp ./docs/$(NAME).pod README.pod
-	./bin/fapi -h -n > ./docs/synopsis.txt
-	./bin/fapi -h -n -E  > ./docs/extended-synopsis.txt
+	./bin/fapi -d -h -n > ./docs/synopsis.txt
+	./bin/fapi -d -h -n -E  > ./docs/extended-synopsis.txt
 # Build a debian package 
 deb: all
 	dpkg-buildpackage # -us -uc

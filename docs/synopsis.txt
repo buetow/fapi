@@ -28,7 +28,7 @@ optional arguments:
 
 
 Synopsis:
-[2m    monitor
+    monitor
     monitor NAME get desc|state
     node
     node NODENAME create|delete
@@ -65,6 +65,6 @@ Synopsis:
     profileclientssl
     profileclientssl PROFILENAME create [SSLKEYNAME] [SSLCERTNAME]
     profileclientssl PROFILENAME delete
-    profileclientssl PROFILENAME get detail[0m
+    profileclientssl PROFILENAME get detail
 Please consult the manpage for examples.
 Please run with -E for more (extended commands) synopsis!
