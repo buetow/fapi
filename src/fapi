@@ -122,7 +122,7 @@ class FapiBase(object):
                 '    -f Common -b balancer.example.com selfip',
                 '    -f Common -b balancer.example.com selfip NAME create NETMASK VLANNAME [TGROUP]',
                 '    -f Common -b balancer.example.com selfip NAME delete',
-                '    -f Common -b balancer.example.com selfip NAME get detail|tgroup',
+                '    -f Common -b balancer.example.com selfip NAME get address|detail|tgroup',
                 '    -f Common -b balancer.example.com selfip NAME set tgroup TGROUP',
                 '    -f Common -b balancer.example.com vlan',
                 '    -f Common -b balancer.example.com vlan NAME create tagged VLANID internal|external|...',
