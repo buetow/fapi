@@ -429,7 +429,7 @@ class Fapi(FapiBase):
         else:
           fqdn_or_ip, ip, port = self.lookup(a.name)
         if a.a:
-            name = fqdn_or_ip 
+            name = a.name
         else:
             name = fqdn_or_ip + '_' + port
         if a.sub == 'get':
