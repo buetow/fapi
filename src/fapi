@@ -491,14 +491,17 @@ class Fapi(FapiBase):
                     if protocol == 'PROTOCOL_TCP':
                         port = str(destination['port'])
                         ip = destination['address'].split('/')[-1]
+                        if re.match('.*:.*', ip): ip = "'[" + ip + "]'"
                         ipport = ip + ':' + port 
-                        failtouch = ' || touch ' + ipport + '.failed'
                         headerdump = ' -D ' + ipport + '.header'
+                        redirect = ' >' + ipport + '.out' + ' 2>' + ipport + '.err'
+                        failtouch = ' || touch ' + ipport + '.failed'
+                        postcmd = ipport + redirect + failtouch 
                         m = re.match('.*43$', port)
                         if m:
-                            return 'curl -m 3' + headerdump + ' -k https://' + ipport + failtouch
+                            return 'curl -g -m 3' + headerdump + ' -k https://' + postcmd
                         else:
-                            return 'curl -m 3' + headerdump + ' http://' + ipport + failtouch
+                            return 'curl -g -m 3' + headerdump + ' http://' + postcmd
                     else:
                         return '# ' + protocol + ': Can only curl PROTOCOL_TCP. Address: ' + destination['address']
                 return lambda: curl(f5)
