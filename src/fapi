@@ -493,7 +493,7 @@ class Fapi(FapiBase):
                         ip = destination['address'].split('/')[-1]
                         filename = ip + ':' + port 
                         failtouch = ' || touch ' + filename + '.failed'
-                        headerdump = ' -D ' + filename + '.heaer'
+                        headerdump = ' -D ' + filename + '.header'
                         m = re.match('.*43$', port)
                         if m:
                             return 'curl -m 3' + headerdump + ' -k https://' + ip + failtouch
