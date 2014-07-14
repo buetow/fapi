@@ -502,7 +502,7 @@ class Fapi(FapiBase):
                         elif re.match('.*80$', port):
                             return 'curl -g -m 3' + headerdump + ' http://' + postcmd
                         else:
-                            return '# ' + port + ': Can only curl HTTP or HTTPs. Address: ' + ipport
+                            return '# Can only curl HTTP or HTTPs. Address: ' + ipport
                     else:
                         return '# ' + protocol + ': Can only curl PROTOCOL_TCP. Address: ' + destination['address']
                 return lambda: curl(f5)
