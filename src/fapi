@@ -491,14 +491,14 @@ class Fapi(FapiBase):
                         destination = f5().get_destination_v2([name])[0]
                         port = str(destination['port'])
                         ip = destination['address'].split('/')[-1]
-                        filename = ip + ':' + port 
-                        failtouch = ' || touch ' + filename + '.failed'
-                        headerdump = ' -D ' + filename + '.header'
+                        ipport = ip + ':' + port 
+                        failtouch = ' || touch ' + ipport + '.failed'
+                        headerdump = ' -D ' + ipport + '.header'
                         m = re.match('.*43$', port)
                         if m:
-                            return 'curl -m 3' + headerdump + ' -k https://' + ip + failtouch
+                            return 'curl -m 3' + headerdump + ' -k https://' + ipport + failtouch
                         else:
-                            return 'curl -m 3' + headerdump + ' http://' + ip + failtouch
+                            return 'curl -m 3' + headerdump + ' http://' + ipport + failtouch
                     else:
                         return protocol + ': Can only curl PROTOCOL_TCP'
                 return lambda: curl(f5)
