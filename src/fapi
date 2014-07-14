@@ -497,11 +497,12 @@ class Fapi(FapiBase):
                         redirect = ' >' + ipport + '.out' + ' 2>' + ipport + '.err'
                         failtouch = ' || touch ' + ipport + '.failed'
                         postcmd = ipport + redirect + failtouch 
-                        m = re.match('.*43$', port)
-                        if m:
+                        if re.match('.*43$', port):
                             return 'curl -g -m 3' + headerdump + ' -k https://' + postcmd
-                        else:
+                        elif re.match('.*80$', port):
                             return 'curl -g -m 3' + headerdump + ' http://' + postcmd
+                        else:
+                            return '# ' + port + ': Can only curl HTTP or HTTPs. Address: ' + destination['address']
                     else:
                         return '# ' + protocol + ': Can only curl PROTOCOL_TCP. Address: ' + destination['address']
                 return lambda: curl(f5)
