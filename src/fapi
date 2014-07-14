@@ -122,7 +122,7 @@ class FapiBase(object):
                 '    -f Common -b balancer.example.com selfip',
                 '    -f Common -b balancer.example.com selfip NAME create NETMASK VLANNAME [TGROUP]',
                 '    -f Common -b balancer.example.com selfip NAME delete',
-                '    -f Common -b balancer.example.com selfip NAME get detail|tgroup',
+                '    -f Common -b balancer.example.com selfip NAME get address|detail|tgroup',
                 '    -f Common -b balancer.example.com selfip NAME set tgroup TGROUP',
                 '    -f Common -b balancer.example.com vlan',
                 '    -f Common -b balancer.example.com vlan NAME create tagged VLANID internal|external|...',
@@ -420,17 +420,17 @@ class Fapi(FapiBase):
         a = self._args
         if not a.name:
             return lambda: f5().get_list()
-        # Check for Pattern like /partition/foo-bar.example.com_443
-        m = re.match('^(.*)_(\d+)$', a.name)
-        if m:
-          fqdn_or_ip = m.group(1)
-          port = m.group(2)
-          _, ip, _ = self.lookup(fqdn_or_ip)
-        else:
-          fqdn_or_ip, ip, port = self.lookup(a.name)
         if a.a:
-            name = fqdn_or_ip 
+            name = a.name
         else:
+            # Check for Pattern like /partition/foo-bar.example.com_443
+            m = re.match('^(.*)_(\d+)$', a.name)
+            if m:
+                fqdn_or_ip = m.group(1)
+                port = m.group(2)
+                _, ip, _ = self.lookup(fqdn_or_ip)
+            else:
+                fqdn_or_ip, ip, port = self.lookup(a.name)
             name = fqdn_or_ip + '_' + port
         if a.sub == 'get':
             if a.sub2 == 'detail':
