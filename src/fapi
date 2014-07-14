@@ -487,8 +487,8 @@ class Fapi(FapiBase):
             elif a.sub2 == 'curl':
                 def curl(f5):
                     protocol = f5().get_protocol([name])[0]
+                    destination = f5().get_destination_v2([name])[0]
                     if protocol == 'PROTOCOL_TCP':
-                        destination = f5().get_destination_v2([name])[0]
                         port = str(destination['port'])
                         ip = destination['address'].split('/')[-1]
                         ipport = ip + ':' + port 
@@ -500,7 +500,7 @@ class Fapi(FapiBase):
                         else:
                             return 'curl -m 3' + headerdump + ' http://' + ipport + failtouch
                     else:
-                        return '# ' + protocol + ': Can only curl PROTOCOL_TCP'
+                        return '# ' + protocol + ': Can only curl PROTOCOL_TCP. Address: ' + destination['address']
                 return lambda: curl(f5)
             elif a.sub2 == 'status':
                 return lambda: f5().get_object_status([name])
