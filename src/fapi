@@ -500,7 +500,7 @@ class Fapi(FapiBase):
                         else:
                             return 'curl -m 3' + headerdump + ' http://' + ipport + failtouch
                     else:
-                        return protocol + ': Can only curl PROTOCOL_TCP'
+                        return '# ' + protocol + ': Can only curl PROTOCOL_TCP'
                 return lambda: curl(f5)
             elif a.sub2 == 'status':
                 return lambda: f5().get_object_status([name])
