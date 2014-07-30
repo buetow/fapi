@@ -135,6 +135,7 @@ class FapiBase(object):
                 '    -f Common -b balancer.example.com hagroup NAME add trunk TRUNKNAME WEIGHT THRESHOLD',
                 '    -f Common -b balancer.example.com hagroup NAME remove trunk TRUNKNAME',
                 '    -f Common -b balancer.example.com hagroup NAME set trunk threshold TRUNKNAME THRESHOLD',
+                '    -f Common -b balancer.example.com tgroup NAME set hagroup HAGROUPNAME',
                 '    -f Common tgroup',
                 '    -f Common tgroup NAME add ha_order DEVICE ORDER',
                 '    -f Common tgroup NAME create',
@@ -851,6 +852,10 @@ class Fapi(FapiBase):
             elif a.sub2 == 'all_ha_orders':
                 orders = { 'device': a.sub3, 'order': a.sub4 }
                 return lambda: f5().remove_all_ha_orders([a.name])
+        elif a.sub == 'set':
+            if a.sub2 == 'ha_group':
+                ha_group = a.sub3
+                return lambda: f5().set_ha_group([a.name], [ha_group])
 
     def _lazy(self):
         ''' Get the lazy code block to be executed '''
