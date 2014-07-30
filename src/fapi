@@ -130,6 +130,8 @@ class FapiBase(object):
                 '    -f Common -b balancer.example.com vlan NAME create tagged VLANID internal|external|...',
                 '    -f Common -b balancer.example.com vlan NAME delete',
                 '    -f Common -b balancer.example.com vlan NAME get detail',
+                '    -f Common -b balancer.example.com hagroup',
+                '    -f Common -b balancer.example.com hagroup NAME create|delete',
                 '    -f Common tgroup',
                 '    -f Common tgroup NAME add ha_order DEVICE ORDER',
                 '    -f Common tgroup NAME create',
@@ -774,6 +776,24 @@ class Fapi(FapiBase):
             # Somehow does not work with bugsuds 1.0.0
             return lambda: f5().get_certificate_list_v2(0)
 
+    def __do_hagroup(self, f5):
+        ''' Do stuff concerning HA Groups'''
+        a = self._args
+        if not a.name:
+            return lambda: f5().get_list()
+        if a.sub == 'get':
+            if a.sub2 == 'detail':
+                def detail(f5):
+                    d = {}
+                    d['description'] = "Not yet implemented"
+                    return d
+                return lambda: detail(f5)
+        elif a.sub == 'create':
+            return lambda: f5().create([a.name])
+        elif a.sub == 'delete':
+            return lambda: f5().delete_high_availability_group([a.name])
+
+
     def __do_tgroup(self, f5):
         ''' Do stuff concerning TrafficGroups'''
         a = self._args
@@ -839,6 +859,8 @@ class Fapi(FapiBase):
             return self.__do_vlan(lambda: self._f5.Networking.VLAN)
         elif a.what == 'selfip':
             return self.__do_selfip(lambda: self._f5.Networking.SelfIPV2)
+        elif a.what == 'hagroup':
+            return self.__do_hagroup(lambda: self._f5.System.HAGroup)
         elif a.what == 'tgroup':
             return self.__do_tgroup(lambda: self._f5.Management.TrafficGroup)
         elif a.what == 'folder':
