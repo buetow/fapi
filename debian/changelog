@@ -1,3 +1,13 @@
+fapi (1.0.0) stable; urgency=low
+
+  * Add 'get curl' option to generate test commands to check wether a service
+  is available or not anymore.
+
+  * Add possibility to create, delete HA Groups, to assign them to traffic
+  groups and to add and remove LACP trunk members.
+
+ -- Paul Buetow <paul@buetow.org>  Wed, 30 Jul 2014 20:44:48 +0200
+
 fapi (0.9.5) stable; urgency=low
 
   * Fixes the -a argument, didn't really work

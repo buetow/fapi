@@ -10,6 +10,12 @@ The following partially needs admininstrator privileges on / and /Common:
     -f Common -b balancer.example.com vlan NAME create tagged VLANID internal|external|...
     -f Common -b balancer.example.com vlan NAME delete
     -f Common -b balancer.example.com vlan NAME get detail
+    -f Common -b balancer.example.com ha_group
+    -f Common -b balancer.example.com ha_group NAME create|delete
+    -f Common -b balancer.example.com ha_group NAME add trunk TRUNKNAME WEIGHT THRESHOLD
+    -f Common -b balancer.example.com ha_group NAME remove trunk TRUNKNAME
+    -f Common -b balancer.example.com ha_group NAME set trunk threshold TRUNKNAME THRESHOLD
+    -f Common -b balancer.example.com tgroup NAME set ha_group HAGROUPNAME
     -f Common tgroup
     -f Common tgroup NAME add ha_order DEVICE ORDER
     -f Common tgroup NAME create

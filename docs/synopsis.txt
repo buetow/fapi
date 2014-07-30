@@ -16,7 +16,7 @@ optional arguments:
   -b B  Forces to use the secified loadbalancer (overwrites -e)
   -d    Disable colorful output
   -E    Show extended synopsis
-  -e E  Env to use, e.g. dev,qa,live
+  -e E  Environment to use, e.g. dev,qa,live
   -f F  Overwrite partition/folder from fapi.conf
   -h    Print this help
   -i    Interactive shell
@@ -53,7 +53,7 @@ Synopsis:
     vserver
     vserver NAME create [protocol] [profile] [poolname] [mask]
     vserver NAME delete
-    vserver NAME get brief|detail|status|vlan|profile|rule
+    vserver NAME get brief|detail|status|vlan|persistence|profile|rule|curl
     vserver NAME set nat|pat disabled|enabled
     vserver NAME set pool POOLNAME
     vserver NAME set snat automap|none

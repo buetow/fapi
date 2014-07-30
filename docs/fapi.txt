@@ -17,10 +17,17 @@ ABOUT
     This is a simple command line client to do basic stuff with the iControl
     F5 API such as:
 
-      Managing Nodes
       Managing Monitors
+      Managing Nodes
       Managing Pools
       Managing Virtual Servers
+
+    And some extended usage:
+
+      Managing Folders
+      Managing Self IPs
+      Managing Traffic Groups
+      Managing VLANs
 
     This is a private programming project programmed in my spare time.
     Therefore I didn't bother to put it on a public website and github.
