@@ -132,6 +132,9 @@ class FapiBase(object):
                 '    -f Common -b balancer.example.com vlan NAME get detail',
                 '    -f Common -b balancer.example.com hagroup',
                 '    -f Common -b balancer.example.com hagroup NAME create|delete',
+                '    -f Common -b balancer.example.com hagroup NAME add trunk TRUNKNAME WEIGHT THRESHOLD',
+                '    -f Common -b balancer.example.com hagroup NAME remove trunk TRUNKNAME',
+                '    -f Common -b balancer.example.com hagroup NAME set trunk threshold TRUNKNAME THRESHOLD',
                 '    -f Common tgroup',
                 '    -f Common tgroup NAME add ha_order DEVICE ORDER',
                 '    -f Common tgroup NAME create',
@@ -792,6 +795,28 @@ class Fapi(FapiBase):
             return lambda: f5().create([a.name])
         elif a.sub == 'delete':
             return lambda: f5().delete_high_availability_group([a.name])
+        elif a.sub == 'add':
+            if a.sub2 == 'trunk':
+                trunk = a.sub3
+                weight = a.sub4
+                if a.sub5:
+                    threshold = a.sub5
+                else:
+                    threshold = 0
+                def addtrunk(f5):
+                    f5().add_trunk([a.name], [[trunk]], [[weight]])
+                    f5().set_trunk_attribute_threshold([a.name], [[trunk]], [[threshold]])
+                return lambda: addtrunk(f5)
+        elif a.sub == 'remove':
+            if a.sub2 == 'trunk':
+                trunk = a.sub3
+                return lambda: f5().remove_trunk([a.name], [[trunk]])
+        elif a.sub == 'set':
+            if a.sub2 == 'trunk':
+                if a.sub3 == 'threshold':
+                    trunk = a.sub4
+                    threshold = a.sub5
+                    return lambda: f5().set_trunk_attribute_threshold([a.name], [[trunk]], [[threshold]])
 
 
     def __do_tgroup(self, f5):
