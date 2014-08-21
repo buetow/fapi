@@ -95,6 +95,7 @@ class FapiBase(object):
                 '    vip NAME get arp|detail|status|tgroup',
                 '    vip NAME set arp enabled|disabled',
                 '    vip NAME set tgroup TGROUP',
+                '    vip NAME set vlan VLAN',
                 '    vserver',
                 '    vserver NAME create [protocol] [profile] [poolname] [mask]',
                 '    vserver NAME delete',
@@ -732,6 +733,9 @@ class Fapi(FapiBase):
             if a.sub2 == 'tgroup':
                 tgroup = a.sub3
                 return lambda: f5().set_traffic_group([a.name], [tgroup])
+            elif a.sub2 == 'vlan':
+                vlan = a.sub3
+                return lambda: f5().set_vlan([name], [vlan])
         elif a.sub == 'create':
             _, ip, _ = self.lookup(a.name)
             netmask = a.sub2
@@ -817,6 +821,7 @@ class Fapi(FapiBase):
                 if a.sub3 == 'threshold':
                     trunk = a.sub4
                     threshold = a.sub5
+                    print trunk
                     return lambda: f5().set_trunk_attribute_threshold([a.name], [[trunk]], [[threshold]])
 
 
