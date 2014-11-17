@@ -95,7 +95,6 @@ class FapiBase(object):
                 '    vip NAME get arp|detail|status|tgroup',
                 '    vip NAME set arp enabled|disabled',
                 '    vip NAME set tgroup TGROUP',
-                '    vip NAME set vlan VLAN',
                 '    vserver',
                 '    vserver NAME create [protocol] [profile] [poolname] [mask]',
                 '    vserver NAME delete',
@@ -127,6 +126,7 @@ class FapiBase(object):
                 '    -f Common -b balancer.example.com selfip NAME delete',
                 '    -f Common -b balancer.example.com selfip NAME get address|detail|tgroup',
                 '    -f Common -b balancer.example.com selfip NAME set tgroup TGROUP',
+                '    -f Common -b balancer.example.com selfip NAME set vlan VLAN',
                 '    -f Common -b balancer.example.com vlan',
                 '    -f Common -b balancer.example.com vlan NAME create tagged VLANID internal|external|...',
                 '    -f Common -b balancer.example.com vlan NAME delete',
@@ -735,7 +735,7 @@ class Fapi(FapiBase):
                 return lambda: f5().set_traffic_group([a.name], [tgroup])
             elif a.sub2 == 'vlan':
                 vlan = a.sub3
-                return lambda: f5().set_vlan([name], [vlan])
+                return lambda: f5().set_vlan([a.name], [vlan])
         elif a.sub == 'create':
             _, ip, _ = self.lookup(a.name)
             netmask = a.sub2
