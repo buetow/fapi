@@ -6,6 +6,7 @@ The following partially needs admininstrator privileges on / and /Common:
     -f Common -b balancer.example.com selfip NAME delete
     -f Common -b balancer.example.com selfip NAME get address|detail|tgroup
     -f Common -b balancer.example.com selfip NAME set tgroup TGROUP
+    -f Common -b balancer.example.com selfip NAME set vlan VLAN
     -f Common -b balancer.example.com vlan
     -f Common -b balancer.example.com vlan NAME create tagged VLANID internal|external|...
     -f Common -b balancer.example.com vlan NAME delete

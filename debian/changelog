@@ -1,3 +1,10 @@
+fapi (1.0.1) stable; urgency=low
+
+  * Some documentation fixes.
+  * Some other fixes as well.
+
+ -- Paul buetow <paul@buetow.org>  Mon, 17 Nov 2014 15:07:55 +0100
+
 fapi (1.0.0) stable; urgency=low
 
   * Add 'get curl' option to generate test commands to check wether a service
