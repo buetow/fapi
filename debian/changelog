@@ -1,3 +1,9 @@
+fapi (1.0.2) unitix-70; urgency=low
+
+  * Fix distribution
+
+ -- Paul Buetow <paul@buetow.org>  Mon, 17 Nov 2014 16:36:55 +0100
+
 fapi (1.0.1) stable; urgency=low
 
   * Some documentation fixes.
